@@ -77,6 +77,7 @@ interface Options {
   codexHome: string;
   orchestrator: string;
   reasoningEffort: string;
+  planReasoningEffort: string;
   force: boolean;
   positionals: string[];
 }
@@ -105,7 +106,8 @@ const STATE_FILE = ".codex-kit-state.json";
 const PROJECT_STATE_FILE = ".codex-kit-state.json";
 const REGISTRY = PACKAGE.publishConfig?.registry ?? "https://registry.npmjs.org";
 const DEFAULT_ORCHESTRATOR = "gpt-5.6-sol";
-const DEFAULT_REASONING_EFFORT = "high";
+const DEFAULT_REASONING_EFFORT = "medium";
+const DEFAULT_PLAN_REASONING_EFFORT = "high";
 
 const sha256 = (data: string | Buffer) => createHash("sha256").update(data).digest("hex");
 const read = (file: string): Buffer => readFileSync(file);
@@ -188,7 +190,6 @@ function installRoutingHooks(home: string, previous?: HooksState | null): HooksS
     timeout: 5,
   };
   const promptGroups = Array.isArray(hooks.UserPromptSubmit) ? hooks.UserPromptSubmit : [];
-  const toolGroups = Array.isArray(hooks.PreToolUse) ? hooks.PreToolUse : [];
   hooks.UserPromptSubmit = [
     ...promptGroups,
     { hooks: [{ ...handler, statusMessage: "Loading subagent routing" }] },
@@ -196,19 +197,7 @@ function installRoutingHooks(home: string, previous?: HooksState | null): HooksS
   const startGroups = Array.isArray(hooks.SubagentStart) ? hooks.SubagentStart : [];
   hooks.SubagentStart = [
     ...startGroups,
-    { hooks: [{ ...handler, statusMessage: "Opening delegated write lane" }] },
-  ];
-  const stopGroups = Array.isArray(hooks.SubagentStop) ? hooks.SubagentStop : [];
-  hooks.SubagentStop = [
-    ...stopGroups,
-    { hooks: [{ ...handler, statusMessage: "Closing delegated write lane" }] },
-  ];
-  hooks.PreToolUse = [
-    ...toolGroups,
-    {
-      matcher: "Bash|Edit|Write|MultiEdit|NotebookEdit|apply_patch|ApplyPatch|functions.apply_patch",
-      hooks: [{ ...handler, statusMessage: "Checking orchestrator routing" }],
-    },
+    { hooks: [{ ...handler, statusMessage: "Briefing delegated worker" }] },
   ];
   const updated = `${JSON.stringify(root, null, 2)}\n`;
   const original = existsSync(target) ? readText(target) : "";
@@ -514,7 +503,7 @@ function configureGlobal(options: Options): void {
   const desired: Record<ConfigKey, string> = {
     model: options.orchestrator,
     model_reasoning_effort: options.reasoningEffort,
-    plan_mode_reasoning_effort: options.reasoningEffort,
+    plan_mode_reasoning_effort: options.planReasoningEffort,
   };
   const priorState = loadState(home);
   const original = existsSync(configFile) ? readText(configFile) : "";
@@ -834,6 +823,7 @@ function parse(argv: string[]): Options {
     codexHome: resolve(process.env.CODEX_HOME || join(homedir(), ".codex")),
     orchestrator: DEFAULT_ORCHESTRATOR,
     reasoningEffort: DEFAULT_REASONING_EFFORT,
+    planReasoningEffort: DEFAULT_PLAN_REASONING_EFFORT,
     force: false,
     positionals: [],
   };
@@ -854,6 +844,10 @@ function parse(argv: string[]): Options {
       const value = argv[++index];
       if (!value) throw new Error(`${arg} requires a value.`);
       options.reasoningEffort = value;
+    } else if (arg === "--plan-reasoning-effort") {
+      const value = argv[++index];
+      if (!value) throw new Error(`${arg} requires a value.`);
+      options.planReasoningEffort = value;
     } else options.positionals.push(arg);
   }
   return options;
@@ -888,7 +882,8 @@ Options by command:
     --force                   Replace modified config managed by codex-kit.
     --orchestrator MODEL      Set the root/orchestrator model (default: gpt-5.6-sol).
     --model MODEL             Alias for --orchestrator.
-    --reasoning-effort LEVEL  Set normal and Plan-mode effort (default: high).
+    --reasoning-effort LEVEL       Set normal reasoning effort (default: medium).
+    --plan-reasoning-effort LEVEL  Set Plan-mode reasoning effort (default: high).
 
   global list, global uninstall
     --codex-home PATH  Use a Codex home other than CODEX_HOME or ~/.codex.
@@ -902,7 +897,7 @@ Options by command:
 
 Examples:
   codex-kit global install --force
-  codex-kit global configure --orchestrator gpt-5.6-sol --reasoning-effort high
+  codex-kit global configure --reasoning-effort medium --plan-reasoning-effort high
   codex-kit project sync --cwd /path/to/project --force
   codex-kit project status --cwd /path/to/project`);
 }

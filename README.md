@@ -34,23 +34,27 @@ handlers to the global `hooks.json` without replacing existing hooks.
 
 The Sol root plans, routes, coordinates, and validates. On every prompt, the
 routing hook supplies the current `SUBAGENT_ROUTING.md`; the root classifies the
-task and delegates to the exact matching role. The role's agent TOML—not the
-routing policy—selects its model and reasoning effort. Planning, conversation,
-status, and small read-only checks may stay on the root.
-
-The hook rejects direct root writes through Codex edit tools and obvious
-write-shaped shell commands. `SubagentStart` opens a 15-minute write allowance
-for that worker's `session_id + turn_id`; `SubagentStop` closes it. This identifies
-the delegated lane without hard-coding a model. Codex hooks do not intercept
-every possible indirect shell-write path, so this is a workflow guardrail rather
-than a security boundary.
+task and delegates substantive work to the exact matching role. The role's agent
+TOML—not the routing policy—selects its model and reasoning effort. To avoid
+subagent startup overhead, the root may directly handle planning, conversation,
+read-only checks, documentation, configuration bookkeeping, template
+reconciliation, and explicit low-risk one-file edits.
 
 `global configure` sets these defaults while preserving unrelated settings:
 
 ```toml
 model = "gpt-5.6-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 plan_mode_reasoning_effort = "high"
+```
+
+This keeps ordinary root work lighter while retaining high reasoning in Plan
+Mode. Override either effort independently when needed:
+
+```sh
+codex-kit global configure \
+  --reasoning-effort medium \
+  --plan-reasoning-effort high
 ```
 
 Before changing these keys, codex-kit creates a timestamped `config.toml`
@@ -208,5 +212,3 @@ redistribute the package beyond applicable law and npm's service terms.
 - [Codex custom subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents)
 - [Codex `AGENTS.md` discovery](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
 - [Codex hooks](https://learn.chatgpt.com/docs/hooks)
-- [Delegate Mode](https://github.com/Raylinkh/delegate-mode), whose short-lived
-  subagent allowance pattern informed codex-kit's write guard

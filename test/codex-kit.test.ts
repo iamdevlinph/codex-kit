@@ -84,7 +84,9 @@ test("help describes every command", () => {
   assert.match(help, /global install\n\s+--codex-home PATH[^\n]+\n\s+--force/);
   assert.match(help, /global list, global uninstall\n\s+--codex-home PATH/);
   assert.match(help, /project init, project sync\n\s+--cwd PATH[^\n]+\n\s+--force/);
-  assert.match(help, /codex-kit global configure --orchestrator gpt-5\.6-sol --reasoning-effort high/);
+  assert.match(help, /--reasoning-effort LEVEL\s+Set normal reasoning effort \(default: medium\)/);
+  assert.match(help, /--plan-reasoning-effort LEVEL\s+Set Plan-mode reasoning effort \(default: high\)/);
+  assert.match(help, /codex-kit global configure --reasoning-effort medium --plan-reasoning-effort high/);
   assert.match(help, /codex-kit project sync --cwd \/path\/to\/project --force/);
 });
 
@@ -114,14 +116,14 @@ test("global install and uninstall manage only package-owned files", () => {
     assert.match(globalAgents, /Existing global guidance/);
     assert.match(globalAgents, /BEGIN codex-kit:subagent-routing/);
     assert.match(globalAgents, /Route by role and task shape, never by a\s+model name/);
-    assert.match(globalAgents, /spawn that exact role\s+before performing the role's work/);
+    assert.match(globalAgents, /spawn that exact role\s+before performing\s+the role's work/);
     assert.match(globalAgents, /implementation agent performs its edits directly and must not\s+delegate them again/);
     const installedHooks = readFileSync(hooks, "utf8");
     assert.match(installedHooks, /existing-hook/);
     assert.match(installedHooks, /UserPromptSubmit/);
     assert.match(installedHooks, /SubagentStart/);
-    assert.match(installedHooks, /SubagentStop/);
-    assert.match(installedHooks, /PreToolUse/);
+    assert.doesNotMatch(installedHooks, /SubagentStop/);
+    assert.doesNotMatch(installedHooks, /PreToolUse/);
     assert.equal(readFileSync(config, "utf8"), 'model = "gpt-5.6-sol"\n');
     assert.ok(existsSync(join(home, "codex-kit", "routing-hook.js")));
 
@@ -139,7 +141,7 @@ test("global install and uninstall manage only package-owned files", () => {
   }
 });
 
-test("routing hook injects policy, blocks root writes, and allows active subagents", () => {
+test("routing hook injects balanced policy and briefs subagents", () => {
   const root = mkdtempSync(join(tmpdir(), "codex-kit-routing-hook-"));
   const home = join(root, ".codex");
   try {
@@ -157,16 +159,11 @@ test("routing hook injects policy, blocks root writes, and allows active subagen
     assert.match(promptOutput, /code-reviewer/);
     assert.match(promptOutput, /Agent definitions, not this policy, determine each role's model/);
 
-    const denied = JSON.parse(runRoutingHook(home, {
+    assert.equal(runRoutingHook(home, {
       hook_event_name: "PreToolUse",
-      model: "gpt-5.6-sol",
-      session_id: "root-session",
-      turn_id: "root-turn",
       tool_name: "apply_patch",
       tool_input: { command: "*** Begin Patch" },
-    })) as { hookSpecificOutput: { permissionDecision: string; permissionDecisionReason: string } };
-    assert.equal(denied.hookSpecificOutput.permissionDecision, "deny");
-    assert.match(denied.hookSpecificOutput.permissionDecisionReason, /exact role selected there/);
+    }), "");
 
     const started = JSON.parse(runRoutingHook(home, {
       hook_event_name: "SubagentStart",
@@ -175,48 +172,7 @@ test("routing hook injects policy, blocks root writes, and allows active subagen
       agent_id: "worker-1",
       agent_type: "quick-implementer",
     })) as { hookSpecificOutput: { additionalContext: string } };
-    assert.match(started.hookSpecificOutput.additionalContext, /temporary write lane is active/);
     assert.match(started.hookSpecificOutput.additionalContext, /without further delegation/);
-
-    assert.equal(runRoutingHook(home, {
-      hook_event_name: "PreToolUse",
-      session_id: "worker-session",
-      turn_id: "worker-turn",
-      tool_name: "apply_patch",
-      tool_input: { command: "*** Begin Patch" },
-    }), "");
-
-    assert.equal(runRoutingHook(home, {
-      hook_event_name: "PreToolUse",
-      session_id: "root-session",
-      turn_id: "root-turn",
-      tool_name: "Bash",
-      tool_input: { command: "ls -la" },
-    }), "");
-    const bashDenied = JSON.parse(runRoutingHook(home, {
-      hook_event_name: "PreToolUse",
-      session_id: "root-session",
-      turn_id: "root-turn",
-      tool_name: "Bash",
-      tool_input: { command: "printf hi > README.md" },
-    })) as { hookSpecificOutput: { permissionDecision: string } };
-    assert.equal(bashDenied.hookSpecificOutput.permissionDecision, "deny");
-
-    runRoutingHook(home, {
-      hook_event_name: "SubagentStop",
-      session_id: "worker-session",
-      turn_id: "worker-turn",
-      agent_id: "worker-1",
-      agent_type: "quick-implementer",
-    });
-    const stopped = JSON.parse(runRoutingHook(home, {
-      hook_event_name: "PreToolUse",
-      session_id: "worker-session",
-      turn_id: "worker-turn",
-      tool_name: "apply_patch",
-      tool_input: { command: "*** Begin Patch" },
-    })) as { hookSpecificOutput: { permissionDecision: string } };
-    assert.equal(stopped.hookSpecificOutput.permissionDecision, "deny");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -233,10 +189,18 @@ test("global configure sets the Sol orchestrator without replacing unrelated con
     run(["global", "configure", "--codex-home", home]);
     const configured = readFileSync(config, "utf8");
     assert.match(configured, /model = "gpt-5.6-sol"/);
-    assert.match(configured, /model_reasoning_effort = "high"/);
+    assert.match(configured, /model_reasoning_effort = "medium"/);
     assert.match(configured, /plan_mode_reasoning_effort = "high"/);
     assert.match(configured, /service_tier = "default"/);
     assert.match(configured, /trust_level = "trusted"/);
+
+    run([
+      "global", "configure", "--codex-home", home, "--force",
+      "--reasoning-effort", "low", "--plan-reasoning-effort", "medium",
+    ]);
+    const customized = readFileSync(config, "utf8");
+    assert.match(customized, /model_reasoning_effort = "low"/);
+    assert.match(customized, /plan_mode_reasoning_effort = "medium"/);
 
     run(["global", "uninstall", "--codex-home", home]);
     assert.equal(readFileSync(config, "utf8"), original);
@@ -253,7 +217,7 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
     run(["global", "configure", "--codex-home", home]);
     const result = run(["global", "list", "--codex-home", home]);
     assert.match(result.stdout, /Orchestrator: gpt-5\.6-sol/);
-    assert.match(result.stdout, /Reasoning effort: high/);
+    assert.match(result.stdout, /Reasoning effort: medium/);
     assert.match(result.stdout, /Plan mode reasoning effort: high/);
     assert.match(result.stdout, /Global routing: installed/);
     assert.match(result.stdout, /Routing hook: installed/);
