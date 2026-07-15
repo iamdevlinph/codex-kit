@@ -1,0 +1,29 @@
+{
+  "name": "@iamdevlinph/codex-kit",
+  "version": "0.1.0",
+  "description": "Portable private Codex subagents and project AGENTS.md defaults.",
+  "type": "module",
+  "bin": {
+    "codex-kit": "bin/codex-kit.mjs"
+  },
+  "files": [
+    "assets",
+    "bin"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "pack:check": "npm pack --dry-run"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamdevlinph/codex-kit.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
+  "license": "UNLICENSED"
+}
