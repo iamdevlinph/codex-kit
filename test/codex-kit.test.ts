@@ -169,11 +169,17 @@ test("publishing targets public npm through trusted publishing", () => {
 });
 
 test("version check reports an available public package update", () => {
+  const { version } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")) as {
+    version: string;
+  };
+  const major = Number.parseInt(version, 10);
+  assert.ok(Number.isSafeInteger(major));
+  const latestVersion = `${major + 1}.0.0`;
   const result = run(["version", "check"], {
-    env: { CODEX_KIT_LATEST_VERSION: "0.2.0" },
+    env: { CODEX_KIT_LATEST_VERSION: latestVersion },
   });
-  assert.match(result.stdout, /Installed:\s+0\.1\.0/);
-  assert.match(result.stdout, /Latest:\s+0\.2\.0/);
+  assert.ok(result.stdout.includes(`Installed: ${version}\n`));
+  assert.ok(result.stdout.includes(`Latest:    ${latestVersion}\n`));
   assert.match(result.stdout, /Update available/);
   assert.match(result.stdout, /pnpm add --global @iamdevlinph\/codex-kit@latest/);
 });

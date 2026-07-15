@@ -87,7 +87,7 @@ to reuse or redistribute its published contents.
 ## First npm publication
 
 The npm package must exist before npm can attach a Trusted Publisher. Publish
-`0.1.0` once from a device:
+the initial version once from a device:
 
 1. Create the npm account that owns the `@iamdevlinph` scope and enable 2FA.
 2. Authenticate through the browser—no manually generated token is needed.
