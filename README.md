@@ -32,7 +32,12 @@ maintains a marked routing section in the global `AGENTS.md`.
 ```toml
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
+plan_mode_reasoning_effort = "high"
 ```
+
+Before changing these keys, codex-kit creates a timestamped `config.toml`
+backup and records their previous values. `global uninstall` restores those
+values without replacing unrelated configuration changed afterward.
 
 Use a different Codex home when needed:
 
@@ -49,8 +54,9 @@ Inspect the installed setup:
 pnpm dlx @iamdevlinph/codex-kit@latest global list
 ```
 
-The summary shows the Codex home, orchestrator, reasoning effort, routing
-status, and installed custom agents without dumping unrelated configuration.
+The summary shows the Codex home, orchestrator, normal and Plan-mode reasoning
+effort, routing status, and installed custom agents without dumping unrelated
+configuration.
 
 Uninstall package-managed global files:
 

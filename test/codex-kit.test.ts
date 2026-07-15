@@ -90,12 +90,13 @@ test("global configure sets the Sol orchestrator without replacing unrelated con
   try {
     mkdirSync(home);
     const config = join(home, "config.toml");
-    const original = 'model = "gpt-5.6-luna"\nservice_tier = "default"\n\n[projects."/tmp/example"]\ntrust_level = "trusted"\n';
+    const original = 'model = "gpt-5.6-luna"\nplan_mode_reasoning_effort = "low"\nservice_tier = "default"\n\n[projects."/tmp/example"]\ntrust_level = "trusted"\n';
     writeFileSync(config, original);
     run(["global", "configure", "--codex-home", home]);
     const configured = readFileSync(config, "utf8");
     assert.match(configured, /model = "gpt-5.6-sol"/);
     assert.match(configured, /model_reasoning_effort = "high"/);
+    assert.match(configured, /plan_mode_reasoning_effort = "high"/);
     assert.match(configured, /service_tier = "default"/);
     assert.match(configured, /trust_level = "trusted"/);
 
@@ -115,6 +116,7 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
     const result = run(["global", "list", "--codex-home", home]);
     assert.match(result.stdout, /Orchestrator: gpt-5\.6-sol/);
     assert.match(result.stdout, /Reasoning effort: high/);
+    assert.match(result.stdout, /Plan mode reasoning effort: high/);
     assert.match(result.stdout, /Global routing: installed/);
     assert.match(result.stdout, /code-explorer — gpt-5\.6-luna, medium \(managed\)/);
     assert.match(result.stdout, /code-reviewer — gpt-5\.6-sol, high \(managed\)/);

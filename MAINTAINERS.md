@@ -147,6 +147,11 @@ regardless of their exact stack or file layout.
 
 ## Update devices and downstream projects
 
+`global configure` manages only the top-level `model`,
+`model_reasoning_effort`, and `plan_mode_reasoning_effort` keys. It backs up
+`config.toml` and stores the original managed values in installer state so
+`global uninstall` can restore them without rolling back unrelated later edits.
+
 Refresh global assets once per device when agent or routing files change:
 
 ```sh

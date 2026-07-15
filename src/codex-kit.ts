@@ -18,7 +18,7 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-type ConfigKey = "model" | "model_reasoning_effort";
+type ConfigKey = "model" | "model_reasoning_effort" | "plan_mode_reasoning_effort";
 type Ownership = "created" | "preexisting" | "replaced";
 
 interface PackageJson {
@@ -149,7 +149,7 @@ function topLevelConfigEntries(contents: string): Map<ConfigKey, ConfigEntry> {
       continue;
     }
     if (inTable) continue;
-    const match = /^(\s*)(model|model_reasoning_effort)\s*=\s*(.*?)\s*$/.exec(line);
+    const match = /^(\s*)(model|model_reasoning_effort|plan_mode_reasoning_effort)\s*=\s*(.*?)\s*$/.exec(line);
     const key = match?.[2] as ConfigKey | undefined;
     const value = match?.[3];
     if (key && value !== undefined && !entries.has(key)) entries.set(key, { value, line });
@@ -175,7 +175,7 @@ function setTopLevelConfig(contents: string, desired: Record<ConfigKey, string>)
   for (let index = 0; index < firstTable; index++) {
     const line = lines[index];
     if (line === undefined) continue;
-    const match = /^(\s*)(model|model_reasoning_effort)\s*=\s*(.*?)\s*$/.exec(line);
+    const match = /^(\s*)(model|model_reasoning_effort|plan_mode_reasoning_effort)\s*=\s*(.*?)\s*$/.exec(line);
     const key = match?.[2] as ConfigKey | undefined;
     if (!match || !key || seen.has(key)) continue;
     lines[index] = `${match[1]}${key} = ${tomlString(desired[key])}`;
@@ -204,7 +204,7 @@ function restoreTopLevelConfig(contents: string, config: ConfigState): string {
   for (let index = 0; index < firstTable; index++) {
     const line = lines[index];
     if (line === undefined) continue;
-    const match = /^(\s*)(model|model_reasoning_effort)\s*=\s*(.*?)\s*$/.exec(line);
+    const match = /^(\s*)(model|model_reasoning_effort|plan_mode_reasoning_effort)\s*=\s*(.*?)\s*$/.exec(line);
     const key = match?.[2] as ConfigKey | undefined;
     if (!match || !key || restored.has(key)) continue;
     if (match[3] !== tomlString(desired[key])) continue;
@@ -391,6 +391,7 @@ function configureGlobal(options: Options): void {
   const desired: Record<ConfigKey, string> = {
     model: options.orchestrator,
     model_reasoning_effort: options.reasoningEffort,
+    plan_mode_reasoning_effort: options.reasoningEffort,
   };
   const priorState = loadState(home);
   const original = existsSync(configFile) ? readText(configFile) : "";
@@ -432,6 +433,7 @@ function configureGlobal(options: Options): void {
   saveState(home, priorState);
   console.log(`Orchestrator: ${desired.model}`);
   console.log(`Reasoning effort: ${desired.model_reasoning_effort}`);
+  console.log(`Plan mode reasoning effort: ${desired.plan_mode_reasoning_effort}`);
 }
 
 function listGlobal(options: Options): void {
@@ -458,6 +460,7 @@ function listGlobal(options: Options): void {
   console.log(`Config: ${configFile}${existsSync(configFile) ? "" : " (missing)"}`);
   console.log(`Orchestrator: ${value("model")}`);
   console.log(`Reasoning effort: ${value("model_reasoning_effort")}`);
+  console.log(`Plan mode reasoning effort: ${value("plan_mode_reasoning_effort")}`);
   console.log(`Kit state: ${existsSync(stateFile) ? state.version : "not installed"}`);
   const hasRoutingBlock = existsSync(globalAgents) && readText(globalAgents).includes(GLOBAL_BEGIN);
   console.log(`Global routing: ${hasRoutingBlock ? "installed" : "not installed"}`);
@@ -737,8 +740,8 @@ Usage:
   codex-kit --help
   codex-kit --version
 
-Global configure defaults to gpt-5.6-sol with high reasoning and edits only
-the top-level model settings in CODEX_HOME/config.toml.
+Global configure defaults to gpt-5.6-sol with high normal and Plan-mode reasoning
+and edits only those top-level model settings in CODEX_HOME/config.toml.
 Global install manages custom agents and a marked routing block under CODEX_HOME.
 Project sync refreshes TEMPLATE_AGENTS.md and never merges it into AGENTS.md.`);
 }
