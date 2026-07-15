@@ -1,241 +1,98 @@
 # `@iamdevlinph/codex-kit`
 
-Public, portable Codex setup for new devices and multiple projects. It packages:
+Portable Codex setup for new devices and multiple projects. It provides:
 
 - four custom subagents: explorer, quick implementer, implementer, and reviewer
-- global subagent-routing guidance with no `commit-pusher`
-- the reusable `AGENTS.md` template previously kept in the secret Gist
-- a safe CLI for global installation, template synchronization, and reconciliation tracking
+- global subagent-routing guidance without a `commit-pusher`
+- a reusable, stack-neutral `AGENTS.md` template
+- safe commands for global setup, project synchronization, and reconciliation
 
-The package does not contain credentials. `global install` does not edit
-`config.toml`; the separate `global configure` command changes only the model
-settings when explicitly requested.
-Current Codex releases enable subagents by default.
+The package contains no credentials. Global installation does not modify the
+Codex model configuration; configuration is a separate, explicit command.
 
-The CLI and tests are written in strict TypeScript. The repository pins pnpm
-`11.5.2`, TypeScript `7.0.1-rc`, and Node.js type definitions for Node 20. Source
-lives in `src/`; `pnpm run typecheck` invokes the pinned compiler through
-`pnpm exec tsc`, and `pnpm run build` generates the untracked executable in
-`bin/`. The `prepack` lifecycle rebuilds it before every package publication.
+## Install on a device
 
-## Development setup
-
-After cloning or extracting the repository, install the pinned development
-dependencies before opening individual TypeScript files:
+No npm or GitHub login is required:
 
 ```sh
-corepack enable
-pnpm install --frozen-lockfile
-pnpm exec tsc --version
-pnpm run typecheck
+pnpm dlx @iamdevlinph/codex-kit@latest global install
+pnpm dlx @iamdevlinph/codex-kit@latest global configure
 ```
 
-The compiler version must report `7.0.1-rc`. Open the repository root in the
-editor so it discovers `tsconfig.json`; if the editor was already open before
-installation, restart its TypeScript server.
+`global install` copies reusable agents to `${CODEX_HOME:-~/.codex}` and
+maintains a marked routing section in the global `AGENTS.md`.
 
-## Core workflow
-
-| Action | Command | Result |
-| --- | --- | --- |
-| Install globally | `codex-kit global install` | Installs reusable agents and routing under `~/.codex` |
-| Configure orchestrator | `codex-kit global configure` | Sets `gpt-5.6-sol` with high reasoning in `config.toml` |
-| Inspect global setup | `codex-kit global list` | Shows model, reasoning, routing, agents, and kit ownership |
-| Apply to a project | `codex-kit project init` | Creates a local `TEMPLATE_AGENTS.md` reference and project `AGENTS.md` |
-| Get template updates | `codex-kit project sync` | Refreshes the local template reference without editing `AGENTS.md` |
-| Check reconciliation | `codex-kit project status` | Reports whether the latest template still needs review |
-| Record reconciliation | `codex-kit project mark-applied` | Records the template hash after Codex merges applicable rules |
-| Check for a release | `codex-kit version check` | Compares the installed CLI with the public npm registry |
-
-## Why two installation scopes
-
-`global install` copies reusable agent definitions to `${CODEX_HOME:-~/.codex}`
-and maintains a marked routing section in the global `AGENTS.md`.
-
-`global configure` is explicit and opt-in because it edits `config.toml`. With
-no options it sets the orchestrator to `gpt-5.6-sol` and
-`model_reasoning_effort = "high"`, preserving unrelated settings. It creates a
-backup and records the previous model settings so `global uninstall` can restore
-them if they were not changed afterward.
-
-`project init` creates a project-specific `AGENTS.md` and a local
-`TEMPLATE_AGENTS.md` reference. The reference is not automatically active
-Codex instruction; Codex reviews it and selectively merges applicable rules
-into `AGENTS.md`.
-
-`project sync` refreshes the reference and records the available template hash.
-It never edits or replaces `AGENTS.md`. If the local template was independently
-modified, it preserves that change and asks you to review it before syncing.
-
-## Create the private repository
-
-Create a private GitHub repository named `iamdevlinph/codex-kit`, copy this
-directory into it, then commit and push it. Keep the package name and GitHub
-namespace lowercase.
-
-Repository and package visibility are independent: the GitHub repository stays
-private, while the public npm package can be installed without authentication.
-Everything included in the published package remains publicly downloadable. The
-repository URL is also visible in npm metadata because Trusted Publishing
-requires `package.json#repository.url` to match the GitHub repository exactly.
-
-npm Trusted Publishing supports private repositories, but npm does not generate
-provenance attestations for packages published from them. The package remains
-`UNLICENSED`; choose a license separately if you want to grant others permission
-to reuse or redistribute its published contents.
-
-## First npm publication
-
-The npm package must exist before npm can attach a Trusted Publisher. Publish
-the initial version once from a device:
-
-1. Create the npm account that owns the `@iamdevlinph` scope and enable 2FA.
-2. Authenticate through the browser—no manually generated token is needed.
-3. From the repository root, run the verification and first publication.
-
-```sh
-npm login --auth-type=web
-pnpm run typecheck
-pnpm test
-pnpm run pack:check
-pnpm publish --access public --no-git-checks
-```
-
-Then open the package on npmjs.com and configure **Settings → Trusted
-Publisher**:
-
-- provider: GitHub Actions
-- organization or user: `iamdevlinph`
-- repository: `codex-kit`
-- workflow filename: `publish.yml`
-- allowed action: `npm publish`
-
-Leave the environment blank unless the workflow later uses a GitHub environment.
-
-## Automated releases
-
-> **No publishing token or repository secret is required.** npm Trusted
-> Publishing authenticates the GitHub Actions workflow through short-lived OIDC
-> credentials. Do not add `NPM_TOKEN`, `NODE_AUTH_TOKEN`, or a package PAT.
-
-The workflow publishes whenever a version tag matching `package.json` is pushed:
-
-```sh
-pnpm version patch
-git push origin main --follow-tags
-```
-
-The workflow uses Node 24, npm `11.5.1`, pnpm `11.5.2`, the frozen lockfile,
-strict type checking, and tests before `npm publish`. The `id-token: write`
-permission is required for OIDC. The package must already have the matching
-Trusted Publisher configuration on npmjs.com.
-
-## Configure the orchestrator
-
-After installing the kit on a device, run:
-
-```sh
-codex-kit global configure
-```
-
-This applies the defaults:
+`global configure` sets these defaults while preserving unrelated settings:
 
 ```toml
 model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 ```
 
-Override them explicitly when needed:
-
-```sh
-codex-kit global configure \
-  --orchestrator gpt-5.6-luna \
-  --reasoning-effort medium
-```
-
-The command edits only top-level `model` and `model_reasoning_effort` entries in
-`${CODEX_HOME:-~/.codex}/config.toml`; it leaves project trust, plugins, MCP
-servers, and other settings untouched.
-
-Inspect the active global setup:
-
-```sh
-codex-kit global list
-```
-
-The summary shows the Codex home, config path, orchestrator, reasoning effort,
-global routing status, and every installed custom agent with its model and
-whether codex-kit manages it. It does not dump unrelated configuration values or
-potential secrets.
-
-## Check for a new version
-
-```sh
-codex-kit version check
-```
-
-The command checks the public npm registry without authentication and reports
-the installed and latest versions. When an update exists, it prints:
-
-```sh
-pnpm add --global @iamdevlinph/codex-kit@latest
-codex-kit global install
-```
-
-The check is explicit rather than automatic, so normal project commands do not
-add network latency or fail when the registry is temporarily unavailable.
-
-## Install on a new device
-
-The package is public; no npm or GitHub login is required.
-
-If a device previously used the GitHub Packages version, remove the
-`@iamdevlinph:registry=https://npm.pkg.github.com` mapping and its GitHub Packages
-auth-token line from the user-level `~/.npmrc` after confirming no other package
-needs them. Otherwise pnpm may keep routing this scope to the old registry.
-
-```sh
-pnpm dlx @iamdevlinph/codex-kit global install
-pnpm dlx @iamdevlinph/codex-kit global configure
-```
-
 Use a different Codex home when needed:
 
 ```sh
-pnpm dlx @iamdevlinph/codex-kit global install --codex-home /path/to/.codex
-pnpm dlx @iamdevlinph/codex-kit global configure --codex-home /path/to/.codex
+pnpm dlx @iamdevlinph/codex-kit@latest global install \
+  --codex-home /path/to/.codex
+pnpm dlx @iamdevlinph/codex-kit@latest global configure \
+  --codex-home /path/to/.codex
 ```
 
-The installer backs up replaced files, preserves modified managed files unless
-`--force` is supplied, records ownership in `.codex-kit-state.json`, and can be
-reversed:
+Inspect the installed setup:
 
 ```sh
-pnpm dlx @iamdevlinph/codex-kit global uninstall
+pnpm dlx @iamdevlinph/codex-kit@latest global list
 ```
 
-An existing unmanaged `~/.codex/agents/commit-pusher.toml` is never deleted
-silently. The installer warns if it finds one; remove it manually after checking
-that no other setup owns it.
+The summary shows the Codex home, orchestrator, reasoning effort, routing
+status, and installed custom agents without dumping unrelated configuration.
+
+Uninstall package-managed global files:
+
+```sh
+pnpm dlx @iamdevlinph/codex-kit@latest global uninstall
+```
+
+Modified managed files are preserved unless `--force` is supplied. An existing
+unmanaged `commit-pusher.toml` is reported but never silently deleted.
+
+## Commands
+
+| Action | Command |
+| --- | --- |
+| Install global agents and routing | `codex-kit global install` |
+| Configure the orchestrator | `codex-kit global configure` |
+| Inspect global configuration | `codex-kit global list` |
+| Remove package-managed global files | `codex-kit global uninstall` |
+| Initialize project guidance | `codex-kit project init` |
+| Refresh the project template reference | `codex-kit project sync` |
+| Check template reconciliation | `codex-kit project status` |
+| Record completed reconciliation | `codex-kit project mark-applied` |
+| Check for a package update | `codex-kit version check` |
 
 ## Apply to a project
 
-For a new project without `AGENTS.md`:
+For a project without `AGENTS.md`:
 
 ```sh
 cd /path/to/project
-pnpm dlx @iamdevlinph/codex-kit project init
+pnpm dlx @iamdevlinph/codex-kit@latest project init
 ```
 
-Add repository-specific rules only below `# Project-Specific Instructions`.
-The generated `TEMPLATE_AGENTS.md` is a reference file; it is not automatically
-merged into `AGENTS.md`.
+This creates:
 
-### Generate stack-specific project instructions
+- `AGENTS.md`, containing the reusable defaults and a project-specific section
+- `TEMPLATE_AGENTS.md`, a local reference copy used for future comparisons
+- `.codex-kit-state.json`, reconciliation bookkeeping
 
-The shared template intentionally avoids stack assumptions. For an existing
-project, run this prompt after `project init`. For a new project, scaffold the
-initial stack first, then use the same prompt:
+The template reference is not an active Codex instruction file. Add repository
+commands, paths, architecture, integrations, and exceptions to the
+project-specific section of `AGENTS.md`.
+
+### Generate project-specific guidance
+
+For an existing project, use this prompt after initialization. For a new
+project, scaffold the initial stack first.
 
 ```txt
 Explore this repository before changing code. Identify its languages,
@@ -250,110 +107,33 @@ managed shared-template block, avoid speculative preferences, and do not add
 rules for tools the repository does not use.
 ```
 
-After publishing template changes:
+## Synchronize template updates
+
+Refresh a project's local template reference:
 
 ```sh
 pnpm dlx @iamdevlinph/codex-kit@latest project sync
 codex-kit project status
 ```
 
-Then ask Codex to compare `TEMPLATE_AGENTS.md` with `AGENTS.md` and merge only
-the reusable rules that apply to the repository. After reviewing the result,
-run:
+`project sync` never edits `AGENTS.md`. It prints a prompt asking Codex to merge
+only applicable reusable changes while preserving local adaptations. After
+reviewing the semantic merge, record the applied template hash:
 
 ```sh
 codex-kit project mark-applied
 ```
 
-The prompt printed by `project sync` is:
+`mark-applied` updates only `.codex-kit-state.json`; it does not validate or
+modify `AGENTS.md`.
 
-```text
-The project's TEMPLATE_AGENTS.md was refreshed from codex-kit. Compare it with
-AGENTS.md and merge only new or changed reusable guidelines that apply to this
-repository. Preserve project-specific instructions and existing adaptations.
-Do not replace AGENTS.md wholesale. If a template rule conflicts with a local
-rule, keep the local rule and report the conflict. Summarize what was added,
-updated, skipped, or adapted, and why. When finished, run codex-kit project
-mark-applied.
-```
+If `TEMPLATE_AGENTS.md` was modified locally, synchronization preserves it and
+asks for review instead of overwriting it. Use `--force` only after intentionally
+discarding the local candidate changes.
 
-For frequent multi-project updates, install the CLI once and reuse it:
+### Synchronize multiple projects
 
-```sh
-pnpm add --global @iamdevlinph/codex-kit
-codex-kit global install
-codex-kit project sync --cwd /path/to/project-a
-codex-kit project sync --cwd /path/to/project-b
-```
-
-## Propagate shared changes downstream
-
-Choose the narrowest scope that fits the rule:
-
-| Change | Source of truth | Propagation |
-| --- | --- | --- |
-| Personal behavior for every repository | Global routing or agent assets | Run `global install` on each device |
-| Reusable project convention | `assets/TEMPLATE_AGENTS.md` | Publish a new kit version, then run `project sync` and reconcile each project |
-| Project-specific command, path, integration, or exception | Project `AGENTS.md` | Keep only in that project |
-
-Do not place the complete template in global `~/.codex/AGENTS.md`. It contains
-project workflow conventions that do not belong in every repository. The global
-file should remain a small personal baseline. The packaged template is versioned
-and copied into each project's local reference file.
-
-### When a project reveals a template-worthy guideline
-
-Yes: add the generalized rule to `assets/TEMPLATE_AGENTS.md` in the private
-`codex-kit` repository. Do not copy a whole project-specific `AGENTS.md` into
-the central template.
-
-Use this workflow:
-
-1. Add any immediately needed project-specific wording to the current
-   project's `AGENTS.md`.
-2. Ask Codex to add a generalized, project-agnostic version to that project's
-   `TEMPLATE_AGENTS.md`. Review the diff and remove local paths, commands,
-   integrations, and exceptions.
-3. Copy or merge only that template change into `assets/TEMPLATE_AGENTS.md` in
-   the private `codex-kit` repository.
-4. Test, version, and publish the package.
-5. Run `project sync` in each downstream project.
-6. Ask Codex to reconcile each project's `AGENTS.md`, then run
-   `project mark-applied`.
-
-A guideline is template-worthy when it describes behavior you want in future
-projects regardless of their exact file layout. Details that mention one
-project's functions, paths, vendors, or architecture remain project-specific.
-
-### Publish an update
-
-From the private `codex-kit` repository:
-
-```sh
-# Edit assets/TEMPLATE_AGENTS.md, assets/SUBAGENT_ROUTING.md, or assets/agents/*
-pnpm run typecheck
-pnpm test
-pnpm version patch # use minor or major when appropriate
-git push origin main --follow-tags
-```
-
-The tag publishes the new package version through GitHub Actions.
-
-### Update devices and projects
-
-Update global agents and routing once per device when those assets changed:
-
-```sh
-pnpm dlx @iamdevlinph/codex-kit@latest global install
-```
-
-Refresh the template reference in each downstream project:
-
-```sh
-pnpm dlx @iamdevlinph/codex-kit@latest project sync --cwd /path/to/project
-```
-
-For many projects, install the CLI once and keep a local path list:
+Install the CLI once and keep a local path list:
 
 ```sh
 pnpm add --global @iamdevlinph/codex-kit
@@ -363,30 +143,36 @@ while IFS= read -r repo; do
 done < ~/.config/codex-kit/projects.txt
 ```
 
-`project sync` updates only `TEMPLATE_AGENTS.md` and the project state file. It
-never edits `AGENTS.md`. If the local template was independently modified, it
-preserves the change and asks you to review it before using `--force`.
-
-`project status` compares the installed template, the local reference, and the
-last applied hash. `project mark-applied` records the local template hash after
-Codex has completed the semantic merge; it does not modify `AGENTS.md` or push
-anything to the central repository.
-
-## Local verification
+Update global agents and routing separately when those assets change:
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm run typecheck
-pnpm test
-pnpm run pack:check
+pnpm add --global @iamdevlinph/codex-kit@latest
+codex-kit global install
 ```
 
-The published package has no runtime dependencies, uses only Node.js
-standard-library modules, and supports Node 20+.
+## Check for a new version
+
+```sh
+codex-kit version check
+```
+
+The command queries the public npm registry only when requested. Normal project
+commands do not add network latency or depend on registry availability.
+
+## Requirements
+
+- Node.js 20 or newer
+- Codex with custom subagent support
+
+The published package has no runtime dependencies and uses only Node.js
+standard-library modules.
+
+## License
+
+`UNLICENSED`. Public availability on npm does not grant permission to reuse or
+redistribute the package beyond applicable law and npm's service terms.
 
 ## References
 
 - [Codex custom subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents)
 - [Codex `AGENTS.md` discovery](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
-- [Publishing scoped public npm packages](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/)
-- [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers/)

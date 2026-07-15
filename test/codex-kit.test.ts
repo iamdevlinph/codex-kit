@@ -153,12 +153,14 @@ test("project sync preserves an independently modified template", () => {
 
 test("publishing targets public npm through trusted publishing", () => {
   const manifest = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")) as {
+    files?: string[];
     publishConfig?: { access?: string; registry?: string };
   };
   assert.deepEqual(manifest.publishConfig, {
     registry: "https://registry.npmjs.org",
     access: "public",
   });
+  assert.equal(manifest.files?.includes("MAINTAINERS.md"), false);
   assert.equal(existsSync(join(ROOT, ".npmrc")), false);
 
   const workflow = readFileSync(join(ROOT, ".github", "workflows", "publish.yml"), "utf8");

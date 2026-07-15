@@ -33,8 +33,11 @@
 
 ## Change requirements
 
-- Keep CLI help and `README.md` synchronized with every command or behavior
-  change.
+- Keep public CLI usage in `README.md` and private development, publishing, and
+  template-promotion instructions in `MAINTAINERS.md`. Keep both synchronized
+  with behavior changes.
+- `MAINTAINERS.md`, repository instructions, source, and tests must remain
+  outside the public npm package. Verify the tarball contents before release.
 - Add or update focused tests for behavior changes and safety checks.
 - Run `pnpm run typecheck`, `pnpm test`, and `pnpm run pack:check` before
   declaring a change complete.
