@@ -728,22 +728,30 @@ function help(): void {
   console.log(`codex-kit ${PACKAGE.version}
 
 Usage:
-  codex-kit global install [--codex-home PATH] [--force]
-  codex-kit global configure [--orchestrator MODEL] [--reasoning-effort LEVEL]
-  codex-kit global list [--codex-home PATH]
-  codex-kit global uninstall [--codex-home PATH]
-  codex-kit project init [--cwd PATH]
-  codex-kit project sync [--cwd PATH]
-  codex-kit project status [--cwd PATH]
-  codex-kit project mark-applied [--cwd PATH]
-  codex-kit version check
-  codex-kit --help
-  codex-kit --version
+  codex-kit <command> [options]
 
-Global configure defaults to gpt-5.6-sol with high normal and Plan-mode reasoning
-and edits only those top-level model settings in CODEX_HOME/config.toml.
-Global install manages custom agents and a marked routing block under CODEX_HOME.
-Project sync refreshes TEMPLATE_AGENTS.md and never merges it into AGENTS.md.`);
+Commands:
+  global install       Install or update package-owned agents and routing guidance.
+  global configure     Set the orchestrator and normal/Plan reasoning defaults.
+  global list          Show model settings, routing status, and custom agents.
+  global uninstall     Restore managed config values and remove package-owned files.
+  project init         Initialize AGENTS.md, TEMPLATE_AGENTS.md, and project state.
+  project sync         Refresh TEMPLATE_AGENTS.md without editing AGENTS.md.
+  project status       Show whether template changes still need reconciliation.
+  project mark-applied Record the current template as reconciled with AGENTS.md.
+  version check        Compare the installed version with the latest npm release.
+  --help               Show this help.
+  --version            Print the installed version.
+
+Options:
+  --codex-home PATH         Use a Codex home other than CODEX_HOME or ~/.codex.
+  --cwd PATH                Use a project directory other than the current directory.
+  --force                   Replace modified files or config managed by codex-kit.
+  --orchestrator MODEL      Set the root/orchestrator model (default: gpt-5.6-sol).
+  --model MODEL             Alias for --orchestrator.
+  --reasoning-effort LEVEL  Set normal and Plan-mode effort (default: high).
+
+Run a command with only its applicable options.`);
 }
 
 export function main(argv: string[] = process.argv.slice(2)): void {

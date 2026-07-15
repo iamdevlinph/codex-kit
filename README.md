@@ -27,6 +27,11 @@ For one-off use without a global installation, prefix a command with
 `global install` copies reusable agents to `${CODEX_HOME:-~/.codex}` and
 maintains a marked routing section in the global `AGENTS.md`.
 
+The Sol root agent plans, coordinates, and validates. All project-file changes,
+including small one-file edits, are delegated to a Luna `quick-implementer` or
+`implementer`; the selected implementation agent edits directly without further
+delegation.
+
 `global configure` sets these defaults while preserving unrelated settings:
 
 ```toml

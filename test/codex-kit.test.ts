@@ -52,6 +52,27 @@ test("CLI runs through a global-style symlink", () => {
   }
 });
 
+test("help describes every command", () => {
+  const help = run(["--help"]).stdout;
+  for (const command of [
+    "global install",
+    "global configure",
+    "global list",
+    "global uninstall",
+    "project init",
+    "project sync",
+    "project status",
+    "project mark-applied",
+    "version check",
+    "--help",
+    "--version",
+  ]) {
+    assert.match(help, new RegExp(command.replaceAll("-", "\\-")));
+  }
+  assert.match(help, /Refresh TEMPLATE_AGENTS\.md without editing AGENTS\.md/);
+  assert.match(help, /Restore managed config values/);
+});
+
 test("global install and uninstall manage only package-owned files", () => {
   const root = mkdtempSync(join(tmpdir(), "codex-kit-global-"));
   const home = join(root, ".codex");
@@ -70,6 +91,8 @@ test("global install and uninstall manage only package-owned files", () => {
     const globalAgents = readFileSync(join(home, "AGENTS.md"), "utf8");
     assert.match(globalAgents, /Existing global guidance/);
     assert.match(globalAgents, /BEGIN codex-kit:subagent-routing/);
+    assert.match(globalAgents, /delegate all\s+file-changing implementation to a Luna implementation agent/);
+    assert.match(globalAgents, /implementation subagent performs\s+its assigned edits directly and must not delegate them again/);
     assert.equal(readFileSync(config, "utf8"), 'model = "gpt-5.6-sol"\n');
 
     const explorer = join(home, "agents", "code-explorer.toml");
@@ -120,6 +143,8 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
     assert.match(result.stdout, /Global routing: installed/);
     assert.match(result.stdout, /code-explorer — gpt-5\.6-luna, medium \(managed\)/);
     assert.match(result.stdout, /code-reviewer — gpt-5\.6-sol, high \(managed\)/);
+    assert.match(result.stdout, /implementer — gpt-5\.6-luna, high \(managed\)/);
+    assert.match(result.stdout, /quick-implementer — gpt-5\.6-luna, low \(managed\)/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

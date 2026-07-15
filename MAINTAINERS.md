@@ -152,6 +152,10 @@ regardless of their exact stack or file layout.
 `config.toml` and stores the original managed values in installer state so
 `global uninstall` can restore them without rolling back unrelated later edits.
 
+Global routing keeps the Sol root as planner/orchestrator and requires it to
+delegate every project-file change to one Luna implementation agent. The child
+implements directly; this root-only wording prevents recursive delegation.
+
 Refresh global assets once per device when agent or routing files change:
 
 ```sh
