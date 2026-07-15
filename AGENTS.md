@@ -1,0 +1,46 @@
+# Codex-Kit Repository Instructions
+
+## Purpose and sources of truth
+
+- This repository maintains the private `@iamdevlinph/codex-kit` package.
+- `AGENTS.md` contains instructions for maintaining this repository.
+- `assets/TEMPLATE_AGENTS.md` is the canonical reusable template distributed to
+  downstream projects. Do not treat it as this repository's active instructions.
+- Keep reusable template rules project-agnostic. Project names, local paths,
+  integrations, and exceptions belong only in the affected project's `AGENTS.md`.
+
+## Implementation constraints
+
+- Support Node.js 20 or newer and prefer Node standard-library APIs.
+- Do not add a dependency unless the requested behavior cannot reasonably be
+  implemented with the standard library.
+- Preserve user-owned files and unrelated configuration. Back up files before a
+  managed replacement and never silently overwrite locally modified content.
+- `global install` must remain separate from the explicit `global configure`
+  command. Model configuration must not change during installation.
+- `project sync` may refresh `TEMPLATE_AGENTS.md` and project state, but must not
+  merge into or replace a project's `AGENTS.md`.
+- `project mark-applied` is bookkeeping only; it must not claim to validate the
+  semantic merge or modify project instructions.
+- Do not add a `commit-pusher` role or automate Git publishing.
+
+## Change requirements
+
+- Keep CLI help and `README.md` synchronized with every command or behavior
+  change.
+- Add or update focused tests for behavior changes and safety checks.
+- Run `npm test` and `npm run pack:check` before declaring a change complete.
+- Use a temporary writable npm cache for `pack:check` if the user's default cache
+  has permission problems; do not modify ownership of the user's cache.
+
+## Template and release workflow
+
+- When promoting a project-discovered guideline, generalize and review the rule
+  before merging it into `assets/TEMPLATE_AGENTS.md`.
+- A template update requires a new package release before downstream
+  `project sync` commands can receive it.
+- The release tag must match `package.json` as `v<version>`.
+- Never commit, tag, push, publish, or create a release unless the user explicitly
+  requests that operation in the current task.
+- Never store credentials, npm tokens, or personal access tokens in this
+  repository.
