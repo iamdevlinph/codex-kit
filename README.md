@@ -78,6 +78,11 @@ repository through `package.json`.
 
 ## Publish
 
+> **No publishing token setup is required for normal releases.** The existing
+> GitHub Actions workflow receives GitHub's automatic `GITHUB_TOKEN`. You do not
+> need to generate a personal access token, run `pnpm login`, or add a package
+> token to repository secrets for this workflow.
+
 The workflow publishes whenever a version tag matching `package.json` is pushed:
 
 ```sh
@@ -87,18 +92,43 @@ git push origin main --follow-tags
 
 The workflow installs the pinned pnpm version, uses the frozen lockfile, runs
 strict type checking and tests, builds the CLI, and publishes with its
-repository-scoped `GITHUB_TOKEN`. No publishing token is stored in the
-repository.
+repository-scoped `GITHUB_TOKEN`.
+
+### Publish manually from a device
+
+The tag workflow above is recommended. If you intentionally publish with
+`pnpm publish` from your device instead, create a classic personal access token:
+
+1. Open GitHub **Settings** → **Developer settings** → **Personal access
+   tokens** → **Tokens (classic)**.
+2. Select **Generate new token (classic)**, set a name and expiration, and grant
+   `write:packages`.
+3. If the repository belongs to an organization that uses SAML SSO, authorize
+   the token for that organization.
+4. Run the login command below and enter your GitHub username. Paste the token,
+   not your GitHub password, at the password prompt.
+
+```sh
+pnpm login --scope=@iamdevlinph --auth-type=legacy --registry=https://npm.pkg.github.com
+pnpm publish --no-git-checks
+```
+
+Do not commit the token or a token-bearing `.npmrc` file.
 
 ## Authenticate a device
 
 GitHub Packages currently requires a classic personal access token for local
-package clients. Give it `read:packages`, then authenticate without committing
-the token:
+package clients. This token is only for installing or updating the private
+package locally; it is not needed by the publishing workflow. Follow steps 1–3
+above, granting `read:packages` instead of `write:packages`. Then authenticate
+without committing the token:
 
 ```sh
 pnpm login --scope=@iamdevlinph --auth-type=legacy --registry=https://npm.pkg.github.com
 ```
+
+Enter your GitHub username and paste the token at the password prompt. This is
+normally required once per device, until the token expires or is revoked.
 
 ## Configure the orchestrator
 
