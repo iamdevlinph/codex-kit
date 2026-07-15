@@ -12,6 +12,28 @@ The package does not contain credentials. `global install` does not edit
 settings when explicitly requested.
 Current Codex releases enable subagents by default.
 
+The CLI and tests are written in strict TypeScript. The repository pins pnpm
+`11.5.2`, TypeScript `7.0.1-rc`, and Node.js type definitions for Node 20. Source
+lives in `src/`; `pnpm run typecheck` invokes the pinned compiler through
+`pnpm exec tsc`, and `pnpm run build` generates the untracked executable in
+`bin/`. The `prepack` lifecycle rebuilds it before every package publication.
+
+## Development setup
+
+After cloning or extracting the repository, install the pinned development
+dependencies before opening individual TypeScript files:
+
+```sh
+corepack enable
+pnpm install --frozen-lockfile
+pnpm exec tsc --version
+pnpm run typecheck
+```
+
+The compiler version must report `7.0.1-rc`. Open the repository root in the
+editor so it discovers `tsconfig.json`; if the editor was already open before
+installation, restart its TypeScript server.
+
 ## Core workflow
 
 | Action | Command | Result |
@@ -59,20 +81,23 @@ repository through `package.json`.
 The workflow publishes whenever a version tag matching `package.json` is pushed:
 
 ```sh
-npm version patch
+pnpm version patch
 git push origin main --follow-tags
 ```
 
-The workflow uses its repository-scoped `GITHUB_TOKEN`; no publishing token is
-stored in the repository.
+The workflow installs the pinned pnpm version, uses the frozen lockfile, runs
+strict type checking and tests, builds the CLI, and publishes with its
+repository-scoped `GITHUB_TOKEN`. No publishing token is stored in the
+repository.
 
 ## Authenticate a device
 
-GitHub Packages currently requires a classic personal access token for local npm
-clients. Give it `read:packages`, then authenticate without committing the token:
+GitHub Packages currently requires a classic personal access token for local
+package clients. Give it `read:packages`, then authenticate without committing
+the token:
 
 ```sh
-npm login --scope=@iamdevlinph --auth-type=legacy --registry=https://npm.pkg.github.com
+pnpm login --scope=@iamdevlinph --auth-type=legacy --registry=https://npm.pkg.github.com
 ```
 
 ## Configure the orchestrator
@@ -250,8 +275,9 @@ From the private `codex-kit` repository:
 
 ```sh
 # Edit assets/TEMPLATE_AGENTS.md, assets/SUBAGENT_ROUTING.md, or assets/agents/*
-npm test
-npm version patch # use minor or major when appropriate
+pnpm run typecheck
+pnpm test
+pnpm version patch # use minor or major when appropriate
 git push origin main --follow-tags
 ```
 
@@ -293,11 +319,14 @@ anything to the central repository.
 ## Local verification
 
 ```sh
-npm test
-npm run pack:check
+pnpm install --frozen-lockfile
+pnpm run typecheck
+pnpm test
+pnpm run pack:check
 ```
 
-The package uses only Node.js standard-library modules and supports Node 20+.
+The published package has no runtime dependencies, uses only Node.js
+standard-library modules, and supports Node 20+.
 
 ## References
 

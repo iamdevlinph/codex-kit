@@ -4,15 +4,18 @@
   "description": "Portable private Codex subagents and project AGENTS.md defaults.",
   "type": "module",
   "bin": {
-    "codex-kit": "bin/codex-kit.mjs"
+    "codex-kit": "bin/codex-kit.js"
   },
   "files": [
     "assets",
     "bin"
   ],
   "scripts": {
-    "test": "node --test",
-    "pack:check": "npm pack --dry-run"
+    "build": "pnpm exec tsc -p tsconfig.json",
+    "typecheck": "pnpm exec tsc -p tsconfig.json --noEmit && pnpm exec tsc -p tsconfig.test.json --noEmit",
+    "test": "pnpm run build && pnpm exec tsc -p tsconfig.test.json && node --test .test-dist/test/*.test.js",
+    "prepack": "pnpm run build",
+    "pack:check": "pnpm pack --dry-run"
   },
   "engines": {
     "node": ">=20"
@@ -25,5 +28,10 @@
     "registry": "https://npm.pkg.github.com",
     "access": "restricted"
   },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "typescript": "7.0.1-rc"
+  },
+  "packageManager": "pnpm@11.5.2",
   "license": "UNLICENSED"
 }

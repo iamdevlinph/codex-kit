@@ -5,10 +5,15 @@ import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 
-const ROOT = resolve(import.meta.dirname, "..");
-const CLI = join(ROOT, "bin", "codex-kit.mjs");
+interface RunOptions {
+  cwd?: string;
+  env?: NodeJS.ProcessEnv;
+}
 
-function run(args, options = {}) {
+const ROOT = resolve(process.cwd());
+const CLI = join(ROOT, "bin", "codex-kit.js");
+
+function run(args: string[], options: RunOptions = {}) {
   const result = spawnSync(process.execPath, [CLI, ...args], {
     cwd: options.cwd ?? ROOT,
     env: { ...process.env, ...options.env },
