@@ -32,6 +32,15 @@ function run(args: string[], options: RunOptions = {}) {
   return result;
 }
 
+function runRoutingHook(home: string, input: Record<string, unknown>) {
+  const result = spawnSync(process.execPath, [join(home, "codex-kit", "routing-hook.js")], {
+    input: JSON.stringify(input),
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout;
+}
+
 test("CLI runs through a global-style symlink", () => {
   const root = mkdtempSync(join(tmpdir(), "codex-kit-bin-"));
   const linkedCli = join(root, "codex-kit");
@@ -79,7 +88,14 @@ test("global install and uninstall manage only package-owned files", () => {
   try {
     mkdirSync(home);
     const config = join(home, "config.toml");
+    const hooks = join(home, "hooks.json");
+    const originalHooks = {
+      hooks: {
+        SessionStart: [{ matcher: "startup", hooks: [{ type: "command", command: "existing-hook" }] }],
+      },
+    };
     writeFileSync(config, 'model = "gpt-5.6-sol"\n');
+    writeFileSync(hooks, `${JSON.stringify(originalHooks, null, 2)}\n`);
     writeFileSync(join(home, "AGENTS.md"), "# Existing global guidance\n");
     run(["global", "install", "--codex-home", home]);
     assert.deepEqual(readdirSync(join(home, "agents")).sort(), [
@@ -91,9 +107,17 @@ test("global install and uninstall manage only package-owned files", () => {
     const globalAgents = readFileSync(join(home, "AGENTS.md"), "utf8");
     assert.match(globalAgents, /Existing global guidance/);
     assert.match(globalAgents, /BEGIN codex-kit:subagent-routing/);
-    assert.match(globalAgents, /delegate all\s+file-changing implementation to a Luna implementation agent/);
-    assert.match(globalAgents, /implementation subagent performs\s+its assigned edits directly and must not delegate them again/);
+    assert.match(globalAgents, /Route by role and task shape, never by a\s+model name/);
+    assert.match(globalAgents, /spawn that exact role\s+before performing the role's work/);
+    assert.match(globalAgents, /implementation agent performs its edits directly and must not\s+delegate them again/);
+    const installedHooks = readFileSync(hooks, "utf8");
+    assert.match(installedHooks, /existing-hook/);
+    assert.match(installedHooks, /UserPromptSubmit/);
+    assert.match(installedHooks, /SubagentStart/);
+    assert.match(installedHooks, /SubagentStop/);
+    assert.match(installedHooks, /PreToolUse/);
     assert.equal(readFileSync(config, "utf8"), 'model = "gpt-5.6-sol"\n');
+    assert.ok(existsSync(join(home, "codex-kit", "routing-hook.js")));
 
     const explorer = join(home, "agents", "code-explorer.toml");
     writeFileSync(explorer, `${readFileSync(explorer, "utf8")}\n# local edit\n`);
@@ -102,6 +126,91 @@ test("global install and uninstall manage only package-owned files", () => {
 
     run(["global", "uninstall", "--codex-home", home]);
     assert.match(readFileSync(explorer, "utf8"), /local edit/);
+    assert.deepEqual(JSON.parse(readFileSync(hooks, "utf8")), originalHooks);
+    assert.equal(existsSync(join(home, "codex-kit", "routing-hook.js")), false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("routing hook injects policy, blocks root writes, and allows active subagents", () => {
+  const root = mkdtempSync(join(tmpdir(), "codex-kit-routing-hook-"));
+  const home = join(root, ".codex");
+  try {
+    run(["global", "install", "--codex-home", home]);
+    run(["global", "configure", "--codex-home", home]);
+
+    const promptOutput = runRoutingHook(home, {
+      hook_event_name: "UserPromptSubmit",
+      model: "gpt-5.6-sol",
+      permission_mode: "default",
+      prompt: "Implement the plan.",
+    });
+    assert.match(promptOutput, /classify the work using this file/i);
+    assert.match(promptOutput, /quick-implementer/);
+    assert.match(promptOutput, /code-reviewer/);
+    assert.match(promptOutput, /Agent definitions, not this policy, determine each role's model/);
+
+    const denied = JSON.parse(runRoutingHook(home, {
+      hook_event_name: "PreToolUse",
+      model: "gpt-5.6-sol",
+      session_id: "root-session",
+      turn_id: "root-turn",
+      tool_name: "apply_patch",
+      tool_input: { command: "*** Begin Patch" },
+    })) as { hookSpecificOutput: { permissionDecision: string; permissionDecisionReason: string } };
+    assert.equal(denied.hookSpecificOutput.permissionDecision, "deny");
+    assert.match(denied.hookSpecificOutput.permissionDecisionReason, /exact role selected there/);
+
+    const started = JSON.parse(runRoutingHook(home, {
+      hook_event_name: "SubagentStart",
+      session_id: "worker-session",
+      turn_id: "worker-turn",
+      agent_id: "worker-1",
+      agent_type: "quick-implementer",
+    })) as { hookSpecificOutput: { additionalContext: string } };
+    assert.match(started.hookSpecificOutput.additionalContext, /temporary write lane is active/);
+    assert.match(started.hookSpecificOutput.additionalContext, /without further delegation/);
+
+    assert.equal(runRoutingHook(home, {
+      hook_event_name: "PreToolUse",
+      session_id: "worker-session",
+      turn_id: "worker-turn",
+      tool_name: "apply_patch",
+      tool_input: { command: "*** Begin Patch" },
+    }), "");
+
+    assert.equal(runRoutingHook(home, {
+      hook_event_name: "PreToolUse",
+      session_id: "root-session",
+      turn_id: "root-turn",
+      tool_name: "Bash",
+      tool_input: { command: "ls -la" },
+    }), "");
+    const bashDenied = JSON.parse(runRoutingHook(home, {
+      hook_event_name: "PreToolUse",
+      session_id: "root-session",
+      turn_id: "root-turn",
+      tool_name: "Bash",
+      tool_input: { command: "printf hi > README.md" },
+    })) as { hookSpecificOutput: { permissionDecision: string } };
+    assert.equal(bashDenied.hookSpecificOutput.permissionDecision, "deny");
+
+    runRoutingHook(home, {
+      hook_event_name: "SubagentStop",
+      session_id: "worker-session",
+      turn_id: "worker-turn",
+      agent_id: "worker-1",
+      agent_type: "quick-implementer",
+    });
+    const stopped = JSON.parse(runRoutingHook(home, {
+      hook_event_name: "PreToolUse",
+      session_id: "worker-session",
+      turn_id: "worker-turn",
+      tool_name: "apply_patch",
+      tool_input: { command: "*** Begin Patch" },
+    })) as { hookSpecificOutput: { permissionDecision: string } };
+    assert.equal(stopped.hookSpecificOutput.permissionDecision, "deny");
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -141,6 +250,7 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
     assert.match(result.stdout, /Reasoning effort: high/);
     assert.match(result.stdout, /Plan mode reasoning effort: high/);
     assert.match(result.stdout, /Global routing: installed/);
+    assert.match(result.stdout, /Routing hook: installed/);
     assert.match(result.stdout, /code-explorer — gpt-5\.6-luna, medium \(managed\)/);
     assert.match(result.stdout, /code-reviewer — gpt-5\.6-sol, high \(managed\)/);
     assert.match(result.stdout, /implementer — gpt-5\.6-luna, high \(managed\)/);

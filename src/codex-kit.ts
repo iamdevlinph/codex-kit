@@ -49,7 +49,15 @@ interface GlobalState {
   version: string;
   files: Record<string, FileRecord>;
   globalAgents?: { target: string } | null;
+  hooks?: HooksState | null;
   config?: ConfigState | null;
+}
+
+interface HooksState {
+  target: string;
+  command: string;
+  commandWindows: string;
+  created: boolean;
 }
 
 interface TemplateState {
@@ -85,6 +93,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ASSETS = join(ROOT, "assets");
 const AGENTS_DIR = join(ASSETS, "agents");
 const ROUTING_FILE = join(ASSETS, "SUBAGENT_ROUTING.md");
+const ROUTING_HOOK_FILE = join(ROOT, "bin", "routing-hook.js");
 const TEMPLATE_FILE = join(ASSETS, "TEMPLATE_AGENTS.md");
 const PACKAGE = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")) as PackageJson;
 
@@ -121,6 +130,109 @@ function write(file: string, data: string | Uint8Array): void {
   const temporary = `${file}.codex-kit.tmp-${process.pid}`;
   writeFileSync(temporary, data);
   renameSync(temporary, file);
+}
+
+function readJsonObject(file: string): Record<string, unknown> {
+  if (!existsSync(file)) return {};
+  try {
+    const value: unknown = JSON.parse(readText(file));
+    if (isRecord(value)) return value;
+  } catch {
+    // Use the actionable error below for invalid JSON and non-object roots.
+  }
+  throw new Error(`${file} must contain a JSON object; fix or move it before installing.`);
+}
+
+function shellQuote(value: string): string {
+  return `'${value.replaceAll("'", `'"'"'`)}'`;
+}
+
+function hookCommands(file: string): Pick<HooksState, "command" | "commandWindows"> {
+  return {
+    command: `/usr/bin/env node ${shellQuote(file)}`,
+    commandWindows: `node ${JSON.stringify(file)}`,
+  };
+}
+
+function removeHookHandlers(root: Record<string, unknown>, state: Pick<HooksState, "command" | "commandWindows">): void {
+  const hooks = root.hooks;
+  if (!isRecord(hooks)) return;
+  for (const [event, groupsValue] of Object.entries(hooks)) {
+    if (!Array.isArray(groupsValue)) continue;
+    const groups = groupsValue.flatMap((groupValue) => {
+      if (!isRecord(groupValue) || !Array.isArray(groupValue.hooks)) return [groupValue];
+      const handlers = groupValue.hooks.filter((handler) => {
+        if (!isRecord(handler)) return true;
+        return handler.command !== state.command && handler.commandWindows !== state.commandWindows;
+      });
+      return handlers.length ? [{ ...groupValue, hooks: handlers }] : [];
+    });
+    if (groups.length) hooks[event] = groups;
+    else delete hooks[event];
+  }
+}
+
+function installRoutingHooks(home: string, previous?: HooksState | null): HooksState {
+  const target = join(home, "hooks.json");
+  const hookFile = join(home, "codex-kit", "routing-hook.js");
+  const commands = hookCommands(hookFile);
+  const created = previous?.created ?? !existsSync(target);
+  const root = readJsonObject(target);
+  if (previous) removeHookHandlers(root, previous);
+  const hooks = isRecord(root.hooks) ? root.hooks : {};
+  root.hooks = hooks;
+  const handler = {
+    type: "command",
+    command: commands.command,
+    commandWindows: commands.commandWindows,
+    timeout: 5,
+  };
+  const promptGroups = Array.isArray(hooks.UserPromptSubmit) ? hooks.UserPromptSubmit : [];
+  const toolGroups = Array.isArray(hooks.PreToolUse) ? hooks.PreToolUse : [];
+  hooks.UserPromptSubmit = [
+    ...promptGroups,
+    { hooks: [{ ...handler, statusMessage: "Loading subagent routing" }] },
+  ];
+  const startGroups = Array.isArray(hooks.SubagentStart) ? hooks.SubagentStart : [];
+  hooks.SubagentStart = [
+    ...startGroups,
+    { hooks: [{ ...handler, statusMessage: "Opening delegated write lane" }] },
+  ];
+  const stopGroups = Array.isArray(hooks.SubagentStop) ? hooks.SubagentStop : [];
+  hooks.SubagentStop = [
+    ...stopGroups,
+    { hooks: [{ ...handler, statusMessage: "Closing delegated write lane" }] },
+  ];
+  hooks.PreToolUse = [
+    ...toolGroups,
+    {
+      matcher: "Bash|Edit|Write|MultiEdit|NotebookEdit|apply_patch|ApplyPatch|functions.apply_patch",
+      hooks: [{ ...handler, statusMessage: "Checking orchestrator routing" }],
+    },
+  ];
+  const updated = `${JSON.stringify(root, null, 2)}\n`;
+  const original = existsSync(target) ? readText(target) : "";
+  if (updated !== original) {
+    backup(target);
+    write(target, updated);
+    console.log(`updated: ${target}`);
+  }
+  return { target, ...commands, created };
+}
+
+function uninstallRoutingHooks(state: HooksState): void {
+  if (!existsSync(state.target)) {
+    console.warn(`preserved missing hooks file: ${state.target}`);
+    return;
+  }
+  const root = readJsonObject(state.target);
+  removeHookHandlers(root, state);
+  const hooks = root.hooks;
+  if (isRecord(hooks) && !Object.keys(hooks).length) delete root.hooks;
+  backup(state.target);
+  if (state.created && !Object.keys(root).length) rmSync(state.target);
+  else write(state.target, `${JSON.stringify(root, null, 2)}\n`);
+  console.log(`removed managed routing hooks from: ${state.target}`);
 }
 
 function loadState(home: string): GlobalState {
@@ -320,6 +432,7 @@ function installGlobal(options: Options): void {
     version: PACKAGE.version,
     files: {},
     globalAgents: null,
+    hooks: null,
     config: prior.config ?? null,
   };
 
@@ -343,6 +456,15 @@ function installGlobal(options: Options): void {
     options.force,
   );
   if (routingRecord) next.files.routing = routingRecord;
+
+  const hookRecord = installFile(
+    ROUTING_HOOK_FILE,
+    join(home, "codex-kit", "routing-hook.js"),
+    "routing-hook",
+    prior,
+    options.force,
+  );
+  if (hookRecord) next.files["routing-hook"] = hookRecord;
 
   for (const [key, record] of Object.entries(prior.files)) {
     if (key in next.files) continue;
@@ -375,6 +497,7 @@ function installGlobal(options: Options): void {
     console.log(`updated: ${globalAgents}`);
   }
   next.globalAgents = { target: globalAgents };
+  next.hooks = installRoutingHooks(home, prior.hooks);
   saveState(home, next);
 
   const commitPusher = join(home, "agents", "commit-pusher.toml");
@@ -465,6 +588,13 @@ function listGlobal(options: Options): void {
   const hasRoutingBlock = existsSync(globalAgents) && readText(globalAgents).includes(GLOBAL_BEGIN);
   console.log(`Global routing: ${hasRoutingBlock ? "installed" : "not installed"}`);
   console.log(`Routing file: ${existsSync(routingFile) ? routingFile : "missing"}`);
+  const routingHook = state.hooks;
+  const hooksInstalled = Boolean(
+    routingHook &&
+    existsSync(routingHook.target) &&
+    readText(routingHook.target).includes(routingHook.command),
+  );
+  console.log(`Routing hook: ${hooksInstalled ? "installed" : "not installed"}`);
   console.log("Custom agents:");
   const agents = existsSync(agentsDir)
     ? readdirSync(agentsDir).filter((name) => name.endsWith(".toml")).sort()
@@ -540,6 +670,11 @@ function uninstallGlobal(options: Options): void {
       }
     }
   }
+  if (state.hooks) uninstallRoutingHooks(state.hooks);
+  const allowancesDir = join(home, "codex-kit", "allowances");
+  if (existsSync(allowancesDir)) rmSync(allowancesDir, { recursive: true, force: true });
+  const kitDir = join(home, "codex-kit");
+  if (existsSync(kitDir) && !readdirSync(kitDir).length) rmSync(kitDir, { recursive: true });
   rmSync(statePath);
   console.log(`Codex kit uninstalled from ${home}`);
 }

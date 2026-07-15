@@ -96,6 +96,7 @@ Inspect the dry-run contents. They should contain only:
 - `assets/SUBAGENT_ROUTING.md`
 - `assets/TEMPLATE_AGENTS.md`
 - `bin/codex-kit.js`
+- `bin/routing-hook.js`
 - `package.json`
 - `README.md`
 
@@ -152,9 +153,26 @@ regardless of their exact stack or file layout.
 `config.toml` and stores the original managed values in installer state so
 `global uninstall` can restore them without rolling back unrelated later edits.
 
-Global routing keeps the Sol root as planner/orchestrator and requires it to
-delegate every project-file change to one Luna implementation agent. The child
-implements directly; this root-only wording prevents recursive delegation.
+Global routing keeps the Sol root as planner/orchestrator. The routing file maps
+task shapes to exact agent roles; each role's TOML independently selects its
+model and reasoning effort. A `UserPromptSubmit` hook injects the current policy
+on each turn. `SubagentStart` and `SubagentStop` manage short-lived write
+allowances keyed by `session_id + turn_id`; `PreToolUse` blocks root edit tools
+and obvious write-shaped shell commands while allowing the active worker.
+Implementation children edit directly without recursively delegating.
+
+`global install` merges only codex-kit's handlers into `~/.codex/hooks.json` and
+preserves unrelated handlers. `global uninstall` removes those handlers and the
+managed hook script. Keep hook routing generic: denial messages must direct the
+root back to `SUBAGENT_ROUTING.md`, not to a hard-coded model or agent.
+New or changed command hooks require Codex's normal one-time trust review and a
+new task or client restart before testing them.
+
+The allowance pattern is informed by the MIT-licensed
+[`Raylinkh/delegate-mode`](https://github.com/Raylinkh/delegate-mode). Codex-kit
+keeps only the global routing and hook guard; do not add its repo-local ledger,
+mode toggles, or generic role fallback unless a concrete codex-kit use case needs
+them.
 
 Refresh global assets once per device when agent or routing files change:
 

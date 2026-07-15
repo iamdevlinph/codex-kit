@@ -3,7 +3,7 @@
 Portable Codex setup for new devices and multiple projects. It provides:
 
 - four custom subagents: explorer, quick implementer, implementer, and reviewer
-- global subagent-routing guidance without a `commit-pusher`
+- automatic global role routing
 - a reusable, stack-neutral `AGENTS.md` template
 - safe commands for global setup, project synchronization, and reconciliation
 
@@ -20,17 +20,30 @@ codex-kit global install
 codex-kit global configure
 ```
 
+Start a new Codex task or restart the client after installation. Codex may ask
+you to review and trust the new command hooks once; approve them after confirming
+that they run the installed `${CODEX_HOME:-~/.codex}/codex-kit/routing-hook.js`.
+
 `npm install --global @iamdevlinph/codex-kit@latest` works as an alternative.
 For one-off use without a global installation, prefix a command with
 `pnpm dlx @iamdevlinph/codex-kit@latest`.
 
-`global install` copies reusable agents to `${CODEX_HOME:-~/.codex}` and
-maintains a marked routing section in the global `AGENTS.md`.
+`global install` copies reusable agents to `${CODEX_HOME:-~/.codex}`, maintains
+a marked routing section in the global `AGENTS.md`, and adds package-owned
+handlers to the global `hooks.json` without replacing existing hooks.
 
-The Sol root agent plans, coordinates, and validates. All project-file changes,
-including small one-file edits, are delegated to a Luna `quick-implementer` or
-`implementer`; the selected implementation agent edits directly without further
-delegation.
+The Sol root plans, routes, coordinates, and validates. On every prompt, the
+routing hook supplies the current `SUBAGENT_ROUTING.md`; the root classifies the
+task and delegates to the exact matching role. The role's agent TOML—not the
+routing policy—selects its model and reasoning effort. Planning, conversation,
+status, and small read-only checks may stay on the root.
+
+The hook rejects direct root writes through Codex edit tools and obvious
+write-shaped shell commands. `SubagentStart` opens a 15-minute write allowance
+for that worker's `session_id + turn_id`; `SubagentStop` closes it. This identifies
+the delegated lane without hard-coding a model. Codex hooks do not intercept
+every possible indirect shell-write path, so this is a workflow guardrail rather
+than a security boundary.
 
 `global configure` sets these defaults while preserving unrelated settings:
 
@@ -60,8 +73,8 @@ pnpm dlx @iamdevlinph/codex-kit@latest global list
 ```
 
 The summary shows the Codex home, orchestrator, normal and Plan-mode reasoning
-effort, routing status, and installed custom agents without dumping unrelated
-configuration.
+effort, routing-file and routing-hook status, and installed custom agents without
+dumping unrelated configuration.
 
 Uninstall package-managed global files:
 
@@ -69,8 +82,8 @@ Uninstall package-managed global files:
 pnpm dlx @iamdevlinph/codex-kit@latest global uninstall
 ```
 
-Modified managed files are preserved unless `--force` is supplied. An existing
-unmanaged `commit-pusher.toml` is reported but never silently deleted.
+Uninstall removes only codex-kit's handlers from `hooks.json` and preserves other
+hooks. Modified managed files are preserved unless `--force` is supplied.
 
 ## Commands
 
@@ -180,7 +193,7 @@ commands do not add network latency or depend on registry availability.
 ## Requirements
 
 - Node.js 20 or newer
-- Codex with custom subagent support
+- Codex with custom subagent and lifecycle-hook support
 
 The published package has no runtime dependencies and uses only Node.js
 standard-library modules.
@@ -194,3 +207,6 @@ redistribute the package beyond applicable law and npm's service terms.
 
 - [Codex custom subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents)
 - [Codex `AGENTS.md` discovery](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
+- [Codex hooks](https://learn.chatgpt.com/docs/hooks)
+- [Delegate Mode](https://github.com/Raylinkh/delegate-mode), whose short-lived
+  subagent allowance pattern informed codex-kit's write guard
