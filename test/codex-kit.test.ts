@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -151,7 +151,24 @@ test("project sync preserves an independently modified template", () => {
   }
 });
 
-test("version check reports an available private package update", () => {
+test("publishing targets public npm through trusted publishing", () => {
+  const manifest = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")) as {
+    publishConfig?: { access?: string; registry?: string };
+  };
+  assert.deepEqual(manifest.publishConfig, {
+    registry: "https://registry.npmjs.org",
+    access: "public",
+  });
+  assert.equal(existsSync(join(ROOT, ".npmrc")), false);
+
+  const workflow = readFileSync(join(ROOT, ".github", "workflows", "publish.yml"), "utf8");
+  assert.match(workflow, /id-token: write/);
+  assert.match(workflow, /registry-url: https:\/\/registry\.npmjs\.org/);
+  assert.match(workflow, /npm publish --access public/);
+  assert.doesNotMatch(workflow, /NODE_AUTH_TOKEN|NPM_TOKEN|npm\.pkg\.github\.com/);
+});
+
+test("version check reports an available public package update", () => {
   const result = run(["version", "check"], {
     env: { CODEX_KIT_LATEST_VERSION: "0.2.0" },
   });

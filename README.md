@@ -1,6 +1,6 @@
 # `@iamdevlinph/codex-kit`
 
-Private, portable Codex setup for new devices and multiple projects. It packages:
+Public, portable Codex setup for new devices and multiple projects. It packages:
 
 - four custom subagents: explorer, quick implementer, implementer, and reviewer
 - global subagent-routing guidance with no `commit-pusher`
@@ -45,7 +45,7 @@ installation, restart its TypeScript server.
 | Get template updates | `codex-kit project sync` | Refreshes the local template reference without editing `AGENTS.md` |
 | Check reconciliation | `codex-kit project status` | Reports whether the latest template still needs review |
 | Record reconciliation | `codex-kit project mark-applied` | Records the template hash after Codex merges applicable rules |
-| Check for a release | `codex-kit version check` | Compares the installed CLI with the private package registry |
+| Check for a release | `codex-kit version check` | Compares the installed CLI with the public npm registry |
 
 ## Why two installation scopes
 
@@ -73,15 +73,50 @@ Create a private GitHub repository named `iamdevlinph/codex-kit`, copy this
 directory into it, then commit and push it. Keep the package name and GitHub
 namespace lowercase.
 
-GitHub Packages publishes the first version privately and links it to the
-repository through `package.json`.
+Repository and package visibility are independent: the GitHub repository stays
+private, while the public npm package can be installed without authentication.
+Everything included in the published package remains publicly downloadable. The
+repository URL is also visible in npm metadata because Trusted Publishing
+requires `package.json#repository.url` to match the GitHub repository exactly.
 
-## Publish
+npm Trusted Publishing supports private repositories, but npm does not generate
+provenance attestations for packages published from them. The package remains
+`UNLICENSED`; choose a license separately if you want to grant others permission
+to reuse or redistribute its published contents.
 
-> **No publishing token setup is required for normal releases.** The existing
-> GitHub Actions workflow receives GitHub's automatic `GITHUB_TOKEN`. You do not
-> need to generate a personal access token, run `pnpm login`, or add a package
-> token to repository secrets for this workflow.
+## First npm publication
+
+The npm package must exist before npm can attach a Trusted Publisher. Publish
+`0.1.0` once from a device:
+
+1. Create the npm account that owns the `@iamdevlinph` scope and enable 2FA.
+2. Authenticate through the browser—no manually generated token is needed.
+3. From the repository root, run the verification and first publication.
+
+```sh
+npm login --auth-type=web
+pnpm run typecheck
+pnpm test
+pnpm run pack:check
+pnpm publish --access public --no-git-checks
+```
+
+Then open the package on npmjs.com and configure **Settings → Trusted
+Publisher**:
+
+- provider: GitHub Actions
+- organization or user: `iamdevlinph`
+- repository: `codex-kit`
+- workflow filename: `publish.yml`
+- allowed action: `npm publish`
+
+Leave the environment blank unless the workflow later uses a GitHub environment.
+
+## Automated releases
+
+> **No publishing token or repository secret is required.** npm Trusted
+> Publishing authenticates the GitHub Actions workflow through short-lived OIDC
+> credentials. Do not add `NPM_TOKEN`, `NODE_AUTH_TOKEN`, or a package PAT.
 
 The workflow publishes whenever a version tag matching `package.json` is pushed:
 
@@ -90,45 +125,10 @@ pnpm version patch
 git push origin main --follow-tags
 ```
 
-The workflow installs the pinned pnpm version, uses the frozen lockfile, runs
-strict type checking and tests, builds the CLI, and publishes with its
-repository-scoped `GITHUB_TOKEN`.
-
-### Publish manually from a device
-
-The tag workflow above is recommended. If you intentionally publish with
-`pnpm publish` from your device instead, create a classic personal access token:
-
-1. Open GitHub **Settings** → **Developer settings** → **Personal access
-   tokens** → **Tokens (classic)**.
-2. Select **Generate new token (classic)**, set a name and expiration, and grant
-   `write:packages`.
-3. If the repository belongs to an organization that uses SAML SSO, authorize
-   the token for that organization.
-4. Run the login command below and enter your GitHub username. Paste the token,
-   not your GitHub password, at the password prompt.
-
-```sh
-pnpm login --scope=@iamdevlinph --auth-type=legacy --registry=https://npm.pkg.github.com
-pnpm publish --no-git-checks
-```
-
-Do not commit the token or a token-bearing `.npmrc` file.
-
-## Authenticate a device
-
-GitHub Packages currently requires a classic personal access token for local
-package clients. This token is only for installing or updating the private
-package locally; it is not needed by the publishing workflow. Follow steps 1–3
-above, granting `read:packages` instead of `write:packages`. Then authenticate
-without committing the token:
-
-```sh
-pnpm login --scope=@iamdevlinph --auth-type=legacy --registry=https://npm.pkg.github.com
-```
-
-Enter your GitHub username and paste the token at the password prompt. This is
-normally required once per device, until the token expires or is revoked.
+The workflow uses Node 24, npm `11.5.1`, pnpm `11.5.2`, the frozen lockfile,
+strict type checking, and tests before `npm publish`. The `id-token: write`
+permission is required for OIDC. The package must already have the matching
+Trusted Publisher configuration on npmjs.com.
 
 ## Configure the orchestrator
 
@@ -174,8 +174,8 @@ potential secrets.
 codex-kit version check
 ```
 
-The command uses the authenticated GitHub Packages registry and reports the
-installed and latest versions. When an update exists, it prints:
+The command checks the public npm registry without authentication and reports
+the installed and latest versions. When an update exists, it prints:
 
 ```sh
 pnpm add --global @iamdevlinph/codex-kit@latest
@@ -186,6 +186,13 @@ The check is explicit rather than automatic, so normal project commands do not
 add network latency or fail when the registry is temporarily unavailable.
 
 ## Install on a new device
+
+The package is public; no npm or GitHub login is required.
+
+If a device previously used the GitHub Packages version, remove the
+`@iamdevlinph:registry=https://npm.pkg.github.com` mapping and its GitHub Packages
+auth-token line from the user-level `~/.npmrc` after confirming no other package
+needs them. Otherwise pnpm may keep routing this scope to the old registry.
 
 ```sh
 pnpm dlx @iamdevlinph/codex-kit global install
@@ -223,6 +230,25 @@ pnpm dlx @iamdevlinph/codex-kit project init
 Add repository-specific rules only below `# Project-Specific Instructions`.
 The generated `TEMPLATE_AGENTS.md` is a reference file; it is not automatically
 merged into `AGENTS.md`.
+
+### Generate stack-specific project instructions
+
+The shared template intentionally avoids stack assumptions. For an existing
+project, run this prompt after `project init`. For a new project, scaffold the
+initial stack first, then use the same prompt:
+
+```txt
+Explore this repository before changing code. Identify its languages,
+frameworks, package manager, scripts, directory structure, styling and component
+systems, form and validation libraries, data-access patterns, testing tools, and
+generated files.
+
+Update only the project-specific section of AGENTS.md with concise guidelines
+derived from the repository's actual dependencies, configuration, scripts, and
+established code patterns. Include exact verification commands. Preserve the
+managed shared-template block, avoid speculative preferences, and do not add
+rules for tools the repository does not use.
+```
 
 After publishing template changes:
 
@@ -271,9 +297,9 @@ Choose the narrowest scope that fits the rule:
 | Project-specific command, path, integration, or exception | Project `AGENTS.md` | Keep only in that project |
 
 Do not place the complete template in global `~/.codex/AGENTS.md`. It contains
-project and stack conventions that may be wrong for unrelated repositories. The
-global file should remain a small personal baseline. The packaged template is
-versioned and copied into each project's local reference file.
+project workflow conventions that do not belong in every repository. The global
+file should remain a small personal baseline. The packaged template is versioned
+and copied into each project's local reference file.
 
 ### When a project reveals a template-worthy guideline
 
@@ -362,5 +388,5 @@ standard-library modules, and supports Node 20+.
 
 - [Codex custom subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents)
 - [Codex `AGENTS.md` discovery](https://learn.chatgpt.com/docs/agent-configuration/agents-md)
-- [GitHub Packages npm registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry)
-- [Publishing packages with GitHub Actions](https://docs.github.com/en/packages/managing-github-packages-using-github-actions-workflows/publishing-and-installing-a-package-with-github-actions)
+- [Publishing scoped public npm packages](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages/)
+- [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers/)

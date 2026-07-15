@@ -7,27 +7,25 @@ on:
 
 permissions:
   contents: read
-  packages: write
+  id-token: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         with:
           version: 11.5.2
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 22
-          registry-url: https://npm.pkg.github.com
-          scope: "@iamdevlinph"
-          cache: pnpm
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: npm install --global npm@11.5.1
       - run: pnpm install --frozen-lockfile
       - run: pnpm run typecheck
       - run: pnpm test
       - name: Verify tag matches package version
         run: node -e "const p=require('./package.json'); if (process.env.GITHUB_REF_NAME !== 'v'+p.version) process.exit(1)"
-      - run: pnpm publish --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: npm publish --access public

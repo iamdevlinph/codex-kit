@@ -2,7 +2,8 @@
 
 ## Purpose and sources of truth
 
-- This repository maintains the private `@iamdevlinph/codex-kit` package.
+- This private repository maintains the public `@iamdevlinph/codex-kit`
+  package.
 - `AGENTS.md` contains instructions for maintaining this repository.
 - `assets/TEMPLATE_AGENTS.md` is the canonical reusable template distributed to
   downstream projects. Do not treat it as this repository's active instructions.
