@@ -12,12 +12,17 @@ Codex model configuration; configuration is a separate, explicit command.
 
 ## Install on a device
 
-No npm or GitHub login is required:
+No npm or GitHub login is required. For regular use, install the CLI globally:
 
 ```sh
-pnpm dlx @iamdevlinph/codex-kit@latest global install
-pnpm dlx @iamdevlinph/codex-kit@latest global configure
+pnpm add --global @iamdevlinph/codex-kit@latest
+codex-kit global install
+codex-kit global configure
 ```
+
+`npm install --global @iamdevlinph/codex-kit@latest` works as an alternative.
+For one-off use without a global installation, prefix a command with
+`pnpm dlx @iamdevlinph/codex-kit@latest`.
 
 `global install` copies reusable agents to `${CODEX_HOME:-~/.codex}` and
 maintains a marked routing section in the global `AGENTS.md`.
@@ -60,6 +65,8 @@ unmanaged `commit-pusher.toml` is reported but never silently deleted.
 
 | Action | Command |
 | --- | --- |
+| Show command help | `codex-kit --help` |
+| Print the installed version | `codex-kit --version` |
 | Install global agents and routing | `codex-kit global install` |
 | Configure the orchestrator | `codex-kit global configure` |
 | Inspect global configuration | `codex-kit global list` |

@@ -5,6 +5,7 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  realpathSync,
   readdirSync,
   renameSync,
   rmSync,
@@ -733,6 +734,7 @@ Usage:
   codex-kit project status [--cwd PATH]
   codex-kit project mark-applied [--cwd PATH]
   codex-kit version check
+  codex-kit --help
   codex-kit --version
 
 Global configure defaults to gpt-5.6-sol with high reasoning and edits only
@@ -757,7 +759,10 @@ export function main(argv: string[] = process.argv.slice(2)): void {
   throw new Error(`Unknown command: ${options.positionals.join(" ")}`);
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (
+  process.argv[1] &&
+  realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))
+) {
   try {
     main();
   } catch (error) {
