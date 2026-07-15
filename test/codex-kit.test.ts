@@ -80,6 +80,12 @@ test("help describes every command", () => {
   }
   assert.match(help, /Refresh TEMPLATE_AGENTS\.md without editing AGENTS\.md/);
   assert.match(help, /Restore managed config values/);
+  assert.match(help, /Options by command:/);
+  assert.match(help, /global install\n\s+--codex-home PATH[^\n]+\n\s+--force/);
+  assert.match(help, /global list, global uninstall\n\s+--codex-home PATH/);
+  assert.match(help, /project init, project sync\n\s+--cwd PATH[^\n]+\n\s+--force/);
+  assert.match(help, /codex-kit global configure --orchestrator gpt-5\.6-sol --reasoning-effort high/);
+  assert.match(help, /codex-kit project sync --cwd \/path\/to\/project --force/);
 });
 
 test("global install and uninstall manage only package-owned files", () => {

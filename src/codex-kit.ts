@@ -878,15 +878,33 @@ Commands:
   --help               Show this help.
   --version            Print the installed version.
 
-Options:
-  --codex-home PATH         Use a Codex home other than CODEX_HOME or ~/.codex.
-  --cwd PATH                Use a project directory other than the current directory.
-  --force                   Replace modified files or config managed by codex-kit.
-  --orchestrator MODEL      Set the root/orchestrator model (default: gpt-5.6-sol).
-  --model MODEL             Alias for --orchestrator.
-  --reasoning-effort LEVEL  Set normal and Plan-mode effort (default: high).
+Options by command:
+  global install
+    --codex-home PATH  Use a Codex home other than CODEX_HOME or ~/.codex.
+    --force            Replace modified files managed by codex-kit.
 
-Run a command with only its applicable options.`);
+  global configure
+    --codex-home PATH         Use a Codex home other than CODEX_HOME or ~/.codex.
+    --force                   Replace modified config managed by codex-kit.
+    --orchestrator MODEL      Set the root/orchestrator model (default: gpt-5.6-sol).
+    --model MODEL             Alias for --orchestrator.
+    --reasoning-effort LEVEL  Set normal and Plan-mode effort (default: high).
+
+  global list, global uninstall
+    --codex-home PATH  Use a Codex home other than CODEX_HOME or ~/.codex.
+
+  project init, project sync
+    --cwd PATH  Use a project directory other than the current directory.
+    --force     Replace modified files managed by codex-kit.
+
+  project status, project mark-applied
+    --cwd PATH  Use a project directory other than the current directory.
+
+Examples:
+  codex-kit global install --force
+  codex-kit global configure --orchestrator gpt-5.6-sol --reasoning-effort high
+  codex-kit project sync --cwd /path/to/project --force
+  codex-kit project status --cwd /path/to/project`);
 }
 
 export function main(argv: string[] = process.argv.slice(2)): void {
