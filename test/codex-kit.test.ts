@@ -254,7 +254,7 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
     assert.match(result.stdout, /code-explorer — gpt-5\.6-luna, medium \(managed\)/);
     assert.match(result.stdout, /code-reviewer — gpt-5\.6-sol, high \(managed\)/);
     assert.match(result.stdout, /implementer — gpt-5\.6-luna, high \(managed\)/);
-    assert.match(result.stdout, /quick-implementer — gpt-5\.6-luna, low \(managed\)/);
+    assert.match(result.stdout, /quick-implementer — gpt-5\.6-luna, medium \(managed\)/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
