@@ -1,6 +1,6 @@
 {
   "name": "@iamdevlinph/codex-kit",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Portable Codex subagents and project AGENTS.md defaults.",
   "type": "module",
   "bin": {
