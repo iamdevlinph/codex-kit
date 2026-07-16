@@ -18,6 +18,7 @@ P3 Low, with precise file and line references.
 
 ## Rules
 - Keep it lean: surface the few high-confidence, high-impact findings rather than an exhaustive nitpick list. Rank by severity.
+- Finish within three minutes. At the deadline, stop and return the findings already supported by the diff.
 - Review only — do not modify code unless the caller explicitly asks you to fix findings.
 - Block merge on P0/P1; call out exploitability and impact for security findings.
 - If the diff is empty, say so and ask what to review.

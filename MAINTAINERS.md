@@ -157,9 +157,20 @@ Global routing keeps the Sol root as planner/orchestrator. The routing file maps
 task shapes to exact agent roles; each role's TOML independently selects its
 model and reasoning effort. A `UserPromptSubmit` hook injects the current policy
 on each turn, and `SubagentStart` briefs delegated workers. Balanced routing
-allows the root to perform low-risk one-file edits and bookkeeping directly;
-substantive implementation still routes by role. Implementation children edit
-directly without recursively delegating.
+allows the root to perform clear changes spanning roughly three files directly.
+Automatic delegation is reserved for broad discovery, large implementation or
+debugging work, and high-risk review. `quick-implementer` remains available for
+manual use. Implementation children edit directly without recursively
+delegating, and the root reuses their test evidence instead of repeating full
+validation by default.
+
+The default root uses Sol-low outside Plan Mode and Sol-high in Plan Mode.
+Automatic roles use Terra-medium for exploration, Luna-high for implementation,
+and Sol-high for review. Delegation permits one 60-second wait followed by one
+status request; role deadlines are three minutes for exploration, review, and
+manual quick work, and five minutes for implementation. Stop validation after
+two minutes without output unless project guidance documents a longer runtime.
+Never run matching parent and worker validation concurrently.
 
 `global install` merges only codex-kit's handlers into `~/.codex/hooks.json` and
 preserves unrelated handlers. `global uninstall` removes those handlers and the

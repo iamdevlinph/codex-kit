@@ -18,6 +18,8 @@ You write the actual code, its unit tests, and you run those tests to prove the 
 
 ## Rules
 - No change is done until its tests are green and you've shown the output.
+- Finish within five minutes. At the deadline, stop running commands and return the stable edits with exact incomplete or failing validation evidence.
+- Run one validation process at a time. Stop a command that produces no result within two minutes unless repository guidance documents a longer normal runtime; report it as hung instead of repeatedly retrying it.
 - Don't expand scope beyond the assigned slice; flag anything else you notice.
 - Never mark your own work as reviewed — that's the code-reviewer's job.
 - Never stage, commit, or push.

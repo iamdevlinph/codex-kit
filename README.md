@@ -2,7 +2,7 @@
 
 Portable Codex setup for new devices and multiple projects. It provides:
 
-- four custom subagents: explorer, quick implementer, implementer, and reviewer
+- three automatically routed roles plus a manual quick implementer
 - automatic global role routing
 - a reusable, stack-neutral `AGENTS.md` template
 - safe commands for global setup, project synchronization, and reconciliation
@@ -37,25 +37,42 @@ routing hook supplies the current `SUBAGENT_ROUTING.md`; the root classifies the
 task and delegates substantive work to the exact matching role. The role's agent
 TOML—not the routing policy—selects its model and reasoning effort. To avoid
 subagent startup overhead, the root may directly handle planning, conversation,
-read-only checks, documentation, configuration bookkeeping, template
-reconciliation, and explicit low-risk one-file edits.
+read-only checks, documentation, bookkeeping, and clear changes spanning up to
+roughly three files. Automatic delegation is reserved for broad discovery,
+large multi-file implementation or debugging, and high-risk review.
+
+`quick-implementer` remains installed for explicit manual delegation but is not
+selected by the default automatic route. The root reuses delegated test evidence
+and normally performs only lightweight integration checks.
 
 `global configure` sets these defaults while preserving unrelated settings:
 
 ```toml
 model = "gpt-5.6-sol"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "low"
 plan_mode_reasoning_effort = "high"
 ```
 
-This keeps ordinary root work lighter while retaining high reasoning in Plan
+This keeps ordinary root work light while retaining high reasoning in Plan
 Mode. Override either effort independently when needed:
 
 ```sh
 codex-kit global configure \
-  --reasoning-effort medium \
+  --reasoning-effort low \
   --plan-reasoning-effort high
 ```
+
+Automatic role models are tuned by task shape: Terra-medium performs broad
+repository exploration, Luna-high performs large implementation slices, and
+Sol-high reviews consequential changes. Luna-medium `quick-implementer` remains
+manual-only.
+
+Delegation is time-bounded. The root waits once for up to 60 seconds, requests
+one progress update, and then enforces a three-minute read/review/manual-quick
+deadline or five-minute implementation deadline. Validation commands that make
+no progress for two minutes are stopped unless the repository documents a
+longer normal runtime. Root and worker never run the same validation
+concurrently.
 
 Before changing these keys, codex-kit creates a timestamped `config.toml`
 backup and records their previous values. `global uninstall` restores those

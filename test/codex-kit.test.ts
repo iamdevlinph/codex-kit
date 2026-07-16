@@ -84,9 +84,9 @@ test("help describes every command", () => {
   assert.match(help, /global install\n\s+--codex-home PATH[^\n]+\n\s+--force/);
   assert.match(help, /global list, global uninstall\n\s+--codex-home PATH/);
   assert.match(help, /project init, project sync\n\s+--cwd PATH[^\n]+\n\s+--force/);
-  assert.match(help, /--reasoning-effort LEVEL\s+Set normal reasoning effort \(default: medium\)/);
+  assert.match(help, /--reasoning-effort LEVEL\s+Set normal reasoning effort \(default: low\)/);
   assert.match(help, /--plan-reasoning-effort LEVEL\s+Set Plan-mode reasoning effort \(default: high\)/);
-  assert.match(help, /codex-kit global configure --reasoning-effort medium --plan-reasoning-effort high/);
+  assert.match(help, /codex-kit global configure --reasoning-effort low --plan-reasoning-effort high/);
   assert.match(help, /codex-kit project sync --cwd \/path\/to\/project --force/);
 });
 
@@ -117,6 +117,12 @@ test("global install and uninstall manage only package-owned files", () => {
     assert.match(globalAgents, /BEGIN codex-kit:subagent-routing/);
     assert.match(globalAgents, /Route by role and task shape, never by a\s+model name/);
     assert.match(globalAgents, /spawn that exact role\s+before performing\s+the role's work/);
+    assert.match(globalAgents, /changes spanning up to\s+roughly three files/);
+    assert.match(globalAgents, /quick-implementer.*explicit manual delegation/s);
+    assert.match(globalAgents, /run only\s+lightweight integration checks/);
+    assert.match(globalAgents, /Wait once for at most 60 seconds/);
+    assert.match(globalAgents, /five minutes\s+for `implementer`/);
+    assert.match(globalAgents, /no result within two minutes is hung/);
     assert.match(globalAgents, /implementation agent performs its edits directly and must not\s+delegate them again/);
     const installedHooks = readFileSync(hooks, "utf8");
     assert.match(installedHooks, /existing-hook/);
@@ -155,7 +161,7 @@ test("routing hook injects balanced policy and briefs subagents", () => {
       prompt: "Implement the plan.",
     });
     assert.match(promptOutput, /classify the work using this file/i);
-    assert.match(promptOutput, /quick-implementer/);
+    assert.match(promptOutput, /quick-implementer.*explicit manual delegation/s);
     assert.match(promptOutput, /code-reviewer/);
     assert.match(promptOutput, /Agent definitions, not this policy, determine each role's model/);
 
@@ -189,7 +195,7 @@ test("global configure sets the Sol orchestrator without replacing unrelated con
     run(["global", "configure", "--codex-home", home]);
     const configured = readFileSync(config, "utf8");
     assert.match(configured, /model = "gpt-5.6-sol"/);
-    assert.match(configured, /model_reasoning_effort = "medium"/);
+    assert.match(configured, /model_reasoning_effort = "low"/);
     assert.match(configured, /plan_mode_reasoning_effort = "high"/);
     assert.match(configured, /service_tier = "default"/);
     assert.match(configured, /trust_level = "trusted"/);
@@ -217,11 +223,11 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
     run(["global", "configure", "--codex-home", home]);
     const result = run(["global", "list", "--codex-home", home]);
     assert.match(result.stdout, /Orchestrator: gpt-5\.6-sol/);
-    assert.match(result.stdout, /Reasoning effort: medium/);
+    assert.match(result.stdout, /Reasoning effort: low/);
     assert.match(result.stdout, /Plan mode reasoning effort: high/);
     assert.match(result.stdout, /Global routing: installed/);
     assert.match(result.stdout, /Routing hook: installed/);
-    assert.match(result.stdout, /code-explorer — gpt-5\.6-luna, medium \(managed\)/);
+    assert.match(result.stdout, /code-explorer — gpt-5\.6-terra, medium \(managed\)/);
     assert.match(result.stdout, /code-reviewer — gpt-5\.6-sol, high \(managed\)/);
     assert.match(result.stdout, /implementer — gpt-5\.6-luna, high \(managed\)/);
     assert.match(result.stdout, /quick-implementer — gpt-5\.6-luna, medium \(managed\)/);
