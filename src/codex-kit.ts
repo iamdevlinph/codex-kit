@@ -341,7 +341,29 @@ function saveProjectState(cwd: string, state: ProjectState): void {
 }
 
 function templatePrompt(): string {
-  return `Template reference updated. Ask Codex:\n\nThe project's TEMPLATE_AGENTS.md was refreshed from codex-kit. Compare it with\nAGENTS.md and merge only new or changed reusable guidelines that apply to this\nrepository. Preserve project-specific instructions and existing adaptations. Do\nnot replace AGENTS.md wholesale. If a template rule conflicts with a local rule,\nkeep the local rule and report the conflict. Summarize what was added, updated,\nskipped, or adapted, and why. When finished, run codex-kit project mark-applied.`;
+  return `Template reference updated. Ask Codex:
+
+The project's TEMPLATE_AGENTS.md was refreshed from codex-kit. Compare it with
+AGENTS.md and merge only new or changed reusable guidelines that apply to this
+repository.
+
+Keep durable, always-applicable repository rules in AGENTS.md. When the updated
+template identifies a repeatable, task-specific procedure, inspect existing
+project skills under .agents/skills and create or update a skill only when it
+would reduce conditional detail in AGENTS.md. Preserve existing relevant skills
+and avoid duplicating detailed instructions between AGENTS.md and SKILL.md.
+
+Keep critical safety, authorization, database, deployment, and destructive-
+operation restrictions in AGENTS.md even when a skill contains the detailed
+workflow. Do not create speculative skills.
+
+Preserve project-specific instructions and existing adaptations. Do not replace
+AGENTS.md wholesale. If a template rule conflicts with a local rule, keep the
+local rule and report the conflict.
+
+Summarize what was added, updated, skipped, adapted, or moved into a skill, and
+why. Validate any created or modified skills. When finished, run codex-kit
+project mark-applied.`;
 }
 
 function managedBlock(content: string, begin: string, end: string): string {

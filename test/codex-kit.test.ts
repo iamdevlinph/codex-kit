@@ -236,16 +236,22 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
   }
 });
 
-test("project sync keeps AGENTS.md separate from the template reference", () => {
+test("project sync keeps AGENTS.md separate and prints skill-aware reconciliation guidance", () => {
   const project = mkdtempSync(join(tmpdir(), "codex-kit-project-"));
   try {
     run(["project", "init", "--cwd", project]);
     const agents = join(project, "AGENTS.md");
     writeFileSync(agents, `${readFileSync(agents, "utf8")}\n- Keep this local rule.\n`);
-    run(["project", "sync", "--cwd", project]);
+    const result = run(["project", "sync", "--cwd", project]);
     assert.match(readFileSync(agents, "utf8"), /Keep this local rule/);
-    assert.match(readFileSync(join(project, "TEMPLATE_AGENTS.md"), "utf8"), /Shared Agent Defaults/);
+    const template = readFileSync(join(project, "TEMPLATE_AGENTS.md"), "utf8");
+    assert.match(template, /Shared Agent Defaults/);
+    assert.match(template, /Instructions And Skills/);
     assert.match(readFileSync(join(project, ".codex-kit-state.json"), "utf8"), /availableHash/);
+    assert.match(result.stdout, /\.agents\/skills/);
+    assert.match(result.stdout, /Keep critical safety, authorization, database, deployment/);
+    assert.match(result.stdout, /Do not create speculative skills/);
+    assert.match(result.stdout, /Validate any created or modified skills/);
   } finally {
     rmSync(project, { recursive: true, force: true });
   }

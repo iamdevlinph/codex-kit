@@ -140,8 +140,8 @@ When a project reveals a reusable guideline:
 3. Merge only that generalized change into `assets/TEMPLATE_AGENTS.md` here.
 4. Run the full verification commands and publish a new package version.
 5. Run `project sync` in downstream projects.
-6. Ask Codex to reconcile each `AGENTS.md`, review the result, then run
-   `project mark-applied`.
+6. Ask Codex to reconcile each `AGENTS.md` and applicable project skills under
+   `.agents/skills`, review the result, then run `project mark-applied`.
 
 A guideline is template-worthy only when it applies across future projects
 regardless of their exact stack or file layout.
@@ -192,7 +192,8 @@ pnpm dlx @iamdevlinph/codex-kit@latest project sync --cwd /path/to/project
 ```
 
 `project sync` updates only `TEMPLATE_AGENTS.md` and project state. It never
-edits `AGENTS.md`.
+edits `AGENTS.md` or `.agents/skills`; its printed reconciliation prompt asks
+Codex to make and validate any applicable instruction or skill changes.
 
 ## Verification
 

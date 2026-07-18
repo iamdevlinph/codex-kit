@@ -168,9 +168,13 @@ pnpm dlx @iamdevlinph/codex-kit@latest project sync
 codex-kit project status
 ```
 
-`project sync` never edits `AGENTS.md`. It prints a prompt asking Codex to merge
-only applicable reusable changes while preserving local adaptations. After
-reviewing the semantic merge, record the applied template hash:
+`project sync` never edits `AGENTS.md` or project skills. It prints a prompt
+asking Codex to merge only applicable reusable changes while preserving local
+adaptations. Reconciliation keeps always-on rules in `AGENTS.md` and may create
+or update task-specific workflows under `.agents/skills` when the updated
+template warrants them. Critical safety and authorization rules remain in
+`AGENTS.md`, and speculative skills are avoided. After reviewing the semantic
+merge and any skill changes, record the applied template hash:
 
 ```sh
 codex-kit project mark-applied

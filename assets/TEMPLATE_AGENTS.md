@@ -13,6 +13,28 @@ the managed markers.
   priorities, deferred requirements, product or implementation decisions, and
   major completed milestones.
 
+## Instructions And Skills
+
+- Keep `AGENTS.md` focused on durable, always-applicable repository context:
+  architecture, conventions, commands, safety and authorization boundaries,
+  verification expectations, and concise pointers to specialized workflows.
+- Use project skills under `.agents/skills/<skill-name>/SKILL.md` for repeatable,
+  task-specific workflows or detailed guidance needed only for matching tasks.
+- In existing projects, review large task-specific procedures in `AGENTS.md`.
+  When a procedure is reusable and conditionally relevant, extract it into a
+  project skill and leave a concise routing rule in `AGENTS.md`.
+- Preserve critical safety, authorization, destructive-operation, database, and
+  deployment restrictions in `AGENTS.md`, even when a skill contains the
+  detailed workflow.
+- In new projects, begin with a concise `AGENTS.md`. Add a skill only after a
+  concrete repeatable workflow or specialized procedure is identified; do not
+  create speculative skills.
+- Avoid duplicating detailed instructions between `AGENTS.md` and `SKILL.md`.
+  Keep the always-on rule in `AGENTS.md` and the conditional procedure in the
+  skill.
+- Each project skill must use valid YAML frontmatter with a clear `name` and a
+  `description` that states when the skill should trigger.
+
 ## Template Maintenance
 
 - Projects normally use `AGENTS.md` as the active instruction file. The source
@@ -52,8 +74,12 @@ contents of TEMPLATE_AGENTS.md between
 <!-- END codex-kit:shared-template -->. Preserve every repository-specific
 instruction from the current AGENTS.md after the managed block under
 # Project-Specific Instructions, remove only duplicate shared rules, and do not
-change project behavior. Afterward, summarize what was preserved and whether any
-local rules appear template-worthy.
+change project behavior. Review existing project skills under .agents/skills and
+move conditionally relevant, repeatable procedures out of AGENTS.md only when a
+skill is warranted. Preserve critical safety and authorization rules in
+AGENTS.md, preserve existing relevant skills, avoid speculative skills, and
+validate any skill you create or modify. Afterward, summarize what was preserved,
+what moved into a skill, and whether any local rules appear template-worthy.
 ```
 
 ## Core Behavior
