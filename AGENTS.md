@@ -10,6 +10,24 @@
 - Keep reusable template rules project-agnostic. Project names, local paths,
   integrations, and exceptions belong only in the affected project's `AGENTS.md`.
 
+## Working conventions
+
+- Follow the repository's existing style, structure, architecture, and stronger
+  local instructions. Match nearby code before introducing new patterns,
+  abstractions, dependencies, or file organization.
+- Keep changes minimal, localized, and limited to the request. Do not reorganize
+  major modules, change architecture, or introduce a new project paradigm without
+  explicit approval.
+- Before changing code, inspect the manifest, configuration, scripts, and nearby
+  files to identify the actual stack, commands, and conventions.
+- Reuse existing constants, schemas, enums, shared types, and components before
+  creating duplicates. Add reusable domain values at their existing source of
+  truth rather than scattering magic strings.
+- Preserve user changes and unrelated dirty state. Never revert them without an
+  explicit request, and never run destructive Git commands such as
+  `git reset --hard` or `git checkout --` without explicit approval.
+- Use `apply_patch` for manual edits and prefer `rg` or `rg --files` for searches.
+
 ## Implementation constraints
 
 - Support Node.js 20 or newer and prefer Node standard-library APIs.
@@ -39,6 +57,10 @@
 - `MAINTAINERS.md`, repository instructions, source, and tests must remain
   outside the public npm package. Verify the tarball contents before release.
 - Add or update focused tests for behavior changes and safety checks.
+- Run the smallest targeted verification that meaningfully validates a change
+  before the full required checks. Avoid broad commands and use the repository's
+  documented package manager and scripts.
+- Do not change dependencies, global tools, or the environment by default.
 - Run `pnpm run typecheck`, `pnpm test`, and `pnpm run pack:check` before
   declaring a change complete.
 
