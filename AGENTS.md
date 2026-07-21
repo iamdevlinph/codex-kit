@@ -6,7 +6,8 @@
   package.
 - `AGENTS.md` contains instructions for maintaining this repository.
 - `assets/TEMPLATE_AGENTS.md` is the canonical reusable template distributed to
-  downstream projects. Do not treat it as this repository's active instructions.
+  downstream projects. The root `TEMPLATE_AGENTS.md` is a staged reference;
+  neither template is this repository's active instructions.
 - Keep reusable template rules project-agnostic. Project names, local paths,
   integrations, and exceptions belong only in the affected project's `AGENTS.md`.
 
@@ -56,7 +57,10 @@
   with behavior changes.
 - `MAINTAINERS.md`, repository instructions, source, and tests must remain
   outside the public npm package. Verify the tarball contents before release.
-- Add or update focused tests for behavior changes and safety checks.
+- For behavior changes and bug fixes, add or update the smallest focused
+  automated tests that meaningfully prevent regression. Do not introduce a test
+  framework or low-value tests solely to satisfy this rule; if automated coverage
+  is impractical, explain why and perform the strongest targeted verification.
 - Run the smallest targeted verification that meaningfully validates a change
   before the full required checks. Avoid broad commands and use the repository's
   documented package manager and scripts.
@@ -66,6 +70,11 @@
 
 ## Template and release workflow
 
+- When the staged template is refreshed or `codex-kit project status` requires
+  reconciliation, use the global `$codex-kit-reconcile-agents` skill. Preserve
+  this file's organization and local rules, merge only applicable guidance, do
+  not copy the full template or add managed markers, keep critical always-on
+  rules here, and mark applied only after reconciliation and validation succeed.
 - When promoting a project-discovered guideline, generalize and review the rule
   before merging it into `assets/TEMPLATE_AGENTS.md`.
 - A template update requires a new package release before downstream
