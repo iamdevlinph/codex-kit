@@ -41,6 +41,13 @@ read-only checks, documentation, bookkeeping, and clear changes spanning up to
 roughly three files. Automatic delegation is reserved for broad discovery,
 large multi-file implementation or debugging, and high-risk review.
 
+For a substantial task that splits into genuinely independent slices, the root
+may run multiple `implementer` instances concurrently. Each receives exclusive
+file or module ownership and separate validation scope. Work that shares types,
+schemas, configuration, generated artifacts, migrations, lockfiles, or dependency
+ordering stays with one implementer or runs sequentially; multiple files alone
+do not justify duplicate agents.
+
 `quick-implementer` remains installed for explicit manual delegation but is not
 selected by the default automatic route. The root reuses delegated test evidence
 and normally performs only lightweight integration checks.
@@ -133,13 +140,12 @@ pnpm dlx @iamdevlinph/codex-kit@latest project init
 
 This creates:
 
-- `AGENTS.md`, containing the reusable defaults and a project-specific section
+- `AGENTS.md`, containing a project-specific section ready for reconciliation
 - `TEMPLATE_AGENTS.md`, a local reference copy used for future comparisons
 - `.codex-kit-state.json`, reconciliation bookkeeping
 
-The template reference is not an active Codex instruction file. Add repository
-commands, paths, architecture, integrations, and exceptions to the
-project-specific section of `AGENTS.md`.
+Add repository commands, paths, architecture, integrations, and exceptions to
+the project-specific section of `AGENTS.md`.
 
 ### Generate project-specific guidance
 

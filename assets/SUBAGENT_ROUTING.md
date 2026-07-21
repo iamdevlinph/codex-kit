@@ -26,8 +26,17 @@ Select custom agents by exact name:
 For tasks with multiple phases, sequence only the roles that add value. For
 example, use `code-explorer` before implementation only when broad discovery is
 actually needed, and use `code-reviewer` after implementation only when the
-change meets its risk threshold. Avoid parallel write-heavy work and never assign
-overlapping files to multiple agents.
+change meets its risk threshold. Avoid parallel write-heavy work by default and
+never assign overlapping files to multiple agents.
+
+Multiple `implementer` instances may run concurrently only when a substantial
+task divides into genuinely independent slices. Give each instance exclusive
+ownership of named files or modules and a separate validation scope. Do not
+parallelize slices that share schemas, types, configuration, lockfiles, generated
+artifacts, migrations, or dependency ordering. If ownership overlaps or one
+slice depends on another, use one implementation agent or sequence the agents.
+The parent performs final integration validation after all slices return. Do not
+spawn duplicate agents merely because multiple files are involved.
 
 Prefer the parent fast path when delegation would cost more than the work. Do not
 spawn a subagent solely because a tool will write a file. Delegate based on task

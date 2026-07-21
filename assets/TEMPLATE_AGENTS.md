@@ -37,13 +37,17 @@ the managed markers.
 
 ## Template Maintenance
 
-- Projects normally use `AGENTS.md` as the active instruction file. The source
-  template is `assets/TEMPLATE_AGENTS.md` in the private `codex-kit` repository
-  and public package.
-- A project-local `TEMPLATE_AGENTS.md` is an optional temporary sync/reference
-  copy, not an active file or automatic update path. Updating `AGENTS.md` does
-  not update either template, and an updated `AGENTS.md` need not be copied back
-  to its local reference.
+- `TEMPLATE_AGENTS.md` is a staged reference copy of codex-kit's reusable
+  instructions, not active project guidance. Active repository guidance lives
+  in `AGENTS.md` and applicable project skills under `.agents/skills`.
+- When `codex-kit project status` reports `reconciliation required`, compare the
+  template reference with `AGENTS.md`, apply relevant reusable changes, preserve
+  project-specific rules, reconcile applicable skills, then run
+  `codex-kit project mark-applied`.
+- Keep project-specific rules out of `TEMPLATE_AGENTS.md`. Treat local template
+  edits as candidates that must be generalized and promoted to the canonical
+  `assets/TEMPLATE_AGENTS.md` in the codex-kit repository. Updating `AGENTS.md`
+  does not update either template automatically.
 - Keep project-specific context outside the managed `AGENTS.md` block; keep only
   reusable cross-project rules in the packaged template.
 - When a request introduces a reusable workflow preference, convention, agent
@@ -78,8 +82,9 @@ change project behavior. Review existing project skills under .agents/skills and
 move conditionally relevant, repeatable procedures out of AGENTS.md only when a
 skill is warranted. Preserve critical safety and authorization rules in
 AGENTS.md, preserve existing relevant skills, avoid speculative skills, and
-validate any skill you create or modify. Afterward, summarize what was preserved,
-what moved into a skill, and whether any local rules appear template-worthy.
+validate any skill you create or modify. Afterward, summarize what was
+preserved, what moved into a skill, and whether any local rules appear
+template-worthy.
 ```
 
 ## Core Behavior
@@ -110,6 +115,13 @@ what moved into a skill, and whether any local rules appear template-worthy.
 - Avoid broad commands. After changes, run the smallest targeted verification
   that meaningfully validates them when practical, then report the command and
   result. Use the repository's documented package manager and scripts.
+- For behavior changes and bug fixes, add or update the smallest focused
+  automated tests that meaningfully prevent regression when the repository has
+  an established test setup.
+- Do not introduce a test framework or create low-value tests solely to satisfy
+  this rule. If automated coverage is impractical, explain why and perform the
+  strongest targeted verification available.
+- Run the relevant focused tests after changing tested behavior.
 - Do not change dependencies, global tools, or the environment by default.
 - Do not run local or remote database inspection, generation, migration, or SQL
   commands unless the task requires them.

@@ -729,7 +729,10 @@ function syncProject(options: Options): void {
   saveProjectState(cwd, state);
 
   if (!existsSync(agentsFile)) {
-    const contents = "# Project-Specific Instructions\n\n<!-- Add repository-specific commands, architecture, and exceptions here. -->\n";
+    const contents = `# Project-Specific Instructions
+
+<!-- Add repository-specific commands, architecture, and exceptions here. -->
+`;
     write(agentsFile, contents);
     console.log(`created project instructions file: ${agentsFile}`);
   } else if (readText(agentsFile).includes(PROJECT_BEGIN) || readText(agentsFile).includes(PROJECT_END)) {

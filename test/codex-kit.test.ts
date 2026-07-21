@@ -118,6 +118,9 @@ test("global install and uninstall manage only package-owned files", () => {
     assert.match(globalAgents, /Route by role and task shape, never by a\s+model name/);
     assert.match(globalAgents, /spawn that exact role\s+before performing\s+the role's work/);
     assert.match(globalAgents, /changes spanning up to\s+roughly three files/);
+    assert.match(globalAgents, /Multiple `implementer` instances may run concurrently only when a substantial\s+task divides into genuinely independent slices/);
+    assert.match(globalAgents, /exclusive\s+ownership of named files or modules and a separate validation scope/);
+    assert.match(globalAgents, /Do not\s+spawn duplicate agents merely because multiple files are involved/);
     assert.match(globalAgents, /quick-implementer.*explicit manual delegation/s);
     assert.match(globalAgents, /run only\s+lightweight integration checks/);
     assert.match(globalAgents, /Wait once for at most 60 seconds/);
@@ -241,12 +244,16 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
   try {
     run(["project", "init", "--cwd", project]);
     const agents = join(project, "AGENTS.md");
+    assert.match(readFileSync(agents, "utf8"), /# Project-Specific Instructions/);
     writeFileSync(agents, `${readFileSync(agents, "utf8")}\n- Keep this local rule.\n`);
     const result = run(["project", "sync", "--cwd", project]);
     assert.match(readFileSync(agents, "utf8"), /Keep this local rule/);
     const template = readFileSync(join(project, "TEMPLATE_AGENTS.md"), "utf8");
     assert.match(template, /Shared Agent Defaults/);
     assert.match(template, /Instructions And Skills/);
+    assert.match(template, /For behavior changes and bug fixes, add or update the smallest focused/);
+    assert.match(template, /Do not introduce a test framework or create low-value tests/);
+    assert.match(template, /Run the relevant focused tests after changing tested behavior/);
     assert.match(readFileSync(join(project, ".codex-kit-state.json"), "utf8"), /availableHash/);
     assert.match(result.stdout, /\.agents\/skills/);
     assert.match(result.stdout, /Keep critical safety, authorization, database, deployment/);

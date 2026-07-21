@@ -162,7 +162,10 @@ Automatic delegation is reserved for broad discovery, large implementation or
 debugging work, and high-risk review. `quick-implementer` remains available for
 manual use. Implementation children edit directly without recursively
 delegating, and the root reuses their test evidence instead of repeating full
-validation by default.
+validation by default. Multiple implementers may run concurrently only for
+genuinely independent slices with exclusive ownership and separate validation;
+shared contracts, configuration, artifacts, migrations, or dependency ordering
+require one implementer or sequential execution.
 
 The default root uses Sol-low outside Plan Mode and Sol-high in Plan Mode.
 Automatic roles use Terra-medium for exploration, Luna-high for implementation,
@@ -194,6 +197,8 @@ pnpm dlx @iamdevlinph/codex-kit@latest project sync --cwd /path/to/project
 `project sync` updates only `TEMPLATE_AGENTS.md` and project state. It never
 edits `AGENTS.md` or `.agents/skills`; its printed reconciliation prompt asks
 Codex to make and validate any applicable instruction or skill changes.
+When `AGENTS.md` is missing, synchronization creates a minimal project scaffold;
+it does not merge the reusable template automatically.
 
 ## Verification
 
