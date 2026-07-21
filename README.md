@@ -244,8 +244,9 @@ standard-library modules.
 
 ## License
 
-`UNLICENSED`. Public availability on npm does not grant permission to reuse or
-redistribute the package beyond applicable law and npm's service terms.
+Files included in the published `@iamdevlinph/codex-kit` npm package are
+licensed under the [ISC License](LICENSE). Repository-only files remain
+proprietary and are not covered by that license.
 
 ## References
 

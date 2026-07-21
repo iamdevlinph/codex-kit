@@ -113,6 +113,8 @@ conditional procedures into validated project skills.
   this rule. If automated coverage is impractical, explain why and perform the
   strongest targeted verification available.
 - Run the relevant focused tests after changing tested behavior.
+- When adding or updating dependencies, pin exact versions rather than ranges.
+  With pnpm, use `pnpm add -E` (`--save-exact`).
 - Do not change dependencies, global tools, or the environment by default.
 - Do not run local or remote database inspection, generation, migration, or SQL
   commands unless the task requires them.

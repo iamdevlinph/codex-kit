@@ -3,3 +3,4 @@ node_modules/
 /bin/
 *.tgz
 .DS_Store
+TEMPLATE_AGENTS.md.codex-kit.bak-*

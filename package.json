@@ -1,40 +1,57 @@
 {
-  "name": "@iamdevlinph/codex-kit",
-  "version": "1.0.12",
-  "description": "Portable Codex subagents and project AGENTS.md defaults.",
-  "type": "module",
-  "bin": {
-    "codex-kit": "bin/codex-kit.js"
-  },
-  "files": [
-    "assets/agents",
-    "assets/SUBAGENT_ROUTING.md",
-    "assets/TEMPLATE_AGENTS.md",
-    "assets/skills",
-    "bin"
-  ],
-  "scripts": {
-    "build": "pnpm exec tsc -p tsconfig.json",
-    "typecheck": "pnpm exec tsc -p tsconfig.json --noEmit && pnpm exec tsc -p tsconfig.test.json --noEmit",
-    "test": "pnpm run build && pnpm exec tsc -p tsconfig.test.json && node --test .test-dist/test/*.test.js",
-    "prepack": "pnpm run build",
-    "pack:check": "pnpm pack --dry-run"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/iamdevlinph/codex-kit.git"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org",
-    "access": "public"
-  },
-  "devDependencies": {
-    "@types/node": "20.19.43",
-    "typescript": "7.0.1-rc"
-  },
-  "packageManager": "pnpm@11.5.2",
-  "license": "UNLICENSED"
+	"name": "@iamdevlinph/codex-kit",
+	"version": "1.0.12",
+	"description": "Portable Codex subagents and project AGENTS.md defaults.",
+	"type": "module",
+	"bin": {
+		"codex-kit": "bin/codex-kit.js"
+	},
+	"files": [
+		"assets/agents",
+		"assets/SUBAGENT_ROUTING.md",
+		"assets/TEMPLATE_AGENTS.md",
+		"assets/skills",
+		"bin"
+	],
+	"scripts": {
+		"build": "pnpm exec tsc -p tsconfig.json",
+		"typecheck": "pnpm exec tsc -p tsconfig.json --noEmit && pnpm exec tsc -p tsconfig.test.json --noEmit",
+		"test": "pnpm run build && pnpm exec vitest run",
+		"prepack": "pnpm run build",
+		"pack:check": "pnpm pack --dry-run",
+		"format": "biome check --write .",
+		"format:check": "biome check .",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"check": "biome check",
+		"fix": "biome check --fix",
+		"prepare": "husky",
+		"precommit": "lint-staged"
+	},
+	"engines": {
+		"node": ">=20"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/iamdevlinph/codex-kit.git"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org",
+		"access": "public"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.3",
+		"@types/node": "20.19.43",
+		"husky": "9.1.7",
+		"lint-staged": "17.0.8",
+		"typescript": "7.0.1-rc",
+		"vitest": "4.1.10"
+	},
+	"packageManager": "pnpm@11.5.2",
+	"license": "ISC",
+	"lint-staged": {
+		"*": [
+			"biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
+		]
+	}
 }

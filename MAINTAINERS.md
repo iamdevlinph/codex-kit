@@ -10,9 +10,11 @@ private operational details there.
 The GitHub repository is private, while the npm package is public. Everything
 listed by `pnpm run pack:check` is publicly downloadable.
 
-npm always includes the root `README.md`, `package.json`, and executable named by
-`bin`, regardless of the `files` allowlist. `MAINTAINERS.md`, source, tests, and
-repository instructions must remain outside that allowlist.
+npm always includes the root `LICENSE`, `README.md`, `package.json`, and
+executable named by `bin`, regardless of the `files` allowlist.
+`MAINTAINERS.md`, source, tests, and repository instructions must remain outside
+that allowlist. ISC applies only to files in the published tarball;
+repository-only files remain proprietary.
 
 The repository URL is visible in npm metadata because Trusted Publishing
 requires `package.json#repository.url` to match the GitHub repository exactly.
@@ -21,8 +23,10 @@ private repository.
 
 ## Development setup
 
-The repository pins pnpm `11.5.2`, TypeScript `7.0.1-rc`, and Node.js type
-definitions for Node 20. `bin/` is generated and untracked.
+The repository uses Node.js 24 for maintainer tooling and tests while preserving
+Node.js 20 compatibility for the published CLI. It pins pnpm `11.5.2`,
+TypeScript `7.0.1-rc`, and Node.js 20 type definitions. `bin/` is generated and
+untracked.
 
 ```sh
 corepack enable
@@ -39,8 +43,9 @@ it discovers `tsconfig.json`.
 Create a private GitHub repository named `iamdevlinph/codex-kit`. Keep the npm
 package name and GitHub namespace lowercase.
 
-The package remains `UNLICENSED`; choose a license separately before granting
-others permission to reuse or redistribute its contents.
+Files included in the published npm package are licensed under ISC. Keep the
+root `LICENSE` and package metadata synchronized; the private repository's
+excluded files remain proprietary.
 
 ## Initial npm publication
 
@@ -96,8 +101,8 @@ Inspect the dry-run contents. They should contain only:
 - `assets/skills/codex-kit-reconcile-agents/**`
 - `assets/SUBAGENT_ROUTING.md`
 - `assets/TEMPLATE_AGENTS.md`
-- `bin/codex-kit.js`
-- `bin/routing-hook.js`
+- `bin/**/*.js`
+- `LICENSE`
 - `package.json`
 - `README.md`
 
