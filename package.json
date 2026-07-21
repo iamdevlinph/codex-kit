@@ -14,7 +14,7 @@
 		"bin"
 	],
 	"scripts": {
-		"build": "pnpm exec tsc -p tsconfig.json",
+		"build": "pnpm exec tsc -p tsconfig.json --noEmit && node scripts/build.mjs",
 		"typecheck": "pnpm exec tsc -p tsconfig.json --noEmit && pnpm exec tsc -p tsconfig.test.json --noEmit",
 		"test": "pnpm run build && pnpm exec vitest run",
 		"prepack": "pnpm run build",
@@ -42,6 +42,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.5.3",
 		"@types/node": "20.19.43",
+		"esbuild": "0.28.1",
 		"husky": "9.1.7",
 		"lint-staged": "17.0.8",
 		"typescript": "7.0.1-rc",

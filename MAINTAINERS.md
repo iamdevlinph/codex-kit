@@ -25,8 +25,9 @@ private repository.
 
 The repository uses Node.js 24 for maintainer tooling and tests while preserving
 Node.js 20 compatibility for the published CLI. It pins pnpm `11.5.2`,
-TypeScript `7.0.1-rc`, and Node.js 20 type definitions. `bin/` is generated and
-untracked.
+TypeScript `7.0.1-rc`, esbuild `0.28.1`, and Node.js 20 type definitions. The
+generated, untracked `bin/` contains only the self-contained, minified
+`codex-kit.js` and `routing-hook.js` bundles.
 
 ```sh
 corepack enable
@@ -101,7 +102,8 @@ Inspect the dry-run contents. They should contain only:
 - `assets/skills/codex-kit-reconcile-agents/**`
 - `assets/SUBAGENT_ROUTING.md`
 - `assets/TEMPLATE_AGENTS.md`
-- `bin/**/*.js`
+- `bin/codex-kit.js`
+- `bin/routing-hook.js`
 - `LICENSE`
 - `package.json`
 - `README.md`

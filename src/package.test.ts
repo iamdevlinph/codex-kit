@@ -28,12 +28,15 @@ test("publishing targets public npm through trusted publishing", () => {
 	const license = readFileSync(join(ROOT, "LICENSE"), "utf8");
 	assert.match(license, /only to files included in the published/);
 	assert.match(license, /Copyright \(c\) 2026 Devlin Pajaron/);
-	assert.equal(
-		readdirSync(join(ROOT, "bin"), { recursive: true }).some((name) =>
-			String(name).includes(".test."),
-		),
-		false,
-	);
+	const buildFiles = readdirSync(join(ROOT, "bin"), { recursive: true })
+		.map(String)
+		.sort();
+	assert.deepEqual(buildFiles, ["codex-kit.js", "routing-hook.js"]);
+	for (const file of buildFiles)
+		assert.match(
+			readFileSync(join(ROOT, "bin", file), "utf8"),
+			/^#!\/usr\/bin\/env node\n/,
+		);
 
 	const workflow = readFileSync(
 		join(ROOT, ".github", "workflows", "publish.yml"),
