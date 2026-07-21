@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reconcile Codex Agent Guidance"
+  short_description: "Semantically reconcile templates and project skills"
+  default_prompt: "Use $codex-kit-reconcile-agents to reconcile this project's agent guidance."

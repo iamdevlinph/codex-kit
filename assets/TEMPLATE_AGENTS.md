@@ -1,8 +1,7 @@
 # Shared Agent Defaults
 
 Reusable defaults for coding agents. Adapt stack details, commands, paths,
-product context, and local conventions in the project-specific section outside
-the managed markers.
+product context, and local conventions in the project's active `AGENTS.md`.
 
 ## Context And Instruction Scope
 
@@ -40,16 +39,18 @@ the managed markers.
 - `TEMPLATE_AGENTS.md` is a staged reference copy of codex-kit's reusable
   instructions, not active project guidance. Active repository guidance lives
   in `AGENTS.md` and applicable project skills under `.agents/skills`.
-- When `codex-kit project status` reports `reconciliation required`, compare the
-  template reference with `AGENTS.md`, apply relevant reusable changes, preserve
-  project-specific rules, reconcile applicable skills, then run
-  `codex-kit project mark-applied`.
+- When the template is refreshed, `codex-kit project status` reports
+  `reconciliation required`, or a user requests template sync or mark-applied,
+  use the global `$codex-kit-reconcile-agents` skill. It compares the template
+  with `AGENTS.md`, project state, and existing skills; preserves local rules;
+  applies only relevant reusable changes; validates them; and marks applied
+  only after success.
 - Keep project-specific rules out of `TEMPLATE_AGENTS.md`. Treat local template
   edits as candidates that must be generalized and promoted to the canonical
   `assets/TEMPLATE_AGENTS.md` in the codex-kit repository. Updating `AGENTS.md`
   does not update either template automatically.
-- Keep project-specific context outside the managed `AGENTS.md` block; keep only
-  reusable cross-project rules in the packaged template.
+- Keep project-specific context out of the packaged template; keep only
+  reusable cross-project rules here.
 - When a request introduces a reusable workflow preference, convention, agent
   behavior, tooling default, or safety rule, tell the user it appears
   template-level and update the current project's active instructions when
@@ -66,26 +67,16 @@ the managed markers.
 - Merge template updates into other projects without overwriting project-specific
   context.
 
-## Template Sync Prompt
+## Template reconciliation
 
-When `codex-kit project sync` stages `TEMPLATE_AGENTS.md` beside an existing
-unmanaged `AGENTS.md`, use this prompt:
-
-```txt
-Convert this repository to the codex-kit managed AGENTS.md layout. Put the exact
-contents of TEMPLATE_AGENTS.md between
-<!-- BEGIN codex-kit:shared-template --> and
-<!-- END codex-kit:shared-template -->. Preserve every repository-specific
-instruction from the current AGENTS.md after the managed block under
-# Project-Specific Instructions, remove only duplicate shared rules, and do not
-change project behavior. Review existing project skills under .agents/skills and
-move conditionally relevant, repeatable procedures out of AGENTS.md only when a
-skill is warranted. Preserve critical safety and authorization rules in
-AGENTS.md, preserve existing relevant skills, avoid speculative skills, and
-validate any skill you create or modify. Afterward, summarize what was
-preserved, what moved into a skill, and whether any local rules appear
-template-worthy.
-```
+Do not copy the complete template into `AGENTS.md`, replace it wholesale, or
+introduce managed markers. If a legacy shared-template marker is present,
+preserve local content and reconcile its meaning safely without creating new
+markers. Summarize added, updated, skipped, adapted, and skill-moved guidance,
+including local/template conflicts and any generalized template-worthy
+promotion. Keep critical safety, authorization, secrets, database, deployment,
+and destructive-operation rules always-on in `AGENTS.md`; extract only concrete
+conditional procedures into validated project skills.
 
 ## Core Behavior
 

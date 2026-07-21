@@ -10,6 +10,7 @@
     "assets/agents",
     "assets/SUBAGENT_ROUTING.md",
     "assets/TEMPLATE_AGENTS.md",
+    "assets/skills",
     "bin"
   ],
   "scripts": {

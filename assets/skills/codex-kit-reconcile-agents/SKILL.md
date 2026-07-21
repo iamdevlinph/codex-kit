@@ -1,0 +1,37 @@
+---
+name: codex-kit-reconcile-agents
+description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md and applicable skills while preserving local adaptations. Use when project status requires reconciliation, the template was refreshed, or the user requests an agent-template sync or mark-applied.
+---
+
+# Reconcile codex-kit agent guidance
+
+## Procedure
+
+1. Inspect `AGENTS.md`, `TEMPLATE_AGENTS.md`, `.codex-kit-state.json`, the
+   project's existing `.agents/skills`, and `codex-kit project status`. If a
+   codex-kit template backup exists, compare it with the refreshed template to
+   isolate the actual template change.
+2. Preserve the existing `AGENTS.md` organization and all project-specific
+   adaptations. Merge only reusable template guidance that applies to this
+   repository; report conflicts between local and template rules, and do not
+   replace `AGENTS.md` wholesale or copy the complete template into it.
+3. Keep critical always-on safety, authorization, secrets, database,
+   deployment, and destructive-operation rules in `AGENTS.md`.
+4. Extract only concrete, conditional, repeatable project procedures into a
+   focused skill under `.agents/skills/<skill-name>/SKILL.md`. Preserve relevant
+   existing skills, use valid YAML frontmatter, and do not create speculative
+   skills or duplicate detailed instructions.
+5. Review the final instruction diff for preserved local rules, duplicates, and
+   unintended template edits. Validate every created or modified project skill
+   with an available skill validator and run the repository's documented checks.
+   Do not mark the template applied until reconciliation and validation succeed.
+6. Run `codex-kit project mark-applied` only after successful reconciliation and
+   validation, then confirm `codex-kit project status` is up to date.
+7. Summarize added, updated, skipped, adapted, and skill-moved guidance, with
+   reasons. Identify genuinely reusable, generalized changes that should be
+   promoted to codex-kit's canonical template and report the target section and
+   wording.
+
+If legacy `codex-kit:shared-template` markers are present, preserve local
+content and reconcile their meaning semantically. Do not add, recreate, or
+depend on managed markers, and do not discard local adaptations.

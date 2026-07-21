@@ -93,6 +93,7 @@ pnpm run pack:check
 Inspect the dry-run contents. They should contain only:
 
 - `assets/agents/*.toml`
+- `assets/skills/codex-kit-reconcile-agents/**`
 - `assets/SUBAGENT_ROUTING.md`
 - `assets/TEMPLATE_AGENTS.md`
 - `bin/codex-kit.js`
@@ -176,9 +177,11 @@ two minutes without output unless project guidance documents a longer runtime.
 Never run matching parent and worker validation concurrently.
 
 `global install` merges only codex-kit's handlers into `~/.codex/hooks.json` and
-preserves unrelated handlers. `global uninstall` removes those handlers and the
-managed hook script. Keep routing generic and role-based rather than referring
-to a model in the policy.
+preserves unrelated handlers. It also installs the package-owned
+`codex-kit-reconcile-agents` skill under `~/.codex/skills`; list reports its
+status, and uninstall removes/restores it according to recorded ownership.
+Keep routing generic and role-based rather than referring to a model in the
+policy.
 New or changed command hooks require Codex's normal one-time trust review and a
 new task or client restart before testing them.
 
@@ -196,7 +199,11 @@ pnpm dlx @iamdevlinph/codex-kit@latest project sync --cwd /path/to/project
 
 `project sync` updates only `TEMPLATE_AGENTS.md` and project state. It never
 edits `AGENTS.md` or `.agents/skills`; its printed reconciliation prompt asks
-Codex to make and validate any applicable instruction or skill changes.
+Codex to invoke `codex-kit-reconcile-agents` and semantically reconcile any
+applicable instruction or skill changes. The skill preserves local adaptations,
+keeps critical always-on rules in `AGENTS.md`, extracts only concrete
+conditional procedures, validates before marking applied, and does not copy the
+complete template or introduce managed markers.
 When `AGENTS.md` is missing, synchronization creates a minimal project scaffold;
 it does not merge the reusable template automatically.
 

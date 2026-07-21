@@ -93,6 +93,10 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ASSETS = join(ROOT, "assets");
 const AGENTS_DIR = join(ASSETS, "agents");
+const SKILLS_DIR = join(ASSETS, "skills");
+const RECONCILE_SKILL = "codex-kit-reconcile-agents";
+const RECONCILE_SKILL_FILE = join(SKILLS_DIR, RECONCILE_SKILL, "SKILL.md");
+const RECONCILE_SKILL_METADATA_FILE = join(SKILLS_DIR, RECONCILE_SKILL, "agents", "openai.yaml");
 const ROUTING_FILE = join(ASSETS, "SUBAGENT_ROUTING.md");
 const ROUTING_HOOK_FILE = join(ROOT, "bin", "routing-hook.js");
 const TEMPLATE_FILE = join(ASSETS, "TEMPLATE_AGENTS.md");
@@ -341,29 +345,15 @@ function saveProjectState(cwd: string, state: ProjectState): void {
 }
 
 function templatePrompt(): string {
-  return `Template reference updated. Ask Codex:
+  return `Template reference updated. Use the global $${RECONCILE_SKILL} skill to reconcile it semantically.
 
-The project's TEMPLATE_AGENTS.md was refreshed from codex-kit. Compare it with
-AGENTS.md and merge only new or changed reusable guidelines that apply to this
-repository.
-
-Keep durable, always-applicable repository rules in AGENTS.md. When the updated
-template identifies a repeatable, task-specific procedure, inspect existing
-project skills under .agents/skills and create or update a skill only when it
-would reduce conditional detail in AGENTS.md. Preserve existing relevant skills
-and avoid duplicating detailed instructions between AGENTS.md and SKILL.md.
-
-Keep critical safety, authorization, database, deployment, and destructive-
-operation restrictions in AGENTS.md even when a skill contains the detailed
-workflow. Do not create speculative skills.
-
-Preserve project-specific instructions and existing adaptations. Do not replace
-AGENTS.md wholesale. If a template rule conflicts with a local rule, keep the
-local rule and report the conflict.
-
-Summarize what was added, updated, skipped, adapted, or moved into a skill, and
-why. Validate any created or modified skills. When finished, run codex-kit
-project mark-applied.`;
+Inspect TEMPLATE_AGENTS.md, AGENTS.md, .codex-kit-state.json, existing
+.agents/skills, and codex-kit project status. Preserve local adaptations and
+AGENTS.md organization; merge only applicable reusable guidance. Keep critical
+always-on safety and authorization rules in AGENTS.md, extract only concrete
+conditional procedures into validated skills, and do not copy the complete
+template or introduce managed markers. Mark applied only after reconciliation
+and validation, then report any template-worthy generalized promotion.`;
 }
 
 function managedBlock(content: string, begin: string, end: string): string {
@@ -467,6 +457,23 @@ function installGlobal(options: Options): void {
     options.force,
   );
   if (routingRecord) next.files.routing = routingRecord;
+
+  const reconciliationSkill = installFile(
+    RECONCILE_SKILL_FILE,
+    join(home, "skills", RECONCILE_SKILL, "SKILL.md"),
+    `skills/${RECONCILE_SKILL}/SKILL.md`,
+    prior,
+    options.force,
+  );
+  if (reconciliationSkill) next.files[`skills/${RECONCILE_SKILL}/SKILL.md`] = reconciliationSkill;
+  const reconciliationSkillMetadata = installFile(
+    RECONCILE_SKILL_METADATA_FILE,
+    join(home, "skills", RECONCILE_SKILL, "agents", "openai.yaml"),
+    `skills/${RECONCILE_SKILL}/agents/openai.yaml`,
+    prior,
+    options.force,
+  );
+  if (reconciliationSkillMetadata) next.files[`skills/${RECONCILE_SKILL}/agents/openai.yaml`] = reconciliationSkillMetadata;
 
   const hookRecord = installFile(
     ROUTING_HOOK_FILE,
@@ -606,6 +613,16 @@ function listGlobal(options: Options): void {
     readText(routingHook.target).includes(routingHook.command),
   );
   console.log(`Routing hook: ${hooksInstalled ? "installed" : "not installed"}`);
+  const skillTargets = [
+    [join(home, "skills", RECONCILE_SKILL, "SKILL.md"), state.files[`skills/${RECONCILE_SKILL}/SKILL.md`]],
+    [join(home, "skills", RECONCILE_SKILL, "agents", "openai.yaml"), state.files[`skills/${RECONCILE_SKILL}/agents/openai.yaml`]],
+  ] as const;
+  const skillStatus = skillTargets.every(([target, record]) => existsSync(target) && record && sha256(read(target)) === record.hash)
+    ? "installed"
+    : skillTargets.some(([target]) => existsSync(target))
+      ? "modified or incomplete"
+      : "missing";
+  console.log(`Reconciliation skill: ${skillStatus}`);
   console.log("Custom agents:");
   const agents = existsSync(agentsDir)
     ? readdirSync(agentsDir).filter((name) => name.endsWith(".toml")).sort()
@@ -682,6 +699,14 @@ function uninstallGlobal(options: Options): void {
     }
   }
   if (state.hooks) uninstallRoutingHooks(state.hooks);
+  const skillDir = join(home, "skills", RECONCILE_SKILL);
+  const skillMetadataDir = join(skillDir, "agents");
+  if (existsSync(skillMetadataDir) && statSync(skillMetadataDir).isDirectory() && !readdirSync(skillMetadataDir).length) {
+    rmSync(skillMetadataDir, { recursive: true });
+  }
+  if (existsSync(skillDir) && statSync(skillDir).isDirectory() && !readdirSync(skillDir).length) {
+    rmSync(skillDir, { recursive: true });
+  }
   const allowancesDir = join(home, "codex-kit", "allowances");
   if (existsSync(allowancesDir)) rmSync(allowancesDir, { recursive: true, force: true });
   const kitDir = join(home, "codex-kit");

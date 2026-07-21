@@ -135,6 +135,13 @@ test("global install and uninstall manage only package-owned files", () => {
     assert.doesNotMatch(installedHooks, /PreToolUse/);
     assert.equal(readFileSync(config, "utf8"), 'model = "gpt-5.6-sol"\n');
     assert.ok(existsSync(join(home, "codex-kit", "routing-hook.js")));
+    const reconciliationSkill = join(home, "skills", "codex-kit-reconcile-agents", "SKILL.md");
+    const reconciliationSkillMetadata = join(home, "skills", "codex-kit-reconcile-agents", "agents", "openai.yaml");
+    assert.match(readFileSync(reconciliationSkill, "utf8"), /semantic|reconcile/i);
+    assert.match(readFileSync(reconciliationSkill, "utf8"), /do not create speculative/);
+    assert.match(readFileSync(reconciliationSkill, "utf8"), /available skill validator/);
+    assert.match(readFileSync(reconciliationSkill, "utf8"), /Do not add, recreate, or\s+depend on managed markers/);
+    assert.match(readFileSync(reconciliationSkillMetadata, "utf8"), /\$codex-kit-reconcile-agents/);
 
     const explorer = join(home, "agents", "code-explorer.toml");
     writeFileSync(explorer, `${readFileSync(explorer, "utf8")}\n# local edit\n`);
@@ -145,6 +152,31 @@ test("global install and uninstall manage only package-owned files", () => {
     assert.match(readFileSync(explorer, "utf8"), /local edit/);
     assert.deepEqual(JSON.parse(readFileSync(hooks, "utf8")), originalHooks);
     assert.equal(existsSync(join(home, "codex-kit", "routing-hook.js")), false);
+    assert.equal(existsSync(reconciliationSkill), false);
+    assert.equal(existsSync(reconciliationSkillMetadata), false);
+    assert.equal(existsSync(join(home, "skills", "codex-kit-reconcile-agents")), false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("global install restores a replaced user reconciliation skill on uninstall", () => {
+  const root = mkdtempSync(join(tmpdir(), "codex-kit-user-skill-"));
+  const home = join(root, ".codex");
+  const skillDir = join(home, "skills", "codex-kit-reconcile-agents");
+  const skill = join(skillDir, "SKILL.md");
+  try {
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(skill, "# User reconciliation skill\n");
+    const preserved = run(["global", "install", "--codex-home", home]);
+    assert.match(preserved.stderr, /preserved modified or pre-existing file/);
+    assert.equal(readFileSync(skill, "utf8"), "# User reconciliation skill\n");
+
+    run(["global", "install", "--codex-home", home, "--force"]);
+    assert.match(readFileSync(skill, "utf8"), /codex-kit project mark-applied/);
+    run(["global", "uninstall", "--codex-home", home]);
+    assert.equal(readFileSync(skill, "utf8"), "# User reconciliation skill\n");
+    assert.equal(existsSync(join(skillDir, "agents", "openai.yaml")), false);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -230,6 +262,7 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
     assert.match(result.stdout, /Plan mode reasoning effort: high/);
     assert.match(result.stdout, /Global routing: installed/);
     assert.match(result.stdout, /Routing hook: installed/);
+    assert.match(result.stdout, /Reconciliation skill: installed/);
     assert.match(result.stdout, /code-explorer — gpt-5\.6-terra, medium \(managed\)/);
     assert.match(result.stdout, /code-reviewer — gpt-5\.6-sol, high \(managed\)/);
     assert.match(result.stdout, /implementer — gpt-5\.6-luna, high \(managed\)/);
@@ -256,9 +289,12 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
     assert.match(template, /Run the relevant focused tests after changing tested behavior/);
     assert.match(readFileSync(join(project, ".codex-kit-state.json"), "utf8"), /availableHash/);
     assert.match(result.stdout, /\.agents\/skills/);
-    assert.match(result.stdout, /Keep critical safety, authorization, database, deployment/);
-    assert.match(result.stdout, /Do not create speculative skills/);
-    assert.match(result.stdout, /Validate any created or modified skills/);
+    assert.match(result.stdout, /\$codex-kit-reconcile-agents/);
+    assert.match(result.stdout, /always-on safety and authorization rules/);
+    assert.match(result.stdout, /extract only concrete/);
+    assert.match(result.stdout, /do not copy the complete\s+template or introduce managed markers/);
+    assert.match(result.stdout, /Mark applied only after reconciliation/);
+    assert.doesNotMatch(result.stdout, /BEGIN codex-kit:shared-template/);
   } finally {
     rmSync(project, { recursive: true, force: true });
   }

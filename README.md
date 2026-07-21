@@ -5,6 +5,7 @@ Portable Codex setup for new devices and multiple projects. It provides:
 - three automatically routed roles plus a manual quick implementer
 - automatic global role routing
 - a reusable, stack-neutral `AGENTS.md` template
+- a package-owned `codex-kit-reconcile-agents` skill for semantic reconciliation
 - safe commands for global setup, project synchronization, and reconciliation
 
 The package contains no credentials. Global installation does not modify the
@@ -28,9 +29,13 @@ that they run the installed `${CODEX_HOME:-~/.codex}/codex-kit/routing-hook.js`.
 For one-off use without a global installation, prefix a command with
 `pnpm dlx @iamdevlinph/codex-kit@latest`.
 
-`global install` copies reusable agents to `${CODEX_HOME:-~/.codex}`, maintains
-a marked routing section in the global `AGENTS.md`, and adds package-owned
-handlers to the global `hooks.json` without replacing existing hooks.
+`global install` copies reusable agents and the
+`skills/codex-kit-reconcile-agents` skill to `${CODEX_HOME:-~/.codex}`, maintains
+the package routing section in global `AGENTS.md`, and adds package-owned
+handlers to `hooks.json` without replacing existing hooks. `global list` shows
+the reconciliation skill's ownership status. Install and uninstall preserve
+modified or user-owned skill files using the same backup/restore semantics as
+other package files.
 
 The Sol root plans, routes, coordinates, and validates. On every prompt, the
 routing hook supplies the current `SUBAGENT_ROUTING.md`; the root classifies the
@@ -40,6 +45,18 @@ subagent startup overhead, the root may directly handle planning, conversation,
 read-only checks, documentation, bookkeeping, and clear changes spanning up to
 roughly three files. Automatic delegation is reserved for broad discovery,
 large multi-file implementation or debugging, and high-risk review.
+
+## Available subagents
+
+| Subagent | Routing | Model and effort | Used for |
+| --- | --- | --- | --- |
+| `code-explorer` | Automatic | `gpt-5.6-terra`, medium | Read-only broad repository discovery, contract tracing, and multi-file searches |
+| `implementer` | Automatic | `gpt-5.6-luna`, high | Large behavior changes, non-obvious debugging, migrations, and substantial tests |
+| `code-reviewer` | Automatic | `gpt-5.6-sol`, high | Read-only review of security-sensitive, architectural, public-API, concurrency, migration, or difficult-to-validate changes |
+| `quick-implementer` | Manual only | `gpt-5.6-luna`, medium | Small, mechanical, well-specified changes limited to one or two files |
+
+The root orchestrator is not a subagent. It owns planning, routing, integration,
+and final validation.
 
 For a substantial task that splits into genuinely independent slices, the root
 may run multiple `implementer` instances concurrently. Each receives exclusive
@@ -69,11 +86,6 @@ codex-kit global configure \
   --plan-reasoning-effort high
 ```
 
-Automatic role models are tuned by task shape: Terra-medium performs broad
-repository exploration, Luna-high performs large implementation slices, and
-Sol-high reviews consequential changes. Luna-medium `quick-implementer` remains
-manual-only.
-
 Delegation is time-bounded. The root waits once for up to 60 seconds, requests
 one progress update, and then enforces a three-minute read/review/manual-quick
 deadline or five-minute implementation deadline. Validation commands that make
@@ -101,8 +113,8 @@ pnpm dlx @iamdevlinph/codex-kit@latest global list
 ```
 
 The summary shows the Codex home, orchestrator, normal and Plan-mode reasoning
-effort, routing-file and routing-hook status, and installed custom agents without
-dumping unrelated configuration.
+effort, routing-file and routing-hook status, reconciliation-skill status, and
+installed custom agents without dumping unrelated configuration.
 
 Uninstall package-managed global files:
 
@@ -174,13 +186,14 @@ pnpm dlx @iamdevlinph/codex-kit@latest project sync
 codex-kit project status
 ```
 
-`project sync` never edits `AGENTS.md` or project skills. It prints a prompt
-asking Codex to merge only applicable reusable changes while preserving local
-adaptations. Reconciliation keeps always-on rules in `AGENTS.md` and may create
-or update task-specific workflows under `.agents/skills` when the updated
-template warrants them. Critical safety and authorization rules remain in
-`AGENTS.md`, and speculative skills are avoided. After reviewing the semantic
-merge and any skill changes, record the applied template hash:
+`project sync` never edits `AGENTS.md` or project skills. It routes Codex to the
+global `codex-kit-reconcile-agents` skill, which inspects project state and
+existing skills, merges only applicable reusable changes, preserves local
+adaptations and organization, and may create or update a concrete conditional
+workflow under `.agents/skills`. Critical safety, authorization, secrets,
+database, deployment, and destructive-operation rules remain in `AGENTS.md`;
+do not copy the complete template or introduce managed markers. After semantic
+reconciliation and validation, record the applied template hash:
 
 ```sh
 codex-kit project mark-applied
