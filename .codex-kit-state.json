@@ -1,9 +1,9 @@
 {
 	"version": 1,
 	"template": {
-		"availableHash": "e71eee9c2eed5f01e4fce07a72e1c61a30041b912cb2715eb2a7eaac4662bb08",
-		"availableVersion": "1.0.12",
-		"appliedHash": "e71eee9c2eed5f01e4fce07a72e1c61a30041b912cb2715eb2a7eaac4662bb08",
-		"appliedAt": "2026-07-21T03:15:24.678Z"
+		"availableHash": "849f61e22e020713d52a46d4f9363d96dde63da8fd6dfdb113a8bfd5268a47c1",
+		"availableVersion": "1.0.14",
+		"appliedHash": "849f61e22e020713d52a46d4f9363d96dde63da8fd6dfdb113a8bfd5268a47c1",
+		"appliedAt": "2026-07-22T02:46:19.874Z"
 	}
 }
