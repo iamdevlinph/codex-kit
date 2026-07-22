@@ -212,7 +212,12 @@ keeps critical always-on rules in `AGENTS.md`, extracts only concrete
 conditional procedures, validates before marking applied, and does not copy the
 complete template or introduce managed markers.
 When `AGENTS.md` is missing, synchronization creates a minimal project scaffold;
-it does not merge the reusable template automatically.
+it does not merge the reusable template automatically. Missing or untouched
+scaffold instructions produce a delimited initialization prompt that first
+requires enough repository evidence for reliable project-specific guidance.
+Existing guidance produces a separately delimited reconciliation prompt for
+`AGENTS.md` and `TEMPLATE_AGENTS.md`. Both prompts tell the user exactly what to
+send to Codex.
 
 ## Verification
 

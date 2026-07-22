@@ -143,47 +143,41 @@ hooks. Modified managed files are preserved unless `--force` is supplied.
 
 ## Apply to a project
 
-For a project without `AGENTS.md`:
+### First-time setup
+
+For a new blank project, scaffold its initial stack first. Then initialize
+codex-kit once from the project root:
 
 ```sh
 cd /path/to/project
 pnpm dlx @iamdevlinph/codex-kit@latest project init
 ```
 
-This creates:
+`project init` performs the initial template sync, so do not run `project sync`
+immediately afterward. It creates or updates:
 
-- `AGENTS.md`, containing a project-specific section ready for reconciliation
+- `AGENTS.md`, only when missing; an existing file is preserved
 - `TEMPLATE_AGENTS.md`, a local reference copy used for future comparisons
 - `.codex-kit-state.json`, reconciliation bookkeeping
 
-Add repository commands, paths, architecture, integrations, and exceptions to
-the project-specific section of `AGENTS.md`.
+If `AGENTS.md` is missing or still contains only the untouched codex-kit
+scaffold, the CLI prints a clearly marked initialization prompt. Copy everything
+between `BEGIN CODEX INITIALIZATION PROMPT` and
+`END CODEX INITIALIZATION PROMPT` into a Codex task opened at the project root.
+The prompt asks Codex to verify that the project has enough substantive code,
+dependencies, configuration, and scripts to derive reliable guidance. If not,
+Codex stops without inventing rules or marking the template applied. Finish
+scaffolding the project, rerun `project init`, and send the new CLI prompt.
 
-### Generate project-specific guidance
-
-For an existing project, use this prompt after initialization. For a new
-project, scaffold the initial stack first.
-
-```txt
-Explore this repository before changing code. Identify its languages,
-frameworks, package manager, scripts, directory structure, styling and component
-systems, form and validation libraries, data-access patterns, testing tools, and
-generated files.
-
-Update only the project-specific section of AGENTS.md with concise guidelines
-derived from the repository's actual dependencies, configuration, scripts, and
-established code patterns. Include exact verification commands. Preserve the
-managed shared-template block, avoid speculative preferences, and do not add
-rules for tools the repository does not use.
-```
+When `AGENTS.md` already contains guidance, `project init` preserves it and
+prints the reconciliation prompt described below instead.
 
 ## Synchronize template updates
 
-Refresh a project's local template reference:
+After a newer codex-kit template is released, refresh an initialized project:
 
 ```sh
 pnpm dlx @iamdevlinph/codex-kit@latest project sync
-codex-kit project status
 ```
 
 `project sync` never edits `AGENTS.md` or project skills. It routes Codex to the
@@ -195,9 +189,16 @@ database, deployment, and destructive-operation rules remain in `AGENTS.md`;
 do not copy the complete template or introduce managed markers. After semantic
 reconciliation and validation, record the applied template hash:
 
+The CLI prints a clearly marked reconciliation prompt. Copy everything between
+`BEGIN CODEX RECONCILIATION PROMPT` and `END CODEX RECONCILIATION PROMPT` into a
+Codex task opened at the project root. That prompt tells Codex to validate and
+then run:
+
 ```sh
 codex-kit project mark-applied
 ```
+
+You normally do not run that command manually.
 
 `mark-applied` updates only `.codex-kit-state.json`; it does not validate or
 modify `AGENTS.md`.

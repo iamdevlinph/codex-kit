@@ -13,12 +13,17 @@ import {
 test("project sync keeps AGENTS.md separate and prints skill-aware reconciliation guidance", () => {
 	const project = mkdtempSync(join(tmpdir(), "codex-kit-project-"));
 	try {
-		run(["project", "init", "--cwd", project]);
+		const initialized = run(["project", "init", "--cwd", project]);
+		assert.match(initialized.stdout, /BEGIN CODEX INITIALIZATION PROMPT/);
+		assert.match(initialized.stdout, /substantially scaffolded implementation/);
+		assert.match(initialized.stdout, /END CODEX INITIALIZATION PROMPT/);
 		const agents = join(project, "AGENTS.md");
 		assert.match(
 			readFileSync(agents, "utf8"),
 			/# Project-Specific Instructions/,
 		);
+		const repeated = run(["project", "init", "--cwd", project]);
+		assert.match(repeated.stdout, /BEGIN CODEX INITIALIZATION PROMPT/);
 		writeFileSync(
 			agents,
 			`${readFileSync(agents, "utf8")}\n- Keep this local rule.\n`,
@@ -47,6 +52,9 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		);
 		assert.match(result.stdout, /\.agents\/skills/);
 		assert.match(result.stdout, /\$codex-kit-reconcile-agents/);
+		assert.match(result.stdout, /BEGIN CODEX RECONCILIATION PROMPT/);
+		assert.match(result.stdout, /END CODEX RECONCILIATION PROMPT/);
+		assert.match(result.stdout, /existing AGENTS\.md/);
 		assert.match(result.stdout, /always-on safety and authorization rules/);
 		assert.match(result.stdout, /extract only concrete/);
 		assert.match(

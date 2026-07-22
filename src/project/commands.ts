@@ -16,6 +16,8 @@ interface ProjectState {
 const STATE_FILE = ".codex-kit-state.json";
 const PROJECT_BEGIN = "<!-- BEGIN codex-kit:shared-template -->";
 const PROJECT_END = "<!-- END codex-kit:shared-template -->";
+const PROJECT_SCAFFOLD =
+	"# Project-Specific Instructions\n\n<!-- Add repository-specific commands, architecture, and exceptions here. -->\n";
 
 function loadProjectState(cwd: string): ProjectState {
 	const file = join(cwd, STATE_FILE);
@@ -36,16 +38,46 @@ const requireDirectory = (cwd: string) => {
 		throw new Error(`Not a directory: ${cwd}`);
 };
 
-function templatePrompt(): string {
-	return `Template reference updated. Use the global $${RECONCILE_SKILL} skill to reconcile it semantically.
+function initializationPrompt(): string {
+	return `Project guidance needs initialization. Copy everything between the markers into Codex.
+
+===== BEGIN CODEX INITIALIZATION PROMPT =====
+Explore this repository before changing code. First determine whether it has a
+substantially scaffolded implementation with enough dependency, configuration,
+script, and source evidence to derive reliable project guidance.
+
+If evidence is insufficient, do not add speculative rules or mark the template
+applied. Report what still needs to be scaffolded, then stop.
+
+If evidence is sufficient, identify the stack, package manager, scripts,
+structure, established patterns, testing tools, and generated files. Add concise
+project-specific guidance to AGENTS.md based only on repository evidence,
+including exact verification commands. Then use the global
+$${RECONCILE_SKILL} skill to merge applicable reusable guidance from
+TEMPLATE_AGENTS.md while preserving AGENTS.md organization and local rules.
+Validate the final instruction changes, mark the template applied only after
+validation succeeds, and confirm codex-kit project status is up to date.
+===== END CODEX INITIALIZATION PROMPT =====`;
+}
+
+function reconciliationPrompt(): string {
+	return `Template reference updated. Copy everything between the markers into Codex.
+
+===== BEGIN CODEX RECONCILIATION PROMPT =====
+Use the global $${RECONCILE_SKILL} skill to reconcile the existing AGENTS.md
+with the refreshed TEMPLATE_AGENTS.md.
 
 Inspect TEMPLATE_AGENTS.md, AGENTS.md, .codex-kit-state.json, existing
 .agents/skills, and codex-kit project status. Preserve local adaptations and
 AGENTS.md organization; merge only applicable reusable guidance. Keep critical
 always-on safety and authorization rules in AGENTS.md, extract only concrete
 conditional procedures into validated skills, and do not copy the complete
-template or introduce managed markers. Mark applied only after reconciliation
-and validation, then report any template-worthy generalized promotion.`;
+template or introduce managed markers.
+
+Validate the final instruction changes. Mark applied only after reconciliation
+and validation succeed, confirm codex-kit project status is up to date, then
+report any template-worthy generalized promotion.
+===== END CODEX RECONCILIATION PROMPT =====`;
 }
 
 export function syncProject(options: Options): void {
@@ -88,11 +120,9 @@ export function syncProject(options: Options): void {
 		availableVersion: PACKAGE.version,
 	};
 	saveProjectState(cwd, state);
-	if (!existsSync(agentsFile)) {
-		write(
-			agentsFile,
-			"# Project-Specific Instructions\n\n<!-- Add repository-specific commands, architecture, and exceptions here. -->\n",
-		);
+	const createdAgents = !existsSync(agentsFile);
+	if (createdAgents) {
+		write(agentsFile, PROJECT_SCAFFOLD);
 		console.log(`created project instructions file: ${agentsFile}`);
 	} else {
 		const agents = readText(agentsFile);
@@ -103,7 +133,11 @@ export function syncProject(options: Options): void {
 			);
 		}
 	}
-	console.log(templatePrompt());
+	const needsInitialization =
+		readText(agentsFile).trim() === PROJECT_SCAFFOLD.trim();
+	console.log(
+		needsInitialization ? initializationPrompt() : reconciliationPrompt(),
+	);
 }
 
 export function projectStatus(options: Options): void {
