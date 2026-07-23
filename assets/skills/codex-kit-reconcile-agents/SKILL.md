@@ -8,9 +8,10 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md
 ## Procedure
 
 1. Inspect `AGENTS.md`, `TEMPLATE_AGENTS.md`, `.codex-kit-state.json`, the
-   project's existing `.agents/skills`, and `codex-kit project status`. If a
-   codex-kit template backup exists, compare it with the refreshed template to
-   isolate the actual template change.
+   project's existing `.agents/skills`, and `codex-kit project status`. Record
+   the initial status before making changes. If a codex-kit template backup
+   exists, compare it with the refreshed template to isolate the actual template
+   change.
 2. Preserve the existing `AGENTS.md` organization and all project-specific
    adaptations. Merge only reusable template guidance that applies to this
    repository; report conflicts between local and template rules, and do not
@@ -25,8 +26,14 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md
    unintended template edits. Validate every created or modified project skill
    with an available skill validator and run the repository's documented checks.
    Do not mark the template applied until reconciliation and validation succeed.
-6. Run `codex-kit project mark-applied` only after successful reconciliation and
-   validation, then confirm `codex-kit project status` is up to date.
+6. Never run `codex-kit project sync` on the user's behalf or recommend it for
+   an unreleased local template edit. The user should run `project sync` only
+   after updating codex-kit to a released version containing the template
+   change. Run `codex-kit project mark-applied` only when the task follows a
+   user-run `project init` or eligible `project sync`, the initial status
+   recorded in step 1 was `reconciliation required`, and reconciliation and
+   validation succeeded. Otherwise leave project state unchanged and report the
+   remaining release, codex-kit update, user-run sync, and reconciliation steps.
 7. Summarize added, updated, skipped, adapted, and skill-moved guidance, with
    reasons. Identify genuinely reusable, generalized changes that should be
    promoted to codex-kit's canonical template and report the target section and

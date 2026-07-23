@@ -16,6 +16,11 @@
 - Follow the repository's existing style, structure, architecture, and stronger
   local instructions. Match nearby code before introducing new patterns,
   abstractions, dependencies, or file organization.
+- Use intent-revealing domain names. A reader should understand what a variable
+  contains or what a helper guarantees at the call site without opening its
+  implementation. Avoid vague transformation names such as `normalized`,
+  `processed`, `result`, or `data` when a value- or behavior-specific name is
+  available.
 - Keep changes minimal, localized, and limited to the request. Do not reorganize
   major modules, change architecture, or introduce a new project paradigm without
   explicit approval.

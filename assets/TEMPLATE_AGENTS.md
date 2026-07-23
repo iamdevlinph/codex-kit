@@ -123,6 +123,11 @@ conditional procedures into validated project skills.
 
 - Follow the repository's organization and naming. Prefer focused files and
   split mixed responsibilities when readability improves.
+- Use intent-revealing domain names. A reader should understand what a variable
+  contains or what a helper guarantees at the call site without opening its
+  implementation. Avoid vague transformation names such as `normalized`,
+  `processed`, `result`, or `data` when a value- or behavior-specific name is
+  available.
 - Do not reorganize feature directories, shared modules, routes, server
   boundaries, schemas, or state patterns unless requested and approved.
 

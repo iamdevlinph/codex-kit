@@ -111,6 +111,18 @@ test("global install and uninstall manage only package-owned files", () => {
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
+			/Never run `codex-kit project sync` on the user's behalf/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/run `project sync` only\s+after updating codex-kit to a released version/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/the initial status\s+recorded in step 1 was\s+`reconciliation required`/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
 			/Do not add, recreate, or\s+depend on managed markers/,
 		);
 		assert.match(
