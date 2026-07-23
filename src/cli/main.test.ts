@@ -12,8 +12,8 @@ test("help describes every command", () => {
 		"project status",
 		"project mark-applied",
 		"version check",
-		"--help",
-		"--version",
+		"-h, --help",
+		"-v, --version",
 	]) {
 		assert.match(help, new RegExp(command.replaceAll("-", "\\-")));
 	}
@@ -42,4 +42,10 @@ test("help describes every command", () => {
 		help,
 		/codex-kit project sync --cwd \/path\/to\/project --force/,
 	);
+});
+
+test("short help and version flags match their long forms", () => {
+	assert.equal(run(["-h"]).stdout, run(["--help"]).stdout);
+	assert.equal(run(["-v"]).stdout, run(["--version"]).stdout);
+	assert.equal(run(["-h", "-v"]).stdout, run(["--version"]).stdout);
 });

@@ -129,8 +129,8 @@ hooks. Modified managed files are preserved unless `--force` is supplied.
 
 | Action | Command |
 | --- | --- |
-| Show command help | `codex-kit --help` |
-| Print the installed version | `codex-kit --version` |
+| Show command help | `codex-kit -h` or `codex-kit --help` |
+| Print the installed version | `codex-kit -v` or `codex-kit --version` |
 | Install global agents and routing | `codex-kit global install` |
 | Configure the orchestrator | `codex-kit global configure` |
 | Inspect global configuration | `codex-kit global list` |

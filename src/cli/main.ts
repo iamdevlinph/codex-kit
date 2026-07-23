@@ -29,8 +29,8 @@ Commands:
   project status       Show whether template changes still need reconciliation.
   project mark-applied Record the current template as reconciled with AGENTS.md.
   version check        Compare the installed version with the latest npm release.
-  --help               Show this help.
-  --version            Print the installed version.
+  -h, --help           Show this help.
+  -v, --version        Print the installed version.
 
 Options by command:
   global install
@@ -64,11 +64,18 @@ Examples:
 
 export function main(argv: string[] = process.argv.slice(2)): void {
 	const options = parse(argv);
-	if (options.positionals.includes("--version")) {
+	if (
+		options.positionals.includes("--version") ||
+		options.positionals.includes("-v")
+	) {
 		console.log(PACKAGE.version);
 		return;
 	}
-	if (!options.positionals.length || options.positionals.includes("--help")) {
+	if (
+		!options.positionals.length ||
+		options.positionals.includes("--help") ||
+		options.positionals.includes("-h")
+	) {
 		help();
 		return;
 	}
