@@ -182,7 +182,7 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
 		run(["global", "configure", "--codex-home", home]);
 		const result = run(["global", "list", "--codex-home", home]);
 		assert.match(result.stdout, /Orchestrator: gpt-5\.6-sol/);
-		assert.match(result.stdout, /Reasoning effort: low/);
+		assert.match(result.stdout, /Reasoning effort: medium/);
 		assert.match(result.stdout, /Plan mode reasoning effort: high/);
 		assert.match(result.stdout, /Global routing: installed/);
 		assert.match(result.stdout, /Routing hook: installed/);

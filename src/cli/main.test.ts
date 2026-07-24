@@ -28,7 +28,7 @@ test("help describes every command", () => {
 	);
 	assert.match(
 		help,
-		/--reasoning-effort LEVEL\s+Set normal reasoning effort \(default: low\)/,
+		/--reasoning-effort LEVEL\s+Set normal reasoning effort \(default: medium\)/,
 	);
 	assert.match(
 		help,
@@ -36,7 +36,7 @@ test("help describes every command", () => {
 	);
 	assert.match(
 		help,
-		/codex-kit global configure --reasoning-effort low --plan-reasoning-effort high/,
+		/codex-kit global configure --reasoning-effort medium --plan-reasoning-effort high/,
 	);
 	assert.match(
 		help,

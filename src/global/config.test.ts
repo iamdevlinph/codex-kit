@@ -23,7 +23,7 @@ test("global configure sets the Sol orchestrator without replacing unrelated con
 		run(["global", "configure", "--codex-home", home]);
 		const configured = readFileSync(config, "utf8");
 		assert.match(configured, /model = "gpt-5.6-sol"/);
-		assert.match(configured, /model_reasoning_effort = "low"/);
+		assert.match(configured, /model_reasoning_effort = "medium"/);
 		assert.match(configured, /plan_mode_reasoning_effort = "high"/);
 		assert.match(configured, /service_tier = "default"/);
 		assert.match(configured, /trust_level = "trusted"/);

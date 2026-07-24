@@ -73,12 +73,12 @@ and normally performs only lightweight integration checks.
 
 ```toml
 model = "gpt-5.6-sol"
-model_reasoning_effort = "low"
+model_reasoning_effort = "medium"
 plan_mode_reasoning_effort = "high"
 ```
 
-This keeps ordinary root work light while retaining high reasoning in Plan
-Mode. Override either effort independently when needed:
+This balances ordinary orchestration and direct small changes while retaining
+high reasoning in Plan Mode. Override either effort independently when needed:
 
 ```sh
 codex-kit global configure \
