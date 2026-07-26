@@ -7,7 +7,7 @@ const options = {
 	bundle: true,
 	format: "esm",
 	legalComments: "none",
-	minify: true,
+	minify: false,
 	platform: "node",
 	target: "node20",
 };

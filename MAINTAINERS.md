@@ -26,7 +26,7 @@ private repository.
 The repository uses Node.js 24 for maintainer tooling and tests while preserving
 Node.js 20 compatibility for the published CLI. It pins pnpm `11.5.2`,
 TypeScript `7.0.1-rc`, esbuild `0.28.1`, and Node.js 20 type definitions. The
-generated, untracked `bin/` contains only the self-contained, minified
+generated, untracked `bin/` contains only the self-contained, unminified
 `codex-kit.js` and `routing-hook.js` bundles.
 
 ```sh

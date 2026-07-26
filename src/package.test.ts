@@ -37,6 +37,8 @@ test("publishing targets public npm through trusted publishing", () => {
 			readFileSync(join(ROOT, "bin", file), "utf8"),
 			/^#!\/usr\/bin\/env node\n/,
 		);
+	const buildScript = readFileSync(join(ROOT, "scripts", "build.mjs"), "utf8");
+	assert.match(buildScript, /minify: false/);
 
 	const workflow = readFileSync(
 		join(ROOT, ".github", "workflows", "publish.yml"),

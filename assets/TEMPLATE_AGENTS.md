@@ -123,6 +123,10 @@ conditional procedures into validated project skills.
 
 - Follow the repository's organization and naming. Prefer focused files and
   split mixed responsibilities when readability improves.
+- Keep route and page files focused on page-level composition, data loading, and
+  orchestration. Extract substantial self-contained UI sections and complex
+  page-specific logic into colocated feature components or modules. Keep small
+  one-use markup inline; do not create components solely to reduce line count.
 - Use intent-revealing domain names. A reader should understand what a variable
   contains or what a helper guarantees at the call site without opening its
   implementation. Avoid vague transformation names such as `normalized`,
