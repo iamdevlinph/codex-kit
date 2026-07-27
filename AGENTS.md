@@ -50,8 +50,8 @@
   implemented with the standard library.
 - Preserve user-owned files and unrelated configuration. Back up files before a
   managed replacement and never silently overwrite locally modified content.
-- `global install` must remain separate from the explicit `global configure`
-  command. Model configuration must not change during installation.
+- `global install` configures the default root model and reasoning settings;
+  `global configure` remains available for explicit overrides.
 - `project sync` may refresh `TEMPLATE_AGENTS.md` and project state, but must not
   merge into or replace a project's `AGENTS.md`.
 - `project mark-applied` is bookkeeping only; it must not claim to validate the

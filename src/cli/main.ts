@@ -42,7 +42,7 @@ Options by command:
     --force                   Replace modified config managed by codex-kit.
     --orchestrator MODEL      Set the root/orchestrator model (default: gpt-5.6-sol).
     --model MODEL             Alias for --orchestrator.
-    --reasoning-effort LEVEL       Set normal reasoning effort (default: medium).
+    --reasoning-effort LEVEL       Set normal reasoning effort (default: low).
     --plan-reasoning-effort LEVEL  Set Plan-mode reasoning effort (default: high).
 
   global list, global uninstall
@@ -57,7 +57,7 @@ Options by command:
 
 Examples:
   codex-kit global install --force
-  codex-kit global configure --reasoning-effort medium --plan-reasoning-effort high
+  codex-kit global configure --reasoning-effort low --plan-reasoning-effort high
   codex-kit project sync --cwd /path/to/project --force
   codex-kit project status --cwd /path/to/project`);
 }

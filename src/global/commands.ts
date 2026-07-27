@@ -153,6 +153,7 @@ export function installGlobal(options: Options): void {
 	next.globalAgents = { target: globalAgents };
 	next.hooks = installRoutingHooks(home, prior.hooks);
 	saveState(home, next);
+	configureGlobal(options);
 	const commitPusher = join(home, "agents", "commit-pusher.toml");
 	if (existsSync(commitPusher))
 		console.warn(

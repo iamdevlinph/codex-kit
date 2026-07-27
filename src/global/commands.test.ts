@@ -82,7 +82,10 @@ test("global install and uninstall manage only package-owned files", () => {
 		assert.match(installedHooks, /SubagentStart/);
 		assert.doesNotMatch(installedHooks, /SubagentStop/);
 		assert.doesNotMatch(installedHooks, /PreToolUse/);
-		assert.equal(readFileSync(config, "utf8"), 'model = "gpt-5.6-sol"\n');
+		assert.equal(
+			readFileSync(config, "utf8"),
+			'model_reasoning_effort = "low"\nplan_mode_reasoning_effort = "high"\n\nmodel = "gpt-5.6-sol"\n',
+		);
 		assert.ok(existsSync(join(home, "codex-kit", "routing-hook.js")));
 		const reconciliationSkill = join(
 			home,
@@ -140,6 +143,7 @@ test("global install and uninstall manage only package-owned files", () => {
 
 		run(["global", "uninstall", "--codex-home", home]);
 		assert.match(readFileSync(explorer, "utf8"), /local edit/);
+		assert.equal(readFileSync(config, "utf8"), 'model = "gpt-5.6-sol"\n');
 		assert.deepEqual(JSON.parse(readFileSync(hooks, "utf8")), originalHooks);
 		assert.equal(existsSync(join(home, "codex-kit", "routing-hook.js")), false);
 		assert.equal(existsSync(reconciliationSkill), false);
@@ -182,7 +186,7 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
 		run(["global", "configure", "--codex-home", home]);
 		const result = run(["global", "list", "--codex-home", home]);
 		assert.match(result.stdout, /Orchestrator: gpt-5\.6-sol/);
-		assert.match(result.stdout, /Reasoning effort: medium/);
+		assert.match(result.stdout, /Reasoning effort: low/);
 		assert.match(result.stdout, /Plan mode reasoning effort: high/);
 		assert.match(result.stdout, /Global routing: installed/);
 		assert.match(result.stdout, /Routing hook: installed/);

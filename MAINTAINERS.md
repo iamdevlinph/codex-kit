@@ -156,9 +156,11 @@ regardless of their exact stack or file layout.
 
 ## Update devices and downstream projects
 
-`global configure` manages only the top-level `model`,
-`model_reasoning_effort`, and `plan_mode_reasoning_effort` keys. It backs up
-`config.toml` and stores the original managed values in installer state so
+`global install` configures the top-level `model`, `model_reasoning_effort`, and
+`plan_mode_reasoning_effort` keys with the defaults documented in `README.md`.
+`global configure` manages these keys when overriding the defaults. Both
+commands back up `config.toml` and store the original managed values in
+installer state so
 `global uninstall` can restore them without rolling back unrelated later edits.
 
 Global routing keeps the Sol root as planner/orchestrator. The routing file maps

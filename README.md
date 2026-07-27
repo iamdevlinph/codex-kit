@@ -8,8 +8,9 @@ Portable Codex setup for new devices and multiple projects. It provides:
 - a package-owned `codex-kit-reconcile-agents` skill for semantic reconciliation
 - safe commands for global setup, project synchronization, and reconciliation
 
-The package contains no credentials. Global installation does not modify the
-Codex model configuration; configuration is a separate, explicit command.
+The package contains no credentials. Global installation configures the Codex
+root orchestrator to `gpt-5.6-sol` with low normal reasoning and high Plan-mode
+reasoning. Use the separate configuration command to override these defaults.
 
 ## Install on a device
 
@@ -18,7 +19,6 @@ No npm or GitHub login is required. For regular use, install the CLI globally:
 ```sh
 pnpm add --global @iamdevlinph/codex-kit@latest
 codex-kit global install
-codex-kit global configure
 ```
 
 Start a new Codex task or restart the client after installation. Codex may ask
@@ -69,11 +69,12 @@ do not justify duplicate agents.
 selected by the default automatic route. The root reuses delegated test evidence
 and normally performs only lightweight integration checks.
 
-`global configure` sets these defaults while preserving unrelated settings:
+`global install` sets these defaults while preserving unrelated settings;
+`global configure` can override them:
 
 ```toml
 model = "gpt-5.6-sol"
-model_reasoning_effort = "medium"
+model_reasoning_effort = "low"
 plan_mode_reasoning_effort = "high"
 ```
 
