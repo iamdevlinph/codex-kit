@@ -121,12 +121,16 @@ conditional procedures into validated project skills.
 
 ## Structure
 
-- Follow the repository's organization and naming. Prefer focused files and
-  split mixed responsibilities when readability improves.
+- Follow the repository's organization and naming. Organize feature-specific
+  code under the feature's existing directory; when a feature contains multiple
+  substantial UI pieces, place them in a `<feature>/components` subdirectory.
+  Keep broadly reused code in the repository's established shared locations.
 - Keep route and page files focused on page-level composition, data loading, and
   orchestration. Extract substantial self-contained UI sections and complex
-  page-specific logic into colocated feature components or modules. Keep small
-  one-use markup inline; do not create components solely to reduce line count.
+  page-specific logic into focused files colocated with the feature. Split large
+  or mixed-responsibility files by cohesive behavior so each file remains easy
+  to read, navigate, test, and review. Keep small one-use markup or logic inline;
+  do not create files or components solely to reduce line count.
 - Use intent-revealing domain names. A reader should understand what a variable
   contains or what a helper guarantees at the call site without opening its
   implementation. Avoid vague transformation names such as `normalized`,
