@@ -1,25 +1,23 @@
 # Codex-Kit Maintainer Guide
 
-Private repository instructions for developing and publishing the public
-`@iamdevlinph/codex-kit` npm package. User-facing commands belong in
-`README.md`; do not put repository administration, publishing credentials, or
-private operational details there.
+Instructions for developing and publishing the public `@iamdevlinph/codex-kit`
+npm package. User-facing commands belong in `README.md`; do not put repository
+administration or publishing credentials there.
 
 ## Visibility boundary
 
-The GitHub repository is private, while the npm package is public. Everything
-listed by `pnpm run pack:check` is publicly downloadable.
+The GitHub repository and npm package are public. Everything listed by
+`pnpm run pack:check` is publicly downloadable.
 
 npm always includes the root `LICENSE`, `README.md`, `package.json`, and
 executable named by `bin`, regardless of the `files` allowlist.
 `MAINTAINERS.md`, source, tests, and repository instructions must remain outside
-that allowlist. ISC applies only to files in the published tarball;
-repository-only files remain proprietary.
+that allowlist. The entire repository is covered by ISC.
 
 The repository URL is visible in npm metadata because Trusted Publishing
 requires `package.json#repository.url` to match the GitHub repository exactly.
-npm does not generate provenance attestations for packages published from a
-private repository.
+npm may generate provenance attestations when the publishing workflow requests
+them and GitHub supports them.
 
 ## Development setup
 
@@ -41,12 +39,11 @@ it discovers `tsconfig.json`.
 
 ## Repository setup
 
-Create a private GitHub repository named `iamdevlinph/codex-kit`. Keep the npm
+Use the public GitHub repository named `iamdevlinph/codex-kit`. Keep the npm
 package name and GitHub namespace lowercase.
 
-Files included in the published npm package are licensed under ISC. Keep the
-root `LICENSE` and package metadata synchronized; the private repository's
-excluded files remain proprietary.
+All repository files are licensed under ISC. Keep the root `LICENSE` and
+package metadata synchronized.
 
 ## Initial npm publication
 

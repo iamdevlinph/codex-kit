@@ -246,9 +246,13 @@ standard-library modules.
 
 ## License
 
-Files included in the published `@iamdevlinph/codex-kit` npm package are
-licensed under the [ISC License](LICENSE). Repository-only files remain
-proprietary and are not covered by that license.
+This repository and the published `@iamdevlinph/codex-kit` package are licensed
+under the [ISC License](LICENSE).
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for supported versions and private vulnerability
+reporting instructions.
 
 ## References
 

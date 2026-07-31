@@ -2,8 +2,7 @@
 
 ## Purpose and sources of truth
 
-- This private repository maintains the public `@iamdevlinph/codex-kit`
-  package.
+- This public repository maintains the `@iamdevlinph/codex-kit` package.
 - `AGENTS.md` contains instructions for maintaining this repository.
 - `assets/TEMPLATE_AGENTS.md` is the canonical reusable template distributed to
   downstream projects. The root `TEMPLATE_AGENTS.md` is a staged reference;
@@ -60,7 +59,7 @@
 
 ## Change requirements
 
-- Keep public CLI usage in `README.md` and private development, publishing, and
+- Keep public CLI usage in `README.md` and development, publishing, and
   template-promotion instructions in `MAINTAINERS.md`. Keep both synchronized
   with behavior changes.
 - `MAINTAINERS.md`, repository instructions, source, and tests must remain

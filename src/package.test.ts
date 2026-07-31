@@ -25,8 +25,13 @@ test("publishing targets public npm through trusted publishing", () => {
 	assert.equal(manifest.engines?.node, ">=20");
 	assert.equal(manifest.license, "ISC");
 	assert.equal(existsSync(join(ROOT, ".npmrc")), false);
+	assert.equal(existsSync(join(ROOT, "package-lock.json")), false);
 	const license = readFileSync(join(ROOT, "LICENSE"), "utf8");
-	assert.match(license, /only to files included in the published/);
+	assert.match(license, /ISC License/);
+	assert.doesNotMatch(
+		license,
+		/only to files included|repository-only|proprietary/,
+	);
 	assert.match(license, /Copyright \(c\) 2026 Devlin Pajaron/);
 	const buildFiles = readdirSync(join(ROOT, "bin"), { recursive: true })
 		.map(String)
