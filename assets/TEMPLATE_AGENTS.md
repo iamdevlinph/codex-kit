@@ -92,6 +92,10 @@ conditional procedures into validated project skills.
 - Reuse existing constants, schemas, enums, shared types, and components before
   creating duplicates. Add reusable domain values at their existing source of
   truth instead of scattering magic strings.
+- Promote repeated closed-set domain values used in production control flow to
+  feature-owned immutable runtime constants. Where the language supports it,
+  derive static types from that runtime source; keep incidental presentation,
+  browser, protocol, route, environment, and test-contract strings inline.
 
 ## Project Discovery
 

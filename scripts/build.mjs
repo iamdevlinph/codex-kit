@@ -1,7 +1,8 @@
-import { rmSync } from "node:fs";
+import { copyFileSync, rmSync } from "node:fs";
 import { build } from "esbuild";
 
 rmSync("bin", { recursive: true, force: true });
+copyFileSync("TEMPLATE_AGENTS.md", "assets/TEMPLATE_AGENTS.md");
 
 const options = {
 	bundle: true,

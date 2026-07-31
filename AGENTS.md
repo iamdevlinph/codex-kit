@@ -4,9 +4,10 @@
 
 - This public repository maintains the `@iamdevlinph/codex-kit` package.
 - `AGENTS.md` contains instructions for maintaining this repository.
-- `assets/TEMPLATE_AGENTS.md` is the canonical reusable template distributed to
-  downstream projects. The root `TEMPLATE_AGENTS.md` is a staged reference;
-  neither template is this repository's active instructions.
+- The root `TEMPLATE_AGENTS.md` is the canonical reusable template source.
+  Every build copies it to `assets/TEMPLATE_AGENTS.md` for distribution to
+  downstream projects; neither template is this repository's active
+  instructions.
 - Keep reusable template rules project-agnostic. Project names, local paths,
   integrations, and exceptions belong only in the affected project's `AGENTS.md`.
 
@@ -83,7 +84,8 @@
   not copy the full template or add managed markers, keep critical always-on
   rules here, and mark applied only after reconciliation and validation succeed.
 - When promoting a project-discovered guideline, generalize and review the rule
-  before merging it into `assets/TEMPLATE_AGENTS.md`.
+  before merging it into the root `TEMPLATE_AGENTS.md`; the next build copies
+  the updated source into `assets/TEMPLATE_AGENTS.md`.
 - A template update requires a new package release before downstream
   `project sync` commands can receive it.
 - The release tag must match `package.json` as `v<version>`.

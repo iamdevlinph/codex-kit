@@ -25,7 +25,9 @@ The repository uses Node.js 24 for maintainer tooling and tests while preserving
 Node.js 20 compatibility for the published CLI. It pins pnpm `11.5.2`,
 TypeScript `7.0.1-rc`, esbuild `0.28.1`, and Node.js 20 type definitions. The
 generated, untracked `bin/` contains only the self-contained, unminified
-`codex-kit.js` and `routing-hook.js` bundles.
+`codex-kit.js` and `routing-hook.js` bundles. The root `TEMPLATE_AGENTS.md` is
+the canonical template source; every build copies it to the published
+`assets/TEMPLATE_AGENTS.md` path.
 
 ```sh
 corepack enable
@@ -130,7 +132,7 @@ Choose the narrowest scope:
 | Change | Source of truth | Propagation |
 | --- | --- | --- |
 | Personal behavior for every repository | Global routing or agent assets | Run `global install` on each device |
-| Reusable project convention | `assets/TEMPLATE_AGENTS.md` | Publish a version, then sync and reconcile projects |
+| Reusable project convention | root `TEMPLATE_AGENTS.md` | Build copies to `assets/TEMPLATE_AGENTS.md`; publish a version, then sync and reconcile projects |
 | Project-specific command, integration, or exception | Project `AGENTS.md` | Keep it only in that project |
 
 Do not put the complete project template in global `~/.codex/AGENTS.md`. Keep
@@ -142,7 +144,8 @@ When a project reveals a reusable guideline:
    `AGENTS.md`.
 2. Generalize the rule in the project's `TEMPLATE_AGENTS.md`, removing local
    paths, commands, integrations, and exceptions.
-3. Merge only that generalized change into `assets/TEMPLATE_AGENTS.md` here.
+3. Merge only that generalized change into the root `TEMPLATE_AGENTS.md` here;
+   the build copies it into `assets/TEMPLATE_AGENTS.md`.
 4. Run the full verification commands and publish a new package version.
 5. Run `project sync` in downstream projects.
 6. Ask Codex to reconcile each `AGENTS.md` and applicable project skills under
