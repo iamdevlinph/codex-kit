@@ -156,15 +156,15 @@ conditional procedures into validated project skills.
   platform suffixes such as `.ios.tsx`, `.android.tsx`, and `.native.tsx`.
 - Use `PascalCase` for components, context providers and consumers, type aliases,
   interfaces, and enums.
-- Use `snake_case` for ordinary variables, props, state values, and code-owned
-  object properties. Use `camelCase` for ordinary function names.
+- Use `camelCase` for functions, variables, props, state, and code-owned object
+  properties.
 - Name custom hooks as `useThing`, higher-order components as `withThing`, and
-  local event-handler functions as `handleThing`. Name code-owned callback props
-  in `snake_case` with an `on_` prefix, such as `on_submit`.
-- Prefix boolean props, state, and variables with `is_`, `has_`, or `should_`
+  local event-handler functions as `handleThing`. Name callback props with `on`,
+  such as `onSubmit`.
+- Prefix boolean props, state, and variables with `is`, `has`, or `should`
   when the prefix accurately describes their meaning.
 - Use `UPPER_SNAKE_CASE` for module-level constants and enum members. Keep
-  ordinary local `const` bindings in `snake_case`.
+  ordinary local `const` bindings in `camelCase`.
 
 ## Data And Validation
 
