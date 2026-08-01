@@ -29,6 +29,13 @@
 - Reuse existing constants, schemas, enums, shared types, and components before
   creating duplicates. Add reusable domain values at their existing source of
   truth rather than scattering magic strings.
+- Promote repeated closed-set domain values used in production control flow to
+  feature-owned immutable runtime constants. Derive static types from that
+  runtime source; keep incidental presentation, protocol, route, environment,
+  and test-contract strings inline.
+- Keep naming conventions consistent within each code-owned object, schema,
+  type, and module. Preserve externally defined names at the boundary, then map
+  them once to the repository's internal convention.
 - Preserve user changes and unrelated dirty state. Never revert them without an
   explicit request, and never run destructive Git commands such as
   `git reset --hard` or `git checkout --` without explicit approval.
