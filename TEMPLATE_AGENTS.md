@@ -140,6 +140,11 @@ conditional procedures into validated project skills.
   implementation. Avoid vague transformation names such as `normalized`,
   `processed`, `result`, or `data` when a value- or behavior-specific name is
   available.
+- Keep naming conventions consistent within each code-owned object, schema,
+  type, and module. Do not mix identifier casing styles in the same
+  representation unless required by an external contract or framework.
+  Preserve externally defined names at the boundary, then map them once to the
+  project's internal convention.
 - Do not reorganize feature directories, shared modules, routes, server
   boundaries, schemas, or state patterns unless requested and approved.
 
