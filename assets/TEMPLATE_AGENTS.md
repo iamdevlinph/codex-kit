@@ -148,6 +148,24 @@ conditional procedures into validated project skills.
 - Do not reorganize feature directories, shared modules, routes, server
   boundaries, schemas, or state patterns unless requested and approved.
 
+## React And React Native TypeScript Naming
+
+- In React, React Native, and Expo projects using TypeScript, use `kebab-case`
+  for code-owned file and directory names. Preserve framework-mandated and
+  contract-derived names, including Expo Router notation and React Native
+  platform suffixes such as `.ios.tsx`, `.android.tsx`, and `.native.tsx`.
+- Use `PascalCase` for components, context providers and consumers, type aliases,
+  interfaces, and enums.
+- Use `snake_case` for ordinary variables, props, state values, and code-owned
+  object properties. Use `camelCase` for ordinary function names.
+- Name custom hooks as `useThing`, higher-order components as `withThing`, and
+  local event-handler functions as `handleThing`. Name code-owned callback props
+  in `snake_case` with an `on_` prefix, such as `on_submit`.
+- Prefix boolean props, state, and variables with `is_`, `has_`, or `should_`
+  when the prefix accurately describes their meaning.
+- Use `UPPER_SNAKE_CASE` for module-level constants and enum members. Keep
+  ordinary local `const` bindings in `snake_case`.
+
 ## Data And Validation
 
 - Update schemas first, then generate migrations or derived types. Never edit
