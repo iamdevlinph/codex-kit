@@ -24,6 +24,26 @@
 - Keep changes minimal, localized, and limited to the request. Do not reorganize
   major modules, change architecture, or introduce a new project paradigm without
   explicit approval.
+- Complete every new or materially changed feature through this semantic pass:
+  implement and stabilize it, map each responsibility to its final file, extract
+  independently understandable concerns, validate the decomposed implementation,
+  then hand it off to `code-reviewer`. Pages, routes, controllers, commands, and
+  entrypoints contain composition and orchestration only. Web page files may keep
+  framework exports, metadata, loading, guards, page-level state, minimal layout
+  wrappers, and imported child composition, but not child components, substantial
+  UI sections, or domain logic. Independently changeable UI concerns (tables,
+  filters, forms, dialogs, and sections) belong in descriptive feature-local
+  component files. Hooks, schemas, data access, transformations, and domain logic
+  move out of presentation files when independently testable or when they obscure
+  the component's primary responsibility. Avoid generic `utils`, `helpers`, or
+  `components` dumping grounds; filenames must identify owned behavior. Keep
+  components feature-local by default; promote them to shared/design-system
+  locations only when reused across features or explicitly global primitives.
+  Tiny private helpers or markup may remain inline only when inseparable from the
+  file's single responsibility. Do not broaden an unrelated small fix, but leave
+  any new or materially changed feature decomposed. Every completed feature gets
+  an automatic `code-reviewer` structure review; exceptions require a concrete
+  framework or tooling constraint identified in the handoff.
 - Before changing code, inspect the manifest, configuration, scripts, and nearby
   files to identify the actual stack, commands, and conventions.
 - Reuse existing constants, schemas, enums, shared types, and components before

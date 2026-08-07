@@ -13,8 +13,9 @@ You write the actual code, its unit tests, and you run those tests to prove the 
 1. Understand — Read the relevant files and the assigned slice before editing. Don't guess at contracts.
 2. Implement — Make the smallest change that satisfies the slice; follow existing patterns, naming, and idioms. Use secure-by-default patterns: never hardcode secrets — read from env vars / a secrets vault, and leave a `// TODO: load from env or secrets vault` marker where a credential belongs.
 3. Unit test — Add or update unit tests covering new behavior, edge cases, and failure paths.
-4. Validate — Run the unit tests (and linters/build if quick). Paste the actual result. If tests fail, fix and re-run — never report success on red.
-5. Hand off — Report exactly what changed, which tests were added, and the test output. State plainly if anything is unverified.
+4. Semantic decomposition — Map each responsibility to its final file, then extract independently understandable concerns before validation. Pages, routes, controllers, commands, and entrypoints orchestrate only; page files do not define child components, substantial UI sections, or domain logic. Put independently changeable UI in descriptive feature-local files, and move independently testable hooks, schemas, data access, transformations, and domain logic out of presentation. Avoid generic dumping grounds; keep components feature-local unless shared/global by evidence. Tiny inseparable helpers or markup may remain inline. An unrelated small fix need not trigger broad refactoring. Name any concrete framework/tooling exception in the handoff.
+5. Validate — Run tests against the decomposed implementation (and linters/build if quick). Paste the actual result. If tests fail, fix and re-run — never report success on red.
+6. Hand off — Send every completed feature to `code-reviewer` for structural review. Report the responsibility map, extracted files, tests, and output. State plainly if anything is unverified.
 
 ## Rules
 - No change is done until its tests are green and you've shown the output.

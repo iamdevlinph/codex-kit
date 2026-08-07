@@ -9,7 +9,7 @@ import {
 	tmpdir,
 } from "./test-support/cli.js";
 
-test("routing hook injects balanced policy and briefs subagents", () => {
+test("routing hook injects semantic policy and briefs subagents", () => {
 	const root = mkdtempSync(join(tmpdir(), "codex-kit-routing-hook-"));
 	const home = join(root, ".codex");
 	try {
@@ -28,6 +28,24 @@ test("routing hook injects balanced policy and briefs subagents", () => {
 			/quick-implementer.*explicit manual delegation/s,
 		);
 		assert.match(promptOutput, /code-reviewer/);
+		assert.match(
+			promptOutput,
+			/Every new or materially changed feature follows this mandatory workflow/,
+		);
+		assert.match(promptOutput, /map each responsibility to its final file/);
+		assert.match(
+			promptOutput,
+			/Every\s+completed feature receives automatic structural review/,
+		);
+		assert.match(
+			promptOutput,
+			/Pages, routes, controllers, commands, and\s+entrypoints contain composition and orchestration only/,
+		);
+		assert.match(
+			promptOutput,
+			/Avoid generic `utils`, `helpers`, or `components` dumping grounds/,
+		);
+		assert.doesNotMatch(promptOutput, /\b300\b/);
 		assert.match(
 			promptOutput,
 			/Agent definitions, not this policy, determine each role's model/,

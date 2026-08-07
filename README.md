@@ -44,7 +44,24 @@ TOML—not the routing policy—selects its model and reasoning effort. To avoid
 subagent startup overhead, the root may directly handle planning, conversation,
 read-only checks, documentation, bookkeeping, and clear changes spanning up to
 roughly three files. Automatic delegation is reserved for broad discovery,
-large multi-file implementation or debugging, and high-risk review.
+large multi-file implementation or debugging, high-risk review, and the
+structural review required for every completed feature.
+
+Every feature follows a mandatory semantic decomposition pass: implement and
+stabilize it, map each responsibility to its final file, extract independently
+understandable concerns, validate the decomposed implementation, and hand it to
+`code-reviewer`. Pages, routes, controllers, commands, and entrypoints contain
+composition and orchestration only. Web page files may contain framework exports,
+metadata, loading, guards, page-level state, minimal layout wrappers, and imported
+child composition, but not child components, substantial UI sections, or domain
+logic. Independently changeable UI concerns get descriptive feature-local files;
+hooks, schemas, data access, transformations, and domain logic move out of
+presentation when independently testable or when they obscure the primary
+responsibility. Avoid generic dumping grounds, keep components feature-local by
+default, and promote only proven shared/global primitives. Tiny inseparable
+helpers or markup may remain inline. Unrelated small fixes need no broad
+refactoring. Every completed feature receives automatic structural review; a
+concrete framework or tooling constraint must be named for any exception.
 
 ## Available subagents
 
@@ -52,7 +69,7 @@ large multi-file implementation or debugging, and high-risk review.
 | --- | --- | --- | --- |
 | `code-explorer` | Automatic | `gpt-5.6-terra`, medium | Read-only broad repository discovery, contract tracing, and multi-file searches |
 | `implementer` | Automatic | `gpt-5.6-luna`, high | Large behavior changes, non-obvious debugging, migrations, and substantial tests |
-| `code-reviewer` | Automatic | `gpt-5.6-sol`, high | Read-only review of security-sensitive, architectural, public-API, concurrency, migration, or difficult-to-validate changes |
+| `code-reviewer` | Automatic | `gpt-5.6-sol`, high | Structural review of every completed feature, plus read-only review of security-sensitive, architectural, public-API, concurrency, migration, or difficult-to-validate changes |
 | `quick-implementer` | Manual only | `gpt-5.6-luna`, medium | Small, mechanical, well-specified changes limited to one or two files |
 
 The root orchestrator is not a subagent. It owns planning, routing, integration,

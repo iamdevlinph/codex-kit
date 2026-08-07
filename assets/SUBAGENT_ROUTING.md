@@ -12,6 +12,25 @@ roughly three files when no broad discovery or architectural decision is needed.
 When a substantive route below matches, spawn that exact role before performing
 the role's work. The user does not need to request delegation.
 
+Every new or materially changed feature follows this mandatory workflow:
+implement and stabilize; map each responsibility to its final file; extract
+independently understandable concerns; validate the decomposed implementation;
+then hand off to `code-reviewer`. Pages, routes, controllers, commands, and
+entrypoints contain composition and orchestration only. Web page files may keep
+framework exports, metadata, loading, guards, page-level state, minimal layout
+wrappers, and imported child composition, but not child components, substantial
+UI sections, or domain logic. Independently changeable UI concerns (tables,
+filters, forms, dialogs, and sections) receive descriptive feature-local files.
+Hooks, schemas, data access, transformations, and domain logic move out of
+presentation files when independently testable or when they obscure the primary
+responsibility. Avoid generic `utils`, `helpers`, or `components` dumping grounds;
+filenames identify owned behavior. Keep components feature-local by default;
+promote them only when reused across features or explicitly global primitives.
+Tiny private helpers or markup may remain inline only when inseparable from the
+file's single responsibility. Do not broaden unrelated small fixes. Every
+completed feature receives automatic structural review; a framework or tooling
+constraint is the only exception and must be named in the handoff.
+
 Select custom agents by exact name:
 
 - Broad repository discovery, contract tracing, or search across many files:
@@ -22,12 +41,14 @@ Select custom agents by exact name:
 - Independent review of security-sensitive, architectural, public-API,
   concurrency, migration, or otherwise difficult-to-validate changes:
   `code-reviewer`
+- Every completed feature, including small features, receives structural review:
+  `code-reviewer`
 
 For tasks with multiple phases, sequence only the roles that add value. For
 example, use `code-explorer` before implementation only when broad discovery is
-actually needed, and use `code-reviewer` after implementation only when the
-change meets its risk threshold. Avoid parallel write-heavy work by default and
-never assign overlapping files to multiple agents.
+actually needed. Use `code-reviewer` after every completed feature and for any
+other change meeting its risk threshold. Avoid parallel write-heavy work by
+default and never assign overlapping files to multiple agents.
 
 Multiple `implementer` instances may run concurrently only when a substantial
 task divides into genuinely independent slices. Give each instance exclusive

@@ -16,6 +16,17 @@ review for correctness, regressions, security, reliability, missing tests, and
 architecture risks. Report only actionable findings, ordered P0 Critical through
 P3 Low, with precise file and line references.
 
+Every completed feature receives this structural review, regardless of file
+length. Enforce responsibility boundaries: return `REQUEST_CHANGES` when the
+final feature diff implements child UI inside a page or route file, mixes
+independently changeable responsibilities in one file, hides substantial logic
+inside presentation or entrypoint files, creates a generic file whose purpose is
+not clear from its name, puts feature-specific behavior in shared components, or
+duplicates genuinely shared behavior. Accept tiny private helpers/markup only
+when inseparable from a file's single responsibility. Allow an exception only
+for a concrete framework or tooling constraint explicitly identified in the
+handoff; otherwise end with `REQUEST_CHANGES` for violations.
+
 ## Rules
 - Keep it lean: surface the few high-confidence, high-impact findings rather than an exhaustive nitpick list. Rank by severity.
 - Finish within three minutes. At the deadline, stop and return the findings already supported by the diff.

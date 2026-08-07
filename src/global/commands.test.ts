@@ -69,6 +69,24 @@ test("global install and uninstall manage only package-owned files", () => {
 			/quick-implementer.*explicit manual delegation/s,
 		);
 		assert.match(globalAgents, /run only\s+lightweight integration checks/);
+		assert.match(
+			globalAgents,
+			/Every new or materially changed feature follows this mandatory workflow/,
+		);
+		assert.match(globalAgents, /map each responsibility to its final file/);
+		assert.match(
+			globalAgents,
+			/Every\s+completed feature receives automatic structural review/,
+		);
+		assert.match(
+			globalAgents,
+			/Pages, routes, controllers, commands, and\s+entrypoints contain composition and orchestration only/,
+		);
+		assert.match(
+			globalAgents,
+			/Avoid generic `utils`, `helpers`, or `components` dumping grounds/,
+		);
+		assert.doesNotMatch(globalAgents, /\b300\b/);
 		assert.match(globalAgents, /Wait once for at most 60 seconds/);
 		assert.match(globalAgents, /five minutes\s+for `implementer`/);
 		assert.match(globalAgents, /no result within two minutes is hung/);
@@ -132,6 +150,51 @@ test("global install and uninstall manage only package-owned files", () => {
 			readFileSync(reconciliationSkillMetadata, "utf8"),
 			/\$codex-kit-reconcile-agents/,
 		);
+		const implementerInstructions = readFileSync(
+			join(home, "agents", "implementer.toml"),
+			"utf8",
+		);
+		const reviewerInstructions = readFileSync(
+			join(home, "agents", "code-reviewer.toml"),
+			"utf8",
+		);
+		const quickImplementerInstructions = readFileSync(
+			join(home, "agents", "quick-implementer.toml"),
+			"utf8",
+		);
+		assert.match(
+			implementerInstructions,
+			/Semantic decomposition.*Map each responsibility to its final file/s,
+		);
+		assert.match(
+			implementerInstructions,
+			/Send every completed feature to `code-reviewer`/s,
+		);
+		assert.ok(
+			implementerInstructions.indexOf("Semantic decomposition") <
+				implementerInstructions.indexOf("5. Validate") &&
+				implementerInstructions.indexOf("5. Validate") <
+					implementerInstructions.indexOf("6. Hand off"),
+		);
+		assert.match(
+			quickImplementerInstructions,
+			/Semantic decomposition.*Map responsibilities to final files/s,
+		);
+		assert.ok(
+			quickImplementerInstructions.indexOf("Semantic decomposition") <
+				quickImplementerInstructions.indexOf("5. Validate") &&
+				quickImplementerInstructions.indexOf("5. Validate") <
+					quickImplementerInstructions.indexOf("6. Hand off"),
+		);
+		assert.match(
+			reviewerInstructions,
+			/Every completed feature receives this structural review/s,
+		);
+		assert.match(
+			reviewerInstructions,
+			/return `REQUEST_CHANGES` when the\s+final feature diff implements child UI inside a page or route file, mixes\s+independently changeable responsibilities in one file, hides substantial logic\s+inside presentation or entrypoint files, creates a generic file whose purpose is\s+not clear from its name, puts feature-specific behavior in shared components, or\s+duplicates genuinely shared behavior/s,
+		);
+		assert.doesNotMatch(reviewerInstructions, /\b300\b/);
 
 		const explorer = join(home, "agents", "code-explorer.toml");
 		writeFileSync(

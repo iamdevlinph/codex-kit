@@ -129,12 +129,26 @@ conditional procedures into validated project skills.
   code under the feature's existing directory; when a feature contains multiple
   substantial UI pieces, place them in a `<feature>/components` subdirectory.
   Keep broadly reused code in the repository's established shared locations.
-- Keep route and page files focused on page-level composition, data loading, and
-  orchestration. Extract substantial self-contained UI sections and complex
-  page-specific logic into focused files colocated with the feature. Split large
-  or mixed-responsibility files by cohesive behavior so each file remains easy
-  to read, navigate, test, and review. Keep small one-use markup or logic inline;
-  do not create files or components solely to reduce line count.
+- Complete every new or materially changed feature through a semantic pass:
+  implement and stabilize it, map each responsibility to its final file, extract
+  independently understandable concerns, validate the decomposed implementation,
+  then hand it off to `code-reviewer`. Pages, routes, controllers, commands, and
+  entrypoints contain composition and orchestration only. Web page files may keep
+  framework exports, metadata, loading, guards, page-level state, minimal layout
+  wrappers, and imported child composition, but not child components, substantial
+  UI sections, or domain logic. Independently changeable UI concerns (tables,
+  filters, forms, dialogs, and sections) belong in descriptive feature-local
+  component files. Hooks, schemas, data access, transformations, and domain logic
+  move out of presentation files when independently testable or when they obscure
+  the component's primary responsibility. Avoid generic `utils`, `helpers`, or
+  `components` dumping grounds; filenames must identify owned behavior. Keep
+  components feature-local by default; promote them to shared/design-system
+  locations only when reused across features or explicitly global primitives.
+  Tiny private helpers or markup may remain inline only when inseparable from the
+  file's single responsibility. Do not broaden an unrelated small fix, but leave
+  any new or materially changed feature decomposed. Every completed feature gets
+  an automatic `code-reviewer` structure review; exceptions require a concrete
+  framework or tooling constraint identified in the handoff.
 - Use intent-revealing domain names. A reader should understand what a variable
   contains or what a helper guarantees at the call site without opening its
   implementation. Avoid vague transformation names such as `normalized`,

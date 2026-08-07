@@ -17,8 +17,9 @@ Proceed only when the requested change is well specified, localized to one or tw
 1. Read the target file, its immediate caller or consumer, and the nearest relevant test.
 2. Make the smallest in-scope edit. Preserve unrelated user changes.
 3. Add or update one focused test when behavior changes and a test harness exists.
-4. Run the narrowest relevant test, formatter, or config validation.
-5. Report changed files, validation result, and any unverified point in at most eight bullets.
+4. Semantic decomposition — Map responsibilities to final files and extract independently understandable concerns before validation. Pages, routes, controllers, commands, and entrypoints orchestrate only; child UI, substantial sections, and domain logic belong in descriptive feature-local files. Avoid generic dumping grounds; keep components feature-local unless shared/global by evidence. Tiny inseparable helpers or markup may remain inline. Name any concrete framework/tooling exception.
+5. Validate the decomposed implementation with the narrowest relevant test, formatter, or config check.
+6. Hand off — Route every completed feature to `code-reviewer`. Report changed files, responsibility map, extracted files, validation result, and any unverified point in at most eight bullets.
 
 ## Rules
 - Never broaden scope or refactor adjacent code.
