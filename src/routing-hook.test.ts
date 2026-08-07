@@ -28,6 +28,10 @@ test("routing hook injects semantic policy and briefs subagents", () => {
 			/quick-implementer.*explicit manual delegation/s,
 		);
 		assert.match(promptOutput, /code-reviewer/);
+		assert.match(promptOutput, /UI\/style preflight/);
+		assert.match(promptOutput, /closest same-purpose shipped features/);
+		assert.match(promptOutput, /whether to keep, update, or override/);
+		assert.match(promptOutput, /rendered comparison unavailable/);
 		assert.match(
 			promptOutput,
 			/Every new or materially changed feature follows this mandatory workflow/,

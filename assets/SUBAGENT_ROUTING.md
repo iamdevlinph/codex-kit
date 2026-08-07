@@ -12,8 +12,22 @@ roughly three files when no broad discovery or architectural decision is needed.
 When a substantive route below matches, spawn that exact role before performing
 the role's work. The user does not need to request delegation.
 
+For user-facing work, the root or assigned worker performs a UI/style preflight
+before editing: inspect the closest same-purpose shipped features (especially
+tables, filters, search, forms, dialogs, and page layouts), identify their
+design-system primitives, tokens, spacing, typography, responsive behavior,
+interactions, states, and accessibility conventions, then reuse applicable
+components and patterns. If no written standard exists but trustworthy repeated
+precedent does, derive concise project-local guidance in `AGENTS.md` for
+always-on conventions and `PLANS.md` for feature-specific decisions or approved
+exceptions. Pause and ask the user whether to keep, update, or override before
+deliberate divergence, changing an established guideline, resolving conflicting
+precedents, or proceeding without a trustworthy analogue. If browser or
+screenshot tooling exists, compare the rendered feature with its analogue;
+otherwise report rendered comparison unavailable.
+
 Every new or materially changed feature follows this mandatory workflow:
-implement and stabilize; map each responsibility to its final file; extract
+UI/style preflight; implement and stabilize; map each responsibility to its final file; extract
 independently understandable concerns; validate the decomposed implementation;
 then hand off to `code-reviewer`. Pages, routes, controllers, commands, and
 entrypoints contain composition and orchestration only. Web page files may keep

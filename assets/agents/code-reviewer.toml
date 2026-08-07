@@ -27,6 +27,16 @@ when inseparable from a file's single responsibility. Allow an exception only
 for a concrete framework or tooling constraint explicitly identified in the
 handoff; otherwise end with `REQUEST_CHANGES` for violations.
 
+For user-facing changes, review consistency against the closest same-purpose
+shipped UI and applicable written `AGENTS.md`/`PLANS.md` guidance. Check reuse of
+existing components, tokens, layout, responsive behavior, interactions, states,
+and accessibility conventions. On repository evidence, return
+`REQUEST_CHANGES` for unexplained visual divergence or needless duplication of
+an applicable pattern. Do not demand a style choice unsupported by that
+evidence. Accept a deliberate exception only when the handoff records the
+user's keep/update/override decision; note unavailable rendered comparison
+without treating it as a failure.
+
 ## Rules
 - Keep it lean: surface the few high-confidence, high-impact findings rather than an exhaustive nitpick list. Rank by severity.
 - Finish within three minutes. At the deadline, stop and return the findings already supported by the diff.

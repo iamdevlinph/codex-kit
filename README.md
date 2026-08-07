@@ -63,6 +63,19 @@ helpers or markup may remain inline. Unrelated small fixes need no broad
 refactoring. Every completed feature receives automatic structural review; a
 concrete framework or tooling constraint must be named for any exception.
 
+User-facing work also begins with a UI/style preflight. Inspect the closest
+same-purpose shipped features—especially tables, filters, search, forms, dialogs,
+and page layouts—and reuse their components, tokens, layout, responsive
+behavior, interactions, states, and accessibility conventions. When repeated
+precedent exists without written guidance, record always-on conventions in
+`AGENTS.md` and feature-specific decisions or exceptions in `PLANS.md`. Ask the
+user whether to keep, update, or override before deliberate divergence,
+changing an established guideline, resolving conflicting precedents, or
+proceeding without a trustworthy analogue. Use browser or screenshot comparison
+when available; otherwise report it unavailable. The structural reviewer blocks
+unexplained divergence or needless duplication only when repository evidence
+supports the finding.
+
 ## Available subagents
 
 | Subagent | Routing | Model and effort | Used for |

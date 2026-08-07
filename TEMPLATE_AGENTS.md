@@ -104,6 +104,22 @@ conditional procedures into validated project skills.
   Do not assume tools from other projects.
 - Keep discovered stack-specific guidance in the project's
   `# Project-Specific Instructions`, not in this shared template.
+- For user-facing work, perform a UI/style preflight before editing: inspect the
+  closest same-purpose shipped features (especially tables, filters, search,
+  forms, dialogs, and page layouts) and identify their design-system primitives,
+  tokens, spacing, typography, responsive behavior, interactions, states, and
+  accessibility conventions. Reuse applicable components and patterns.
+- If no written standard exists but trustworthy repeated precedent does, derive
+  concise durable guidance in the project: always-on conventions belong in
+  `AGENTS.md`; feature-specific decisions and approved exceptions belong in
+  `PLANS.md`. During development, keep new UI aligned with that standard.
+- Pause and ask the user whether to keep, update, or override the standard
+  before deliberate visual divergence, changing an established guideline,
+  resolving conflicting precedents, or proceeding without a trustworthy
+  analogue. Include the evidence and affected pattern in the question.
+- If browser or screenshot tooling exists, compare the rendered feature with
+  the analogue across relevant responsive sizes and states. Otherwise, report
+  that rendered comparison was unavailable.
 
 ## Commands And Verification
 

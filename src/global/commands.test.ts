@@ -69,6 +69,11 @@ test("global install and uninstall manage only package-owned files", () => {
 			/quick-implementer.*explicit manual delegation/s,
 		);
 		assert.match(globalAgents, /run only\s+lightweight integration checks/);
+		assert.match(globalAgents, /UI\/style preflight/);
+		assert.match(globalAgents, /closest same-purpose shipped features/);
+		assert.match(globalAgents, /whether to keep, update, or override/);
+		assert.match(globalAgents, /AGENTS\.md.*PLANS\.md/s);
+		assert.match(globalAgents, /rendered comparison unavailable/);
 		assert.match(
 			globalAgents,
 			/Every new or materially changed feature follows this mandatory workflow/,
@@ -162,33 +167,92 @@ test("global install and uninstall manage only package-owned files", () => {
 			join(home, "agents", "quick-implementer.toml"),
 			"utf8",
 		);
+		const explorerInstructions = readFileSync(
+			join(home, "agents", "code-explorer.toml"),
+			"utf8",
+		);
+		assert.match(
+			explorerInstructions,
+			/UI\/style preflight.*closest same-purpose shipped UI.*reusable components, design tokens, layout, responsive behavior, interaction\/state, and accessibility conventions/s,
+		);
+		assert.match(explorerInstructions, /conflicting or missing precedents/);
+		assert.match(explorerInstructions, /no trustworthy analogue exists/);
 		assert.match(
 			implementerInstructions,
 			/Semantic decomposition.*Map each responsibility to its final file/s,
 		);
 		assert.match(
 			implementerInstructions,
+			/UI\/style preflight.*closest same-purpose shipped features.*components, tokens, layout, responsive behavior, interactions, states, and accessibility conventions/s,
+		);
+		assert.match(
+			implementerInstructions,
+			/always-on guidance in `AGENTS\.md` and feature-specific decisions or exceptions in `PLANS\.md`/,
+		);
+		assert.match(
+			implementerInstructions,
+			/whether to keep, update, or override before divergence, changing a guideline, resolving conflicts, or proceeding without a trustworthy analogue/,
+		);
+		assert.match(
+			implementerInstructions,
 			/Send every completed feature to `code-reviewer`/s,
 		);
 		assert.ok(
-			implementerInstructions.indexOf("Semantic decomposition") <
-				implementerInstructions.indexOf("5. Validate") &&
-				implementerInstructions.indexOf("5. Validate") <
-					implementerInstructions.indexOf("6. Hand off"),
+			implementerInstructions.indexOf("UI/style preflight") <
+				implementerInstructions.indexOf("3. Implement") &&
+				implementerInstructions.indexOf("Semantic decomposition") <
+					implementerInstructions.indexOf("6. Validate") &&
+				implementerInstructions.indexOf("6. Validate") <
+					implementerInstructions.indexOf("7. Hand off"),
+		);
+		assert.match(
+			implementerInstructions,
+			/rendered comparison or its unavailability/,
 		);
 		assert.match(
 			quickImplementerInstructions,
 			/Semantic decomposition.*Map responsibilities to final files/s,
 		);
+		assert.match(
+			quickImplementerInstructions,
+			/UI\/style preflight.*closest same-purpose shipped UI.*components, tokens, layout, responsive behavior, interactions, states, and accessibility conventions/s,
+		);
+		assert.match(
+			quickImplementerInstructions,
+			/always-on guidance in `AGENTS\.md` and feature-specific decisions or exceptions in `PLANS\.md`/,
+		);
+		assert.match(
+			quickImplementerInstructions,
+			/whether to keep, update, or override before divergence, changing a guideline, resolving conflicts, or proceeding without a trustworthy analogue/,
+		);
 		assert.ok(
-			quickImplementerInstructions.indexOf("Semantic decomposition") <
-				quickImplementerInstructions.indexOf("5. Validate") &&
-				quickImplementerInstructions.indexOf("5. Validate") <
-					quickImplementerInstructions.indexOf("6. Hand off"),
+			quickImplementerInstructions.indexOf("UI/style preflight") <
+				quickImplementerInstructions.indexOf("3. Make") &&
+				quickImplementerInstructions.indexOf("Semantic decomposition") <
+					quickImplementerInstructions.indexOf("6. Validate") &&
+				quickImplementerInstructions.indexOf("6. Validate") <
+					quickImplementerInstructions.indexOf("7. Hand off"),
+		);
+		assert.match(
+			quickImplementerInstructions,
+			/Escalate visual-direction work/,
 		);
 		assert.match(
 			reviewerInstructions,
 			/Every completed feature receives this structural review/s,
+		);
+		assert.match(reviewerInstructions, /unexplained visual divergence/);
+		assert.match(
+			reviewerInstructions,
+			/closest same-purpose\s+shipped UI.*components, tokens, layout, responsive behavior, interactions, states,\s+and accessibility conventions/s,
+		);
+		assert.match(
+			reviewerInstructions,
+			/On repository evidence.*`REQUEST_CHANGES` for unexplained visual divergence or needless duplication/s,
+		);
+		assert.match(
+			reviewerInstructions,
+			/user's keep\/update\/override decision/,
 		);
 		assert.match(
 			reviewerInstructions,
