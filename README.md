@@ -1,106 +1,73 @@
 # `@iamdevlinph/codex-kit`
 
-Portable Codex setup for new devices and multiple projects. It provides:
+Portable Codex subagents, automatic task routing, and reusable project guidance.
 
-- three automatically routed roles plus a manual quick implementer
-- automatic global role routing
-- a reusable, stack-neutral `AGENTS.md` template
-- a package-owned `codex-kit-reconcile-agents` skill for semantic reconciliation
-- safe commands for global setup, project synchronization, and reconciliation
+- Routes work automatically while keeping small tasks with the root agent.
+- Includes four subagents for exploration, implementation, review, and quick edits.
+- Provides a stack-neutral `AGENTS.md` starting point.
+- Reconciles template updates semantically instead of replacing project guidance.
+- Preserves user-owned configuration and modified managed files.
+- Runs as a dependency-free Node.js CLI.
 
-The package contains no credentials. Global installation configures the Codex
-root orchestrator to `gpt-5.6-sol` with low normal reasoning and high Plan-mode
-reasoning. Use the separate configuration command to override these defaults.
+## Quick start
 
-## Install on a device
+1. Install the CLI and global Codex assets:
 
-No npm or GitHub login is required. For regular use, install the CLI globally:
+   ```sh
+   pnpm add --global @iamdevlinph/codex-kit@latest
+   codex-kit global install
+   ```
 
-```sh
-pnpm add --global @iamdevlinph/codex-kit@latest
-codex-kit global install
-```
+2. Initialize a project from its root:
 
-Start a new Codex task or restart the client after installation. Codex may ask
-you to review and trust the new command hooks once; approve them after confirming
-that they run the installed `${CODEX_HOME:-~/.codex}/codex-kit/routing-hook.js`.
+   ```sh
+   codex-kit project init
+   ```
 
-`npm install --global @iamdevlinph/codex-kit@latest` works as an alternative.
-For one-off use without a global installation, prefix a command with
-`pnpm dlx @iamdevlinph/codex-kit@latest`.
+Restart Codex after global installation. Codex may ask you to trust the installed
+hook at `${CODEX_HOME:-~/.codex}/codex-kit/routing-hook.js`.
 
-`global install` copies reusable agents and the
-`skills/codex-kit-reconcile-agents` skill to `${CODEX_HOME:-~/.codex}`, maintains
-the package routing section in global `AGENTS.md`, and adds package-owned
-handlers to `hooks.json` without replacing existing hooks. `global list` shows
-the reconciliation skill's ownership status. Install and uninstall preserve
-modified or user-owned skill files using the same backup/restore semantics as
-other package files.
+`npm install --global @iamdevlinph/codex-kit@latest` is also supported. For
+one-off use, prefix commands with `pnpm dlx @iamdevlinph/codex-kit@latest`.
 
-The Sol root plans, routes, coordinates, and validates. On every prompt, the
-routing hook supplies the current `SUBAGENT_ROUTING.md`; the root classifies the
-task and delegates substantive work to the exact matching role. The role's agent
-TOML—not the routing policy—selects its model and reasoning effort. To avoid
-subagent startup overhead, the root may directly handle planning, conversation,
-read-only checks, documentation, bookkeeping, and clear changes spanning up to
-roughly three files. Automatic delegation is reserved for broad discovery,
-large multi-file implementation or debugging, high-risk review, and the
-structural review required for every completed feature.
+## Included subagents
 
-Every feature follows a mandatory semantic decomposition pass: implement and
-stabilize it, map each responsibility to its final file, extract independently
-understandable concerns, validate the decomposed implementation, and hand it to
-`code-reviewer`. Pages, routes, controllers, commands, and entrypoints contain
-composition and orchestration only. Web page files may contain framework exports,
-metadata, loading, guards, page-level state, minimal layout wrappers, and imported
-child composition, but not child components, substantial UI sections, or domain
-logic. Independently changeable UI concerns get descriptive feature-local files;
-hooks, schemas, data access, transformations, and domain logic move out of
-presentation when independently testable or when they obscure the primary
-responsibility. Avoid generic dumping grounds, keep components feature-local by
-default, and promote only proven shared/global primitives. Tiny inseparable
-helpers or markup may remain inline. Unrelated small fixes need no broad
-refactoring. Every completed feature receives automatic structural review; a
-concrete framework or tooling constraint must be named for any exception.
-
-User-facing work also begins with a UI/style preflight. Inspect the closest
-same-purpose shipped features—especially tables, filters, search, forms, dialogs,
-and page layouts—and reuse their components, tokens, layout, responsive
-behavior, interactions, states, and accessibility conventions. When repeated
-precedent exists without written guidance, record always-on conventions in
-`AGENTS.md` and feature-specific decisions or exceptions in `PLANS.md`. Ask the
-user whether to keep, update, or override before deliberate divergence,
-changing an established guideline, resolving conflicting precedents, or
-proceeding without a trustworthy analogue. Use browser or screenshot comparison
-when available; otherwise report it unavailable. The structural reviewer blocks
-unexplained divergence or needless duplication only when repository evidence
-supports the finding.
-
-## Available subagents
-
-| Subagent | Routing | Model and effort | Used for |
+| Subagent | Routing | Model and effort | Purpose |
 | --- | --- | --- | --- |
-| `code-explorer` | Automatic | `gpt-5.6-terra`, medium | Read-only broad repository discovery, contract tracing, and multi-file searches |
-| `implementer` | Automatic | `gpt-5.6-luna`, high | Large behavior changes, non-obvious debugging, migrations, and substantial tests |
-| `code-reviewer` | Automatic | `gpt-5.6-sol`, high | Structural review of every completed feature, plus read-only review of security-sensitive, architectural, public-API, concurrency, migration, or difficult-to-validate changes |
-| `quick-implementer` | Manual only | `gpt-5.6-luna`, medium | Small, mechanical, well-specified changes limited to one or two files |
+| `code-explorer` | Automatic | `gpt-5.6-terra`, medium | Broad read-only discovery and contract tracing |
+| `implementer` | Automatic | `gpt-5.6-luna`, high | Large changes, debugging, migrations, and substantial tests |
+| `code-reviewer` | Automatic | `gpt-5.6-sol`, high | Feature structure and high-risk review |
+| `quick-implementer` | Manual | `gpt-5.6-luna`, medium | Small mechanical changes in one or two files |
 
-The root orchestrator is not a subagent. It owns planning, routing, integration,
-and final validation.
+The root orchestrator plans, routes, integrates, and validates. It handles clear
+small changes directly and delegates broader discovery, implementation, or review
+according to the installed `SUBAGENT_ROUTING.md` policy.
 
-For a substantial task that splits into genuinely independent slices, the root
-may run multiple `implementer` instances concurrently. Each receives exclusive
-file or module ownership and separate validation scope. Work that shares types,
-schemas, configuration, generated artifacts, migrations, lockfiles, or dependency
-ordering stays with one implementer or runs sequentially; multiple files alone
-do not justify duplicate agents.
+## Commands
 
-`quick-implementer` remains installed for explicit manual delegation but is not
-selected by the default automatic route. The root reuses delegated test evidence
-and normally performs only lightweight integration checks.
+| Action | Command |
+| --- | --- |
+| Show help | `codex-kit -h` or `codex-kit --help` |
+| Print version | `codex-kit -v` or `codex-kit --version` |
+| Install or update global assets | `codex-kit global install` |
+| Configure model defaults | `codex-kit global configure` |
+| Inspect global setup | `codex-kit global list` |
+| Remove package-managed global files | `codex-kit global uninstall` |
+| Initialize project guidance | `codex-kit project init` |
+| Refresh the project template | `codex-kit project sync` |
+| Check reconciliation status | `codex-kit project status` |
+| Record completed reconciliation | `codex-kit project mark-applied` |
+| Check for a package update | `codex-kit version check` |
 
-`global install` sets these defaults while preserving unrelated settings;
-`global configure` can override them:
+Use `codex-kit --help` for exhaustive command details.
+
+## Device setup
+
+`global install` copies the agents, routing assets, hooks, and
+`codex-kit-reconcile-agents` skill into `${CODEX_HOME:-~/.codex}`. It adds only
+codex-kit's hook handlers and preserves unrelated settings and hooks.
+
+The default root configuration is:
 
 ```toml
 model = "gpt-5.6-sol"
@@ -108,181 +75,88 @@ model_reasoning_effort = "low"
 plan_mode_reasoning_effort = "high"
 ```
 
-This balances ordinary orchestration and direct small changes while retaining
-high reasoning in Plan Mode. Override either effort independently when needed:
+Override it explicitly when needed:
 
 ```sh
 codex-kit global configure \
+  --orchestrator gpt-5.6-sol \
   --reasoning-effort low \
   --plan-reasoning-effort high
 ```
 
-Delegation is time-bounded. The root waits once for up to 60 seconds, requests
-one progress update, and then enforces a three-minute read/review/manual-quick
-deadline or five-minute implementation deadline. Validation commands that make
-no progress for two minutes are stopped unless the repository documents a
-longer normal runtime. Root and worker never run the same validation
-concurrently.
+`--model` is an alias for `--orchestrator`. Before changing managed values,
+codex-kit creates a timestamped `config.toml` backup and records the previous
+values. `global uninstall` restores them without replacing unrelated later edits.
+Modified managed files are preserved.
 
-Before changing these keys, codex-kit creates a timestamped `config.toml`
-backup and records their previous values. `global uninstall` restores those
-values without replacing unrelated configuration changed afterward.
+Use `codex-kit global list` to inspect model settings, routing and hook status,
+the reconciliation skill, and installed agents. Use `codex-kit global uninstall`
+to remove package-managed global files.
 
-Use a different Codex home when needed:
+## Project workflow
 
-```sh
-pnpm dlx @iamdevlinph/codex-kit@latest global install \
-  --codex-home /path/to/.codex
-pnpm dlx @iamdevlinph/codex-kit@latest global configure \
-  --codex-home /path/to/.codex
-```
+Run `codex-kit project init` after the project has enough code, dependencies,
+configuration, and scripts for Codex to derive reliable guidance. It creates:
 
-Inspect the installed setup:
+- `AGENTS.md` only when missing; existing guidance is preserved;
+- `TEMPLATE_AGENTS.md` as the local template reference;
+- `.codex-kit-state.json` for reconciliation bookkeeping.
 
-```sh
-pnpm dlx @iamdevlinph/codex-kit@latest global list
-```
+Initialization includes the first template sync. When the CLI prints an
+initialization or reconciliation prompt, copy the complete marked block into a
+Codex task opened at the project root.
 
-The summary shows the Codex home, orchestrator, normal and Plan-mode reasoning
-effort, routing-file and routing-hook status, reconciliation-skill status, and
-installed custom agents without dumping unrelated configuration.
-
-Uninstall package-managed global files:
+After installing a newer package version, refresh the reference template:
 
 ```sh
-pnpm dlx @iamdevlinph/codex-kit@latest global uninstall
+codex-kit project sync
 ```
 
-Uninstall removes only codex-kit's handlers from `hooks.json` and preserves other
-hooks. Modified managed files are preserved unless `--force` is supplied.
+`project sync` never edits `AGENTS.md` or project skills. The reconciliation skill
+compares the refreshed template with the project's guidance and merges only
+applicable rules while preserving local organization and adaptations. If
+`TEMPLATE_AGENTS.md` was modified locally, sync preserves it for review instead
+of overwriting it.
 
-## Commands
-
-| Action | Command |
-| --- | --- |
-| Show command help | `codex-kit -h` or `codex-kit --help` |
-| Print the installed version | `codex-kit -v` or `codex-kit --version` |
-| Install global agents and routing | `codex-kit global install` |
-| Configure the orchestrator | `codex-kit global configure` |
-| Inspect global configuration | `codex-kit global list` |
-| Remove package-managed global files | `codex-kit global uninstall` |
-| Initialize project guidance | `codex-kit project init` |
-| Refresh the project template reference | `codex-kit project sync` |
-| Check template reconciliation | `codex-kit project status` |
-| Record completed reconciliation | `codex-kit project mark-applied` |
-| Check for a package update | `codex-kit version check` |
-
-## Apply to a project
-
-### First-time setup
-
-For a new blank project, scaffold its initial stack first. Then initialize
-codex-kit once from the project root:
-
-```sh
-cd /path/to/project
-pnpm dlx @iamdevlinph/codex-kit@latest project init
-```
-
-`project init` performs the initial template sync, so do not run `project sync`
-immediately afterward. It creates or updates:
-
-- `AGENTS.md`, only when missing; an existing file is preserved
-- `TEMPLATE_AGENTS.md`, a local reference copy used for future comparisons
-- `.codex-kit-state.json`, reconciliation bookkeeping
-
-If `AGENTS.md` is missing or still contains only the untouched codex-kit
-scaffold, the CLI prints a clearly marked initialization prompt. Copy everything
-between `BEGIN CODEX INITIALIZATION PROMPT` and
-`END CODEX INITIALIZATION PROMPT` into a Codex task opened at the project root.
-The prompt asks Codex to verify that the project has enough substantive code,
-dependencies, configuration, and scripts to derive reliable guidance. If not,
-Codex stops without inventing rules or marking the template applied. Finish
-scaffolding the project, rerun `project init`, and send the new CLI prompt.
-
-When `AGENTS.md` already contains guidance, `project init` preserves it and
-prints the reconciliation prompt described below instead.
-
-## Synchronize template updates
-
-After a newer codex-kit template is released, refresh an initialized project:
-
-```sh
-pnpm dlx @iamdevlinph/codex-kit@latest project sync
-```
-
-`project sync` never edits `AGENTS.md` or project skills. It routes Codex to the
-global `codex-kit-reconcile-agents` skill, which inspects project state and
-existing skills, merges only applicable reusable changes, preserves local
-adaptations and organization, and may create or update a concrete conditional
-workflow under `.agents/skills`. Critical safety, authorization, secrets,
-database, deployment, and destructive-operation rules remain in `AGENTS.md`;
-do not copy the complete template or introduce managed markers. After semantic
-reconciliation and validation, record the applied template hash:
-
-The CLI prints a clearly marked reconciliation prompt. Copy everything between
-`BEGIN CODEX RECONCILIATION PROMPT` and `END CODEX RECONCILIATION PROMPT` into a
-Codex task opened at the project root. That prompt tells Codex to validate and
-then run:
+After reconciliation and validation, Codex runs:
 
 ```sh
 codex-kit project mark-applied
 ```
 
-You normally do not run that command manually.
+`mark-applied` only updates `.codex-kit-state.json`; it does not validate or
+modify `AGENTS.md`. Use `codex-kit project status` to check whether the current
+template still needs reconciliation.
 
-`mark-applied` updates only `.codex-kit-state.json`; it does not validate or
-modify `AGENTS.md`.
+## Options
 
-If `TEMPLATE_AGENTS.md` was modified locally, synchronization preserves it and
-asks for review instead of overwriting it. Use `--force` only after intentionally
-discarding the local candidate changes.
+- `--codex-home PATH` selects a Codex home for global commands instead of
+  `CODEX_HOME` or `~/.codex`.
+- `--cwd PATH` selects a project directory for project commands instead of the
+  current directory.
+- `--force` lets `global install`, `global configure`, `project init`, or
+  `project sync` replace modified files they manage. Use it only when you intend
+  to discard those local changes.
 
-### Synchronize multiple projects
-
-Install the CLI once and keep a local path list:
-
-```sh
-pnpm add --global @iamdevlinph/codex-kit
-
-while IFS= read -r repo; do
-  [ -n "$repo" ] && codex-kit project sync --cwd "$repo"
-done < ~/.config/codex-kit/projects.txt
-```
-
-Update global agents and routing separately when those assets change:
+Examples:
 
 ```sh
-pnpm add --global @iamdevlinph/codex-kit@latest
-codex-kit global install
+codex-kit global install --codex-home /path/to/.codex
+codex-kit project sync --cwd /path/to/project
 ```
-
-## Check for a new version
-
-```sh
-codex-kit version check
-```
-
-The command queries the public npm registry only when requested. Normal project
-commands do not add network latency or depend on registry availability.
 
 ## Requirements
 
 - Node.js 20 or newer
 - Codex with custom subagent and lifecycle-hook support
 
-The published package has no runtime dependencies and uses only Node.js
-standard-library modules.
+The published package contains no credentials or runtime dependencies. Version
+checks contact the public npm registry only when `codex-kit version check` runs.
 
-## License
-
-This repository and the published `@iamdevlinph/codex-kit` package are licensed
-under the [ISC License](LICENSE).
-
-## Security
+## Security and license
 
 See [SECURITY.md](SECURITY.md) for supported versions and private vulnerability
-reporting instructions.
+reporting. This repository and package use the [ISC License](LICENSE).
 
 ## References
 
