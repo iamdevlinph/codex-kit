@@ -62,7 +62,9 @@ Examples:
   codex-kit project status --cwd /path/to/project`);
 }
 
-export function main(argv: string[] = process.argv.slice(2)): void {
+export async function main(
+	argv: string[] = process.argv.slice(2),
+): Promise<void> {
 	const options = parse(argv);
 	if (
 		options.positionals.includes("--version") ||
@@ -91,6 +93,6 @@ export function main(argv: string[] = process.argv.slice(2)): void {
 	else if (scope === "project" && action === "status") projectStatus(options);
 	else if (scope === "project" && action === "mark-applied")
 		markApplied(options);
-	else if (scope === "version" && action === "check") checkVersion();
+	else if (scope === "version" && action === "check") await checkVersion();
 	else throw new Error(`Unknown command: ${options.positionals.join(" ")}`);
 }

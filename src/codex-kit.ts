@@ -13,7 +13,7 @@ if (
 		realpathSync(fileURLToPath(import.meta.url))
 ) {
 	try {
-		main();
+		await main();
 	} catch (error) {
 		console.error(
 			`error: ${error instanceof Error ? error.message : String(error)}`,

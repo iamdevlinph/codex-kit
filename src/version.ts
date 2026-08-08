@@ -1,19 +1,22 @@
-import { spawnSync } from "node:child_process";
 import { PACKAGE, REGISTRY } from "./package.js";
 
-export function compareVersions(left: string, right: string): number {
-	const parse = (
-		value: string,
-	): { numbers: [number, number, number]; prerelease: string | null } => {
-		const match = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/.exec(value);
-		if (!match) throw new Error(`Invalid package version: ${value}`);
-		return {
-			numbers: [Number(match[1]), Number(match[2]), Number(match[3])],
-			prerelease: match[4] ?? null,
-		};
+type ParsedVersion = {
+	numbers: [number, number, number];
+	prerelease: string | null;
+};
+
+function parseVersion(value: string): ParsedVersion {
+	const match = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/.exec(value);
+	if (!match) throw new Error(`Invalid package version: ${value}`);
+	return {
+		numbers: [Number(match[1]), Number(match[2]), Number(match[3])],
+		prerelease: match[4] ?? null,
 	};
-	const a = parse(left);
-	const b = parse(right);
+}
+
+export function compareVersions(left: string, right: string): number {
+	const a = parseVersion(left);
+	const b = parseVersion(right);
 	for (const [leftNumber, rightNumber] of [
 		[a.numbers[0], b.numbers[0]],
 		[a.numbers[1], b.numbers[1]],
@@ -28,32 +31,41 @@ export function compareVersions(left: string, right: string): number {
 	);
 }
 
-export function checkVersion(): void {
-	let latest = process.env.CODEX_KIT_LATEST_VERSION;
-	if (!latest) {
-		const result = spawnSync(
-			process.platform === "win32" ? "pnpm.cmd" : "pnpm",
-			["view", PACKAGE.name, "version", "--json", `--registry=${REGISTRY}`],
-			{ encoding: "utf8", timeout: 15_000 },
+async function fetchLatestVersion(): Promise<string> {
+	const url = `${REGISTRY}/${encodeURIComponent(PACKAGE.name)}/latest`;
+	let response: Response;
+	try {
+		response = await fetch(url, { signal: AbortSignal.timeout(15_000) });
+	} catch (error) {
+		throw new Error(
+			`Unable to check ${REGISTRY}: ${error instanceof Error ? error.message : String(error)}`,
 		);
-		if (result.error)
-			throw new Error(`Unable to run pnpm: ${result.error.message}`);
-		if (result.status !== 0)
-			throw new Error(
-				`Unable to check ${REGISTRY}: ${result.stderr.trim() || "pnpm view failed"}`,
-			);
-		try {
-			const value: unknown = JSON.parse(result.stdout);
-			latest =
-				Array.isArray(value) && typeof value.at(-1) === "string"
-					? value.at(-1)
-					: typeof value === "string"
-						? value
-						: undefined;
-		} catch {
-			latest = result.stdout.trim();
-		}
 	}
+	if (!response.ok)
+		throw new Error(
+			`Unable to check ${REGISTRY}: ${response.status} ${response.statusText}`,
+		);
+	let value: unknown;
+	try {
+		value = await response.json();
+	} catch {
+		throw new Error("Registry returned no package version.");
+	}
+	if (
+		!value ||
+		typeof value !== "object" ||
+		Array.isArray(value) ||
+		typeof (value as { version?: unknown }).version !== "string"
+	)
+		throw new Error("Registry returned no package version.");
+	const latest = (value as { version: string }).version;
+	parseVersion(latest);
+	return latest;
+}
+
+export async function checkVersion(): Promise<void> {
+	let latest = process.env.CODEX_KIT_LATEST_VERSION;
+	if (!latest) latest = await fetchLatestVersion();
 	if (!latest) throw new Error("Registry returned no package version.");
 	console.log(`Installed: ${PACKAGE.version}`);
 	console.log(`Latest:    ${latest}`);
