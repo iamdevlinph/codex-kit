@@ -96,6 +96,10 @@
   automated tests that meaningfully prevent regression. Do not introduce a test
   framework or low-value tests solely to satisfy this rule; if automated coverage
   is impractical, explain why and perform the strongest targeted verification.
+- Treat existing tests as regression contracts. Preserve their assertions unless
+  the requested behavior intentionally changes. When behavior changes, update
+  only the affected tests and add coverage for the new contract; never weaken or
+  delete tests merely to make the suite pass.
 - Run the smallest targeted verification that meaningfully validates a change
   before the full required checks. Avoid broad commands and use the repository's
   documented package manager and scripts.
