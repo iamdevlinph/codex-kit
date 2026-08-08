@@ -129,6 +129,10 @@ conditional procedures into validated project skills.
 - For behavior changes and bug fixes, add or update the smallest focused
   automated tests that meaningfully prevent regression when the repository has
   an established test setup.
+- Treat existing tests as regression contracts. Preserve their assertions unless
+  the requested behavior intentionally changes. When behavior changes, update
+  only the affected tests and add coverage for the new contract; never weaken or
+  delete tests merely to make the suite pass.
 - Do not introduce a test framework or create low-value tests solely to satisfy
   this rule. If automated coverage is impractical, explain why and perform the
   strongest targeted verification available.
