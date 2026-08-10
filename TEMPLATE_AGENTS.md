@@ -109,6 +109,17 @@ conditional procedures into validated project skills.
   forms, dialogs, and page layouts) and identify their design-system primitives,
   tokens, spacing, typography, responsive behavior, interactions, states, and
   accessibility conventions. Reuse applicable components and patterns.
+- For new or materially changed user-facing interfaces, preserve accessibility
+  as a baseline: prefer semantic elements and native controls; provide accessible
+  names, labels, instructions, errors, and state; support keyboard operation,
+  logical focus order, visible focus, and appropriate focus management; provide
+  meaningful text alternatives; maintain readable typography and sufficient
+  contrast; and never rely on color alone to communicate meaning. Use ARIA only
+  when native semantics are insufficient, and keep ARIA roles, properties, and
+  states valid and synchronized with behavior.
+- When practical, verify changed interaction paths with the repository's
+  accessibility tooling and a manual keyboard/focus check. Report any unavailable
+  checks or known limitations.
 - If no written standard exists but trustworthy repeated precedent does, derive
   concise durable guidance in the project: always-on conventions belong in
   `AGENTS.md`; feature-specific decisions and approved exceptions belong in
