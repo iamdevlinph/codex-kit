@@ -20,7 +20,9 @@
   contains or what a helper guarantees at the call site without opening its
   implementation. Avoid vague transformation names such as `normalized`,
   `processed`, `result`, or `data` when a value- or behavior-specific name is
-  available.
+  available. Prefer clear structure, and simplify or extract complex logic before
+  relying on comments. Use comments to explain non-obvious purpose, constraints,
+  invariants, tradeoffs, or workarounds, not to narrate statements.
 - Keep changes minimal, localized, and limited to the request. Do not reorganize
   major modules, change architecture, or introduce a new project paradigm without
   explicit approval.
@@ -49,6 +51,10 @@
 - Reuse existing constants, schemas, enums, shared types, and components before
   creating duplicates. Add reusable domain values at their existing source of
   truth rather than scattering magic strings.
+- Replace numeric literals that encode domain rules, limits, durations, units,
+  or protocol values with descriptively named constants. Universally obvious
+  structural values, such as basic indexes or empty-state values, may remain
+  inline.
 - Promote repeated closed-set domain values used in production control flow to
   feature-owned immutable runtime constants. Derive static types from that
   runtime source; keep incidental presentation, protocol, route, environment,
