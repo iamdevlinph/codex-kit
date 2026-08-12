@@ -43,6 +43,23 @@ The root orchestrator plans, routes, integrates, and validates. It handles clear
 small changes directly and delegates broader discovery, implementation, or review
 according to the installed `SUBAGENT_ROUTING.md` policy.
 
+## Project guidance included
+
+The canonical [project guidance template](TEMPLATE_AGENTS.md) provides reusable
+defaults for coding agents across these themes:
+
+- instruction scope, local adaptation, and specialized project skills;
+- minimal changes that follow the repository's existing architecture and conventions;
+- repository discovery plus consistent, accessible user-facing design;
+- semantic structure, readable naming, purposeful comments, and named domain constants;
+- focused testing, conservative dependency management, and meaningful validation;
+- durable planning, repository safety, and concise completion reporting.
+
+`project init` installs the template as a reference, not as a replacement for
+existing active guidance. During reconciliation, Codex merges only applicable
+rules into the project's `AGENTS.md` and preserves its local organization and
+adaptations.
+
 ## Commands
 
 | Action | Command |
