@@ -141,16 +141,20 @@ conditional procedures into validated project skills.
 - Avoid broad commands. After changes, run the smallest targeted verification
   that meaningfully validates them when practical, then report the command and
   result. Use the repository's documented package manager and scripts.
-- For behavior changes and bug fixes, add or update the smallest focused
-  automated tests that meaningfully prevent regression when the repository has
-  an established test setup.
+- Select tests for regression value rather than exhaustive coverage. When the
+  repository has an established test setup, cover changed observable contracts,
+  reported regressions, meaningful boundaries, and plausible costly failures,
+  especially security, trust-boundary, or data-loss risks.
+- Use one representative case per equivalent behavior class. Skip redundant
+  permutations, implementation-detail assertions, and contrived or unreachable
+  states unless a requirement or past defect justifies them.
 - Treat existing tests as regression contracts. Preserve their assertions unless
   the requested behavior intentionally changes. When behavior changes, update
   only the affected tests and add coverage for the new contract; never weaken or
   delete tests merely to make the suite pass.
-- Do not introduce a test framework or create low-value tests solely to satisfy
-  this rule. If automated coverage is impractical, explain why and perform the
-  strongest targeted verification available.
+- Do not introduce a test framework solely to satisfy this rule. If automated
+  coverage is impractical, explain why and perform the strongest targeted
+  verification available.
 - Run the relevant focused tests after changing tested behavior.
 - When adding or updating dependencies, pin exact versions rather than ranges.
   With pnpm, use `pnpm add -E` (`--save-exact`).

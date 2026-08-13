@@ -35,12 +35,12 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		assert.match(template, /Instructions And Skills/);
 		assert.match(
 			template,
-			/For behavior changes and bug fixes, add or update the smallest focused/,
+			/Select tests for regression value rather than exhaustive coverage/,
 		);
 		assert.match(template, /Treat existing tests as regression contracts/);
 		assert.match(
 			template,
-			/Do not introduce a test framework or create low-value tests/,
+			/Use one representative case per equivalent behavior class/,
 		);
 		assert.match(
 			template,
