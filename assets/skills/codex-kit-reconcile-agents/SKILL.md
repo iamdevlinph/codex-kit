@@ -9,9 +9,7 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md
 
 1. Inspect `AGENTS.md`, `TEMPLATE_AGENTS.md`, `.codex-kit-state.json`, the
    project's existing `.agents/skills`, and `codex-kit project status`. Record
-   the initial status before making changes. If a codex-kit template backup
-   exists, compare it with the refreshed template to isolate the actual template
-   change.
+   the initial status before making changes.
 2. Preserve the existing `AGENTS.md` organization and all project-specific
    adaptations. Merge only reusable template guidance that applies to this
    repository; report conflicts between local and template rules, and do not

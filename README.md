@@ -132,8 +132,9 @@ codex-kit project sync
 `project sync` never edits `AGENTS.md` or project skills. The reconciliation skill
 compares the refreshed template with the project's guidance and merges only
 applicable rules while preserving local organization and adaptations. If
-`TEMPLATE_AGENTS.md` was modified locally, sync preserves it for review instead
-of overwriting it.
+`TEMPLATE_AGENTS.md` was modified locally, sync overwrites it with the packaged
+template. Keep durable local rules in `AGENTS.md`; recover overwritten template
+edits through Git history when needed.
 
 After reconciliation and validation, Codex runs:
 
@@ -151,9 +152,8 @@ template still needs reconciliation.
   `CODEX_HOME` or `~/.codex`.
 - `--cwd PATH` selects a project directory for project commands instead of the
   current directory.
-- `--force` lets `global install`, `global configure`, `project init`, or
-  `project sync` replace modified files they manage. Use it only when you intend
-  to discard those local changes.
+- `--force` lets global commands replace modified files they manage. Use it only
+  when you intend to discard those local changes.
 
 Examples:
 

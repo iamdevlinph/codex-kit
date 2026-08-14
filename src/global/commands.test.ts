@@ -151,6 +151,10 @@ test("global install and uninstall manage only package-owned files", () => {
 			readFileSync(reconciliationSkill, "utf8"),
 			/Do not add, recreate, or\s+depend on managed markers/,
 		);
+		assert.doesNotMatch(
+			readFileSync(reconciliationSkill, "utf8"),
+			/template backup|\.codex-kit\.bak/i,
+		);
 		assert.match(
 			readFileSync(reconciliationSkillMetadata, "utf8"),
 			/\$codex-kit-reconcile-agents/,

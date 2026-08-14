@@ -2,6 +2,7 @@ import {
 	assert,
 	join,
 	mkdtempSync,
+	readdirSync,
 	readFileSync,
 	rmSync,
 	run,
@@ -105,19 +106,28 @@ test("project status and mark-applied track semantic reconciliation", () => {
 	}
 });
 
-test("project sync preserves an independently modified template", () => {
-	const project = mkdtempSync(join(tmpdir(), "codex-kit-template-edit-"));
-	try {
-		run(["project", "init", "--cwd", project]);
-		const template = join(project, "TEMPLATE_AGENTS.md");
-		writeFileSync(
-			template,
-			`${readFileSync(template, "utf8")}\n- Local candidate rule.\n`,
+for (const command of ["init", "sync"]) {
+	test(`project ${command} overwrites local template edits without a backup`, () => {
+		const project = mkdtempSync(
+			join(tmpdir(), `codex-kit-template-${command}-`),
 		);
-		const result = run(["project", "sync", "--cwd", project]);
-		assert.match(result.stderr, /preserved locally modified template/);
-		assert.match(readFileSync(template, "utf8"), /Local candidate rule/);
-	} finally {
-		rmSync(project, { recursive: true, force: true });
-	}
-});
+		try {
+			run(["project", "init", "--cwd", project]);
+			const template = join(project, "TEMPLATE_AGENTS.md");
+			writeFileSync(template, "# Local candidate rule.\n");
+			run(["project", command, "--cwd", project]);
+			assert.doesNotMatch(
+				readFileSync(template, "utf8"),
+				/Local candidate rule/,
+			);
+			assert.equal(
+				readdirSync(project).some((file) =>
+					file.startsWith("TEMPLATE_AGENTS.md.codex-kit.bak-"),
+				),
+				false,
+			);
+		} finally {
+			rmSync(project, { recursive: true, force: true });
+		}
+	});
+}

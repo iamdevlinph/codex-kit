@@ -50,7 +50,6 @@ Options by command:
 
   project init, project sync
     --cwd PATH  Use a project directory other than the current directory.
-    --force     Replace modified files managed by codex-kit.
 
   project status, project mark-applied
     --cwd PATH  Use a project directory other than the current directory.
@@ -58,7 +57,7 @@ Options by command:
 Examples:
   codex-kit global install --force
   codex-kit global configure --reasoning-effort low --plan-reasoning-effort high
-  codex-kit project sync --cwd /path/to/project --force
+  codex-kit project sync --cwd /path/to/project
   codex-kit project status --cwd /path/to/project`);
 }
 

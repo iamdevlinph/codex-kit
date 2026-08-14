@@ -22,7 +22,8 @@ test("help describes every command", () => {
 	assert.match(help, /Options by command:/);
 	assert.match(help, /global install\n\s+--codex-home PATH[^\n]+\n\s+--force/);
 	assert.match(help, /global list, global uninstall\n\s+--codex-home PATH/);
-	assert.match(
+	assert.match(help, /project init, project sync\n\s+--cwd PATH/);
+	assert.doesNotMatch(
 		help,
 		/project init, project sync\n\s+--cwd PATH[^\n]+\n\s+--force/,
 	);
@@ -38,10 +39,7 @@ test("help describes every command", () => {
 		help,
 		/codex-kit global configure --reasoning-effort low --plan-reasoning-effort high/,
 	);
-	assert.match(
-		help,
-		/codex-kit project sync --cwd \/path\/to\/project --force/,
-	);
+	assert.match(help, /codex-kit project sync --cwd \/path\/to\/project/);
 });
 
 test("short help and version flags match their long forms", () => {

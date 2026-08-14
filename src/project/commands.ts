@@ -1,7 +1,7 @@
 import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { Options } from "../cli/options.js";
-import { backup, isRecord, read, readText, sha256, write } from "../files.js";
+import { isRecord, read, readText, sha256, write } from "../files.js";
 import { PACKAGE, RECONCILE_SKILL, TEMPLATE_FILE } from "../package.js";
 
 interface ProjectState {
@@ -90,22 +90,8 @@ export function syncProject(options: Options): void {
 	const state = loadProjectState(cwd);
 	if (existsSync(stagedTemplate)) {
 		const currentHash = sha256(read(stagedTemplate));
-		const locallyModified =
-			currentHash !== sourceHash &&
-			(!state.template.availableHash ||
-				currentHash !== state.template.availableHash);
-		if (locallyModified && !options.force) {
-			console.warn(
-				`preserved locally modified template: ${stagedTemplate} (use --force to replace)`,
-			);
-			console.log(
-				`The installed kit has template ${PACKAGE.version}; review the local change before syncing.`,
-			);
-			return;
-		}
 		if (currentHash === sourceHash) console.log(`unchanged: ${stagedTemplate}`);
 		else {
-			backup(stagedTemplate);
 			write(stagedTemplate, desired);
 			console.log(`refreshed template reference: ${stagedTemplate}`);
 		}
