@@ -89,9 +89,12 @@ conditional procedures into validated project skills.
 - Work within imperfect architecture. If it prevents safe completion, stop,
   explain the limitation, propose the smallest viable design change, and wait
   for approval. Escalate blockers instead of bypassing them.
-- Reuse existing constants, schemas, enums, shared types, and components before
-  creating duplicates. Add reusable domain values at their existing source of
-  truth instead of scattering magic strings.
+- Keep identical configuration and behavior in one source of truth at the
+  narrowest shared scope. Reuse that owner across callers or features; create a
+  separate implementation or instance only when scope, lifecycle, or behavior
+  genuinely differs. Reuse existing constants, schemas, enums, shared types,
+  and components before creating duplicates. Add reusable domain values at
+  their existing source of truth instead of scattering magic strings.
 - Replace numeric literals that encode domain rules, limits, durations, units,
   or protocol values with descriptively named constants. Universally obvious
   structural values, such as basic indexes or empty-state values, may remain

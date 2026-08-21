@@ -48,9 +48,12 @@
   framework or tooling constraint identified in the handoff.
 - Before changing code, inspect the manifest, configuration, scripts, and nearby
   files to identify the actual stack, commands, and conventions.
-- Reuse existing constants, schemas, enums, shared types, and components before
-  creating duplicates. Add reusable domain values at their existing source of
-  truth rather than scattering magic strings.
+- Keep identical configuration and behavior in one source of truth at the
+  narrowest shared scope. Reuse that owner across callers or features; create a
+  separate implementation or instance only when scope, lifecycle, or behavior
+  genuinely differs. Reuse existing constants, schemas, enums, shared types,
+  and components before creating duplicates. Add reusable domain values at
+  their existing source of truth rather than scattering magic strings.
 - Replace numeric literals that encode domain rules, limits, durations, units,
   or protocol values with descriptively named constants. Universally obvious
   structural values, such as basic indexes or empty-state values, may remain
