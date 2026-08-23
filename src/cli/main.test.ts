@@ -17,7 +17,14 @@ test("help describes every command", () => {
 	]) {
 		assert.match(help, new RegExp(command.replaceAll("-", "\\-")));
 	}
-	assert.match(help, /Refresh TEMPLATE_AGENTS\.md without editing AGENTS\.md/);
+	assert.match(
+		help,
+		/Refresh the template after checking the latest npm release/,
+	);
+	assert.match(
+		help,
+		/npm access is required; stale or unverifiable builds fail before writes/,
+	);
 	assert.match(help, /Restore managed config values/);
 	assert.match(help, /Options by command:/);
 	assert.match(help, /global install\n\s+--codex-home PATH[^\n]+\n\s+--force/);

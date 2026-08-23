@@ -24,8 +24,8 @@ Commands:
   global configure     Set the orchestrator and normal/Plan reasoning defaults.
   global list          Show model settings, routing status, and custom agents.
   global uninstall     Restore managed config values and remove package-owned files.
-  project init         Initialize AGENTS.md, TEMPLATE_AGENTS.md, and project state.
-  project sync         Refresh TEMPLATE_AGENTS.md without editing AGENTS.md.
+  project init         Initialize project files after checking the latest npm release.
+  project sync         Refresh the template after checking the latest npm release.
   project status       Show whether template changes still need reconciliation.
   project mark-applied Record the current template as reconciled with AGENTS.md.
   version check        Compare the installed version with the latest npm release.
@@ -50,6 +50,7 @@ Options by command:
 
   project init, project sync
     --cwd PATH  Use a project directory other than the current directory.
+                npm access is required; stale or unverifiable builds fail before writes.
 
   project status, project mark-applied
     --cwd PATH  Use a project directory other than the current directory.
@@ -88,7 +89,7 @@ export async function main(
 	else if (scope === "global" && action === "uninstall")
 		uninstallGlobal(options);
 	else if (scope === "project" && (action === "init" || action === "sync"))
-		syncProject(options);
+		await syncProject(options, action);
 	else if (scope === "project" && action === "status") projectStatus(options);
 	else if (scope === "project" && action === "mark-applied")
 		markApplied(options);

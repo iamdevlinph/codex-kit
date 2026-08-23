@@ -1,20 +1,73 @@
+import { vi } from "vitest";
+import { parse } from "../cli/options.js";
+import { PACKAGE } from "../package.js";
 import {
 	assert,
+	CLI,
 	join,
 	mkdtempSync,
 	readdirSync,
 	readFileSync,
 	rmSync,
 	run,
+	spawnSync,
 	test,
 	tmpdir,
 	writeFileSync,
 } from "../test-support/cli.js";
+import { syncProject } from "./commands.js";
+
+function runProject(args: string[], cwd: string, latest = PACKAGE.version) {
+	return run(args, {
+		env: { CODEX_KIT_LATEST_VERSION: latest },
+		cwd,
+	});
+}
+
+for (const [command, latest] of [
+	["init", "2.0.0"],
+	["sync", "2.0.0"],
+	["sync", "invalid"],
+] as const) {
+	test(`project ${command} fails before writes when latest metadata is ${latest}`, () => {
+		const project = mkdtempSync(join(tmpdir(), "codex-kit stale-"));
+		try {
+			const result = spawnSync(
+				process.execPath,
+				[CLI, "project", command, "--cwd", project],
+				{
+					encoding: "utf8",
+					env: { ...process.env, CODEX_KIT_LATEST_VERSION: latest },
+				},
+			);
+			assert.notEqual(result.status, 0);
+			assert.deepEqual(readdirSync(project), []);
+			if (latest === "2.0.0") {
+				assert.match(
+					result.stderr,
+					new RegExp(`Installed: ${PACKAGE.version.replaceAll(".", "\\.")}`),
+				);
+				assert.match(result.stderr, /Latest:\s+2\.0\.0/);
+				assert.match(
+					result.stderr,
+					new RegExp(
+						`pnpm dlx @iamdevlinph/codex-kit@latest project ${command} --cwd '${project}'`,
+					),
+				);
+			}
+		} finally {
+			rmSync(project, { recursive: true, force: true });
+		}
+	});
+}
 
 test("project sync keeps AGENTS.md separate and prints skill-aware reconciliation guidance", () => {
 	const project = mkdtempSync(join(tmpdir(), "codex-kit-project-"));
 	try {
-		const initialized = run(["project", "init", "--cwd", project]);
+		const initialized = runProject(
+			["project", "init", "--cwd", project],
+			project,
+		);
 		assert.match(initialized.stdout, /BEGIN CODEX INITIALIZATION PROMPT/);
 		assert.match(initialized.stdout, /substantially scaffolded implementation/);
 		assert.match(initialized.stdout, /existing PLANS\.md/);
@@ -25,13 +78,13 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 			readFileSync(agents, "utf8"),
 			/# Project-Specific Instructions/,
 		);
-		const repeated = run(["project", "init", "--cwd", project]);
+		const repeated = runProject(["project", "init", "--cwd", project], project);
 		assert.match(repeated.stdout, /BEGIN CODEX INITIALIZATION PROMPT/);
 		writeFileSync(
 			agents,
 			`${readFileSync(agents, "utf8")}\n- Keep this local rule.\n`,
 		);
-		const result = run(["project", "sync", "--cwd", project]);
+		const result = runProject(["project", "sync", "--cwd", project], project);
 		assert.match(readFileSync(agents, "utf8"), /Keep this local rule/);
 		const template = readFileSync(join(project, "TEMPLATE_AGENTS.md"), "utf8");
 		assert.match(template, /Shared Agent Defaults/);
@@ -54,6 +107,10 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 			readFileSync(join(project, ".codex-kit-state.json"), "utf8"),
 			/availableHash/,
 		);
+		assert.match(
+			readFileSync(join(project, ".codex-kit-state.json"), "utf8"),
+			new RegExp(`availableVersion.*${PACKAGE.version.replaceAll(".", "\\.")}`),
+		);
 		assert.match(result.stdout, /\.agents\/skills/);
 		assert.match(result.stdout, /\$codex-kit-reconcile-agents/);
 		assert.match(result.stdout, /BEGIN CODEX RECONCILIATION PROMPT/);
@@ -74,12 +131,47 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		rmSync(project, { recursive: true, force: true });
 	}
 });
+
+test("project sync proceeds when the local build is newer", () => {
+	const project = mkdtempSync(join(tmpdir(), "codex-kit-local-newer-"));
+	try {
+		runProject(["project", "sync", "--cwd", project], project, "0.0.1");
+		assert.ok(readdirSync(project).includes("TEMPLATE_AGENTS.md"));
+	} finally {
+		rmSync(project, { recursive: true, force: true });
+	}
+});
+
+test("project sync fails closed when the registry is unavailable", async () => {
+	const project = mkdtempSync(join(tmpdir(), "codex-kit-offline-"));
+	const previous = process.env.CODEX_KIT_LATEST_VERSION;
+	delete process.env.CODEX_KIT_LATEST_VERSION;
+	vi.stubGlobal(
+		"fetch",
+		vi.fn(async () => {
+			throw new Error("offline");
+		}),
+	);
+	try {
+		await assert.rejects(
+			syncProject(parse(["project", "sync", "--cwd", project])),
+			/Unable to check .*offline/,
+		);
+		assert.deepEqual(readdirSync(project), []);
+	} finally {
+		vi.unstubAllGlobals();
+		if (previous === undefined) delete process.env.CODEX_KIT_LATEST_VERSION;
+		else process.env.CODEX_KIT_LATEST_VERSION = previous;
+		rmSync(project, { recursive: true, force: true });
+	}
+});
+
 test("project sync never overwrites an unmanaged AGENTS.md", () => {
 	const project = mkdtempSync(join(tmpdir(), "codex-kit-unmanaged-"));
 	try {
 		const agents = join(project, "AGENTS.md");
 		writeFileSync(agents, "# Existing\n\n- Preserve me.\n");
-		run(["project", "sync", "--cwd", project]);
+		runProject(["project", "sync", "--cwd", project], project);
 		assert.equal(
 			readFileSync(agents, "utf8"),
 			"# Existing\n\n- Preserve me.\n",
@@ -100,11 +192,14 @@ test("project sync never overwrites an unmanaged AGENTS.md", () => {
 test("project status and mark-applied track semantic reconciliation", () => {
 	const project = mkdtempSync(join(tmpdir(), "codex-kit-status-"));
 	try {
-		run(["project", "init", "--cwd", project]);
+		runProject(["project", "init", "--cwd", project], project);
 		const pending = run(["project", "status", "--cwd", project]);
 		assert.match(pending.stdout, /reconciliation required/);
-		run(["project", "mark-applied", "--cwd", project]);
-		const current = run(["project", "status", "--cwd", project]);
+		runProject(["project", "mark-applied", "--cwd", project], project);
+		const current = runProject(
+			["project", "status", "--cwd", project],
+			project,
+		);
 		assert.match(current.stdout, /up to date/);
 	} finally {
 		rmSync(project, { recursive: true, force: true });
@@ -117,10 +212,10 @@ for (const command of ["init", "sync"]) {
 			join(tmpdir(), `codex-kit-template-${command}-`),
 		);
 		try {
-			run(["project", "init", "--cwd", project]);
+			runProject(["project", "init", "--cwd", project], project);
 			const template = join(project, "TEMPLATE_AGENTS.md");
 			writeFileSync(template, "# Local candidate rule.\n");
-			run(["project", command, "--cwd", project]);
+			runProject(["project", command, "--cwd", project], project);
 			assert.doesNotMatch(
 				readFileSync(template, "utf8"),
 				/Local candidate rule/,

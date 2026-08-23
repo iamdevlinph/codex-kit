@@ -216,6 +216,12 @@ keeps critical always-on rules in `AGENTS.md`, extracts only concrete
 conditional procedures, validates before marking applied, and does not copy the
 complete template or introduce managed markers. The CLI itself continues to
 create only its current scaffold and state files.
+Before either `project init` or `project sync` writes, it must verify the
+installed package against the latest npm metadata. Stale builds, registry
+failures, and malformed metadata fail closed. Stale builds print installed and
+latest versions plus the exact `pnpm dlx @iamdevlinph/codex-kit@latest project
+<init|sync> --cwd <path>` rerun command. The CLI never auto-installs or executes
+downloaded code.
 When `AGENTS.md` is missing, synchronization creates a minimal project scaffold;
 it does not merge the reusable template automatically. Missing or untouched
 scaffold instructions produce a delimited initialization prompt that first

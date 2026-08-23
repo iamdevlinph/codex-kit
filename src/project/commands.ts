@@ -3,6 +3,7 @@ import { join } from "node:path";
 import type { Options } from "../cli/options.js";
 import { isRecord, read, readText, sha256, write } from "../files.js";
 import { PACKAGE, RECONCILE_SKILL, TEMPLATE_FILE } from "../package.js";
+import { compareVersions, getLatestVersion } from "../version.js";
 
 interface ProjectState {
 	version: number;
@@ -89,9 +90,17 @@ report any template-worthy generalized promotion.
 ===== END CODEX RECONCILIATION PROMPT =====`;
 }
 
-export function syncProject(options: Options): void {
+export async function syncProject(
+	options: Options,
+	action: "init" | "sync" = "sync",
+): Promise<void> {
 	const { cwd } = options;
 	requireDirectory(cwd);
+	const latest = await getLatestVersion();
+	if (compareVersions(PACKAGE.version, latest) < 0)
+		throw new Error(
+			`Installed: ${PACKAGE.version}\nLatest:    ${latest}\nPublished guidelines are newer than this local build. Rerun with:\n  pnpm dlx ${PACKAGE.name}@latest project ${action} --cwd '${cwd.replaceAll("'", "'\\''")}'`,
+		);
 	const agentsFile = join(cwd, "AGENTS.md");
 	const stagedTemplate = join(cwd, "TEMPLATE_AGENTS.md");
 	const desired = Buffer.from(readText(TEMPLATE_FILE));

@@ -60,6 +60,12 @@ existing active guidance. During reconciliation, Codex merges only applicable
 rules into the project's `AGENTS.md` and preserves its local organization and
 adaptations.
 
+Both `project init` and `project sync` contact the public npm registry before
+writing project files. If the installed CLI is stale, or npm is unreachable or
+returns invalid metadata, the command fails without changing the project. Rerun
+with `pnpm dlx @iamdevlinph/codex-kit@latest` after the registry is available;
+stale builds print the exact command.
+
 ## Commands
 
 | Action | Command |
@@ -179,7 +185,10 @@ codex-kit project sync --cwd /path/to/project
 - Codex with custom subagent and lifecycle-hook support
 
 The published package contains no credentials or runtime dependencies. Version
-checks contact the public npm registry only when `codex-kit version check` runs.
+checks and project initialization/synchronization contact the public npm
+registry; project operations fail closed before writing when that check cannot
+verify the latest release. The CLI never auto-installs or executes downloaded
+code.
 
 ## Security and license
 

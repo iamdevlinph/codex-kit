@@ -63,10 +63,17 @@ async function fetchLatestVersion(): Promise<string> {
 	return latest;
 }
 
+export async function getLatestVersion(): Promise<string> {
+	const override = process.env.CODEX_KIT_LATEST_VERSION;
+	if (override) {
+		parseVersion(override);
+		return override;
+	}
+	return fetchLatestVersion();
+}
+
 export async function checkVersion(): Promise<void> {
-	let latest = process.env.CODEX_KIT_LATEST_VERSION;
-	if (!latest) latest = await fetchLatestVersion();
-	if (!latest) throw new Error("Registry returned no package version.");
+	const latest = await getLatestVersion();
 	console.log(`Installed: ${PACKAGE.version}`);
 	console.log(`Latest:    ${latest}`);
 	const comparison = compareVersions(PACKAGE.version, latest);
