@@ -16,6 +16,9 @@
 - Follow the repository's existing style, structure, architecture, and stronger
   local instructions. Match nearby code before introducing new patterns,
   abstractions, dependencies, or file organization.
+- Preserve an existing `PLANS.md` as the source for durable decisions,
+  priorities, deferrals, and resume-worthy milestones. Create or update it only
+  from repository evidence, never as speculative history or a per-change changelog.
 - Use intent-revealing domain names. A reader should understand what a variable
   contains or what a helper guarantees at the call site without opening its
   implementation. Avoid vague transformation names such as `normalized`,
