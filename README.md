@@ -119,6 +119,13 @@ configuration, and scripts for Codex to derive reliable guidance. It creates:
 - `TEMPLATE_AGENTS.md` as the local template reference;
 - `.codex-kit-state.json` for reconciliation bookkeeping.
 
+The CLI continues to create only this scaffold, template reference, and state
+file set. During semantic reconciliation, Codex may create or maintain
+`PLANS.md` when repository evidence supports real durable decisions,
+roadmap/status, or resume-worthy completed milestones. Existing `PLANS.md`
+content is preserved and semantically merged; speculative history is never
+invented or backfilled.
+
 Initialization includes the first template sync. When the CLI prints an
 initialization or reconciliation prompt, copy the complete marked block into a
 Codex task opened at the project root.
@@ -129,11 +136,15 @@ After installing a newer package version, refresh the reference template:
 codex-kit project sync
 ```
 
-`project sync` never edits `AGENTS.md` or project skills. The reconciliation skill
-compares the refreshed template with the project's guidance and merges only
-applicable rules while preserving local organization and adaptations. If
+`project sync` never edits `AGENTS.md`, `PLANS.md`, or project skills. The
+reconciliation skill compares the refreshed template with the project's
+guidance and merges only applicable rules while preserving local organization
+and adaptations. It keeps always-on instructions in `AGENTS.md`, moves durable
+roadmap or history out of that file into `PLANS.md`, and reports any created or
+changed plan content. If
 `TEMPLATE_AGENTS.md` was modified locally, sync overwrites it with the packaged
-template. Keep durable local rules in `AGENTS.md`; recover overwritten template
+template. Keep always-on local rules in `AGENTS.md` and durable product context
+in `PLANS.md`; recover overwritten template
 edits through Git history when needed.
 
 After reconciliation and validation, Codex runs:

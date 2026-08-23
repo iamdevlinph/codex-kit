@@ -133,6 +133,18 @@ test("global install and uninstall manage only package-owned files", () => {
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
+			/any existing `PLANS\.md`/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/never invent or\s+backfill speculative history/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/Report whether `PLANS\.md` was preserved, created, or\s+updated/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
 			/available skill validator/,
 		);
 		assert.match(

@@ -7,24 +7,32 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md
 
 ## Procedure
 
-1. Inspect `AGENTS.md`, `TEMPLATE_AGENTS.md`, `.codex-kit-state.json`, the
-   project's existing `.agents/skills`, and `codex-kit project status`. Record
-   the initial status before making changes.
-2. Preserve the existing `AGENTS.md` organization and all project-specific
-   adaptations. Merge only reusable template guidance that applies to this
-   repository; report conflicts between local and template rules, and do not
-   replace `AGENTS.md` wholesale or copy the complete template into it.
+1. Inspect `AGENTS.md`, any existing `PLANS.md`, `TEMPLATE_AGENTS.md`,
+   `.codex-kit-state.json`, the project's existing `.agents/skills`, and
+   `codex-kit project status`. Record the initial status before making changes.
+2. Preserve the existing `AGENTS.md` and `PLANS.md` organization and all
+   project-specific adaptations. Merge only reusable template guidance that
+   applies to this repository; report conflicts between local and template
+   rules, and do not replace `AGENTS.md` wholesale or copy the complete
+   template into it.
 3. Keep critical always-on safety, authorization, secrets, database,
    deployment, and destructive-operation rules in `AGENTS.md`.
-4. Extract only concrete, conditional, repeatable project procedures into a
+4. Preserve an existing `PLANS.md` and semantically merge durable product
+   context, decisions, roadmap/status, and resume-worthy milestones. Create it
+   only when repository evidence contains real durable content; never invent or
+   backfill speculative history. Move durable roadmap or history misplaced in
+   `AGENTS.md` into `PLANS.md`, keeping it concise rather than turning it into a
+   per-change changelog. Report whether `PLANS.md` was preserved, created, or
+   updated and why.
+5. Extract only concrete, conditional, repeatable project procedures into a
    focused skill under `.agents/skills/<skill-name>/SKILL.md`. Preserve relevant
    existing skills, use valid YAML frontmatter, and do not create speculative
    skills or duplicate detailed instructions.
-5. Review the final instruction diff for preserved local rules, duplicates, and
+6. Review the final instruction diff for preserved local rules, duplicates, and
    unintended template edits. Validate every created or modified project skill
    with an available skill validator and run the repository's documented checks.
    Do not mark the template applied until reconciliation and validation succeed.
-6. Never run `codex-kit project sync` on the user's behalf or recommend it for
+7. Never run `codex-kit project sync` on the user's behalf or recommend it for
    an unreleased local template edit. The user should run `project sync` only
    after updating codex-kit to a released version containing the template
    change. Run `codex-kit project mark-applied` only when the task follows a
@@ -32,7 +40,7 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md
    recorded in step 1 was `reconciliation required`, and reconciliation and
    validation succeeded. Otherwise leave project state unchanged and report the
    remaining release, codex-kit update, user-run sync, and reconciliation steps.
-7. Summarize added, updated, skipped, adapted, and skill-moved guidance, with
+8. Summarize added, updated, skipped, adapted, and skill-moved guidance, with
    reasons. Identify genuinely reusable, generalized changes that should be
    promoted to codex-kit's canonical template and report the target section and
    wording.

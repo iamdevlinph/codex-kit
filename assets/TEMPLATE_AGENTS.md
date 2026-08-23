@@ -12,6 +12,18 @@ product context, and local conventions in the project's active `AGENTS.md`.
   priorities, deferred requirements, product or implementation decisions, and
   major completed milestones.
 
+## PLANS.md Maintenance
+
+- Read and preserve an existing `PLANS.md` during initialization and template
+  reconciliation; semantically merge durable content instead of replacing it.
+- Create `PLANS.md` only when repository evidence contains real roadmap items,
+  durable decisions, or resume-worthy completed work. Never invent or backfill
+  speculative history.
+- Keep it concise, using sections such as current context, decisions,
+  roadmap/status, and major milestones. It is not a per-change changelog.
+- Move roadmap or history misplaced in `AGENTS.md` into `PLANS.md` when the
+  content is durable, and keep `AGENTS.md` focused on always-on instructions.
+
 ## Instructions And Skills
 
 - Keep `AGENTS.md` focused on durable, always-applicable repository context:

@@ -55,6 +55,11 @@ project-specific guidance to AGENTS.md based only on repository evidence,
 including exact verification commands. Then use the global
 $${RECONCILE_SKILL} skill to merge applicable reusable guidance from
 TEMPLATE_AGENTS.md while preserving AGENTS.md organization and local rules.
+Inspect and preserve any existing PLANS.md. Create or maintain a concise
+PLANS.md only when repository evidence contains real roadmap items, durable
+decisions, or resume-worthy completed work; never invent or backfill speculative
+history. Keep always-on repository instructions in AGENTS.md, move misplaced
+roadmap or history into PLANS.md, and report what PLANS.md work was done.
 Validate the final instruction changes, mark the template applied only after
 validation succeeds, and confirm codex-kit project status is up to date.
 ===== END CODEX INITIALIZATION PROMPT =====`;
@@ -67,12 +72,16 @@ function reconciliationPrompt(): string {
 Use the global $${RECONCILE_SKILL} skill to reconcile the existing AGENTS.md
 with the refreshed TEMPLATE_AGENTS.md.
 
-Inspect TEMPLATE_AGENTS.md, AGENTS.md, .codex-kit-state.json, existing
-.agents/skills, and codex-kit project status. Preserve local adaptations and
-AGENTS.md organization; merge only applicable reusable guidance. Keep critical
-always-on safety and authorization rules in AGENTS.md, extract only concrete
-conditional procedures into validated skills, and do not copy the complete
-template or introduce managed markers.
+Inspect TEMPLATE_AGENTS.md, AGENTS.md, PLANS.md, .codex-kit-state.json,
+existing .agents/skills, and codex-kit project status. Preserve local
+adaptations and AGENTS.md/PLANS.md organization; merge only applicable reusable
+guidance. Preserve an existing PLANS.md, and create or update it only for
+evidence-backed durable decisions, roadmap/status, or resume-worthy milestones.
+Never invent or backfill speculative history. Move misplaced roadmap or history
+out of AGENTS.md, keeping critical always-on safety and authorization rules in
+AGENTS.md. The reconciliation must extract only concrete conditional procedures
+into validated skills. Do not copy the complete template or introduce managed
+markers. Report what PLANS.md content was preserved, created, or changed.
 
 Validate the final instruction changes. Mark applied only after reconciliation
 and validation succeed, confirm codex-kit project status is up to date, then

@@ -17,6 +17,8 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		const initialized = run(["project", "init", "--cwd", project]);
 		assert.match(initialized.stdout, /BEGIN CODEX INITIALIZATION PROMPT/);
 		assert.match(initialized.stdout, /substantially scaffolded implementation/);
+		assert.match(initialized.stdout, /existing PLANS\.md/);
+		assert.match(initialized.stdout, /real roadmap items, durable/);
 		assert.match(initialized.stdout, /END CODEX INITIALIZATION PROMPT/);
 		const agents = join(project, "AGENTS.md");
 		assert.match(
@@ -57,11 +59,14 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		assert.match(result.stdout, /BEGIN CODEX RECONCILIATION PROMPT/);
 		assert.match(result.stdout, /END CODEX RECONCILIATION PROMPT/);
 		assert.match(result.stdout, /existing AGENTS\.md/);
+		assert.match(result.stdout, /AGENTS\.md, PLANS\.md/);
+		assert.match(result.stdout, /Preserve an existing PLANS\.md/);
+		assert.match(result.stdout, /Never invent or backfill speculative history/);
 		assert.match(result.stdout, /always-on safety and authorization rules/);
 		assert.match(result.stdout, /extract only concrete/);
 		assert.match(
 			result.stdout,
-			/do not copy the complete\s+template or introduce managed markers/,
+			/Do not copy the complete template or introduce managed\s+markers/,
 		);
 		assert.match(result.stdout, /Mark applied only after reconciliation/);
 		assert.doesNotMatch(result.stdout, /BEGIN codex-kit:shared-template/);

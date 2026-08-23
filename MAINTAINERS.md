@@ -207,12 +207,15 @@ pnpm dlx @iamdevlinph/codex-kit@latest project sync --cwd /path/to/project
 ```
 
 `project sync` updates only `TEMPLATE_AGENTS.md` and project state. It never
-edits `AGENTS.md` or `.agents/skills`; its printed reconciliation prompt asks
-Codex to invoke `codex-kit-reconcile-agents` and semantically reconcile any
-applicable instruction or skill changes. The skill preserves local adaptations,
+edits `AGENTS.md`, `PLANS.md`, or `.agents/skills`; its printed reconciliation
+prompt asks Codex to invoke `codex-kit-reconcile-agents` and semantically
+reconcile any applicable instruction or skill changes. The skill preserves
+local adaptations, preserves or conditionally creates `PLANS.md` from
+evidence-backed durable decisions, roadmap/status, and resume-worthy milestones,
 keeps critical always-on rules in `AGENTS.md`, extracts only concrete
 conditional procedures, validates before marking applied, and does not copy the
-complete template or introduce managed markers.
+complete template or introduce managed markers. The CLI itself continues to
+create only its current scaffold and state files.
 When `AGENTS.md` is missing, synchronization creates a minimal project scaffold;
 it does not merge the reusable template automatically. Missing or untouched
 scaffold instructions produce a delimited initialization prompt that first
