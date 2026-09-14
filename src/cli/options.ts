@@ -17,7 +17,7 @@ export function parse(argv: string[]): Options {
 		codexHome: resolve(process.env.CODEX_HOME || join(homedir(), ".codex")),
 		orchestrator: "gpt-5.6-sol",
 		reasoningEffort: "low",
-		planReasoningEffort: "high",
+		planReasoningEffort: "low",
 		force: false,
 		positionals: [],
 	};

@@ -40,11 +40,11 @@ test("help describes every command", () => {
 	);
 	assert.match(
 		help,
-		/--plan-reasoning-effort LEVEL\s+Set Plan-mode reasoning effort \(default: high\)/,
+		/--plan-reasoning-effort LEVEL\s+Set Plan-mode reasoning effort \(default: low\)/,
 	);
 	assert.match(
 		help,
-		/codex-kit global configure --reasoning-effort low --plan-reasoning-effort high/,
+		/codex-kit global configure --reasoning-effort low --plan-reasoning-effort low/,
 	);
 	assert.match(help, /codex-kit project sync --cwd \/path\/to\/project/);
 });

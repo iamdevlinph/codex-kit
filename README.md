@@ -3,7 +3,7 @@
 Portable Codex subagents, automatic task routing, and reusable project guidance.
 
 - Routes work automatically while keeping small tasks with the root agent.
-- Includes four subagents for exploration, implementation, review, and quick edits.
+- Includes five managed subagents for planning, exploration, implementation, review, and quick edits.
 - Provides a stack-neutral `AGENTS.md` starting point.
 - Reconciles template updates semantically instead of replacing project guidance.
 - Preserves user-owned configuration and modified managed files.
@@ -34,14 +34,19 @@ one-off use, prefix commands with `pnpm dlx @iamdevlinph/codex-kit@latest`.
 
 | Subagent | Routing | Model and effort | Purpose |
 | --- | --- | --- | --- |
+| `planner` | Automatic in formal Plan mode | `gpt-6-astra`, low | Read-only repository analysis and implementation planning |
 | `code-explorer` | Automatic | `gpt-5.6-terra`, medium | Broad read-only discovery and contract tracing |
 | `implementer` | Automatic | `gpt-5.6-luna`, high | Large changes, debugging, migrations, and substantial tests |
 | `code-reviewer` | Automatic | `gpt-5.6-sol`, high | Feature structure and high-risk review |
 | `quick-implementer` | Manual | `gpt-5.6-luna`, medium | Small mechanical changes in one or two files |
 
-The root orchestrator plans, routes, integrates, and validates. It handles clear
-small changes directly and delegates broader discovery, implementation, or review
-according to the installed `SUBAGENT_ROUTING.md` policy.
+The Sol root orchestrator remains visible and owns conversation, requirement
+clarification, plan integration, implementation, and validation. In formal Plan
+mode, Astra Low performs substantive read-only planning and Sol presents the
+result. After the user selects **Implement Plan**, Sol implements the approved
+plan directly; supporting discovery and the required review may still be
+delegated. Outside Plan mode, the installed `SUBAGENT_ROUTING.md` policy routes
+work by task shape.
 
 ## Project guidance included
 
@@ -95,7 +100,7 @@ The default root configuration is:
 ```toml
 model = "gpt-5.6-sol"
 model_reasoning_effort = "low"
-plan_mode_reasoning_effort = "high"
+plan_mode_reasoning_effort = "low"
 ```
 
 Override it explicitly when needed:

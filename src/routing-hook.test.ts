@@ -25,6 +25,19 @@ test("routing hook injects semantic policy and briefs subagents", () => {
 		assert.match(promptOutput, /classify the work using this file/i);
 		assert.match(
 			promptOutput,
+			/formally in Plan mode[\s\S]*route substantive repository analysis and[\s\S]*implementation planning to `planner`/,
+		);
+		assert.match(promptOutput, /ordinary "make a plan" prompts retain/);
+		assert.match(
+			promptOutput,
+			/When the user selects \*\*Implement Plan\*\*[\s\S]*root owns/,
+		);
+		assert.match(
+			promptOutput,
+			/implementation subagents require\s+an explicit user request/,
+		);
+		assert.match(
+			promptOutput,
 			/quick-implementer.*explicit manual delegation/s,
 		);
 		assert.match(promptOutput, /code-reviewer/);

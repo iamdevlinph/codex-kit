@@ -165,7 +165,10 @@ installer state so
 
 Global routing keeps the Sol root as planner/orchestrator. The routing file maps
 task shapes to exact agent roles; each role's TOML independently selects its
-model and reasoning effort. A `UserPromptSubmit` hook injects the current policy
+model and reasoning effort. In formal Plan mode, the read-only `planner` agent
+uses Astra-low for substantive repository analysis and implementation planning;
+Sol remains visible, integrates the findings, and owns approved-plan execution.
+A `UserPromptSubmit` hook injects the current policy
 on each turn, and `SubagentStart` briefs delegated workers. Balanced routing
 allows the root to perform clear changes spanning roughly three files directly.
 Automatic delegation is reserved for broad discovery, large implementation or
@@ -177,9 +180,9 @@ genuinely independent slices with exclusive ownership and separate validation;
 shared contracts, configuration, artifacts, migrations, or dependency ordering
 require one implementer or sequential execution.
 
-The default root uses Sol-low outside Plan Mode and Sol-high in Plan Mode.
-Automatic roles use Terra-medium for exploration, Luna-high for implementation,
-and Sol-high for review. Delegation permits one 60-second wait followed by one
+The default root uses Sol-low outside and inside Plan Mode. Automatic roles use
+Astra-low for formal Plan mode planning, Terra-medium for exploration,
+Luna-high for implementation, and Sol-high for review. Delegation permits one 60-second wait followed by one
 status request; role deadlines are three minutes for exploration, review, and
 manual quick work, and five minutes for implementation. Stop validation after
 two minutes without output unless project guidance documents a longer runtime.

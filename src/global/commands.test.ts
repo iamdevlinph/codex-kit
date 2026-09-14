@@ -38,6 +38,7 @@ test("global install and uninstall manage only package-owned files", () => {
 			"code-explorer.toml",
 			"code-reviewer.toml",
 			"implementer.toml",
+			"planner.toml",
 			"quick-implementer.toml",
 		]);
 		const globalAgents = readFileSync(join(home, "AGENTS.md"), "utf8");
@@ -107,7 +108,7 @@ test("global install and uninstall manage only package-owned files", () => {
 		assert.doesNotMatch(installedHooks, /PreToolUse/);
 		assert.equal(
 			readFileSync(config, "utf8"),
-			'model_reasoning_effort = "low"\nplan_mode_reasoning_effort = "high"\n\nmodel = "gpt-5.6-sol"\n',
+			'model_reasoning_effort = "low"\nplan_mode_reasoning_effort = "low"\n\nmodel = "gpt-5.6-sol"\n',
 		);
 		assert.ok(existsSync(join(home, "codex-kit", "routing-hook.js")));
 		const reconciliationSkill = join(
@@ -187,6 +188,15 @@ test("global install and uninstall manage only package-owned files", () => {
 			join(home, "agents", "code-explorer.toml"),
 			"utf8",
 		);
+		const plannerInstructions = readFileSync(
+			join(home, "agents", "planner.toml"),
+			"utf8",
+		);
+		assert.match(plannerInstructions, /gpt-6-astra/);
+		assert.match(plannerInstructions, /model_reasoning_effort = "low"/);
+		assert.match(plannerInstructions, /sandbox_mode = "read-only"/);
+		assert.match(plannerInstructions, /Never edit files or implement the plan/);
+		assert.match(plannerInstructions, /three minutes/);
 		assert.match(
 			explorerInstructions,
 			/UI\/style preflight.*closest same-purpose shipped UI.*reusable components, design tokens, layout, responsive behavior, interaction\/state, and accessibility conventions/s,
@@ -277,15 +287,19 @@ test("global install and uninstall manage only package-owned files", () => {
 		assert.doesNotMatch(reviewerInstructions, /\b300\b/);
 
 		const explorer = join(home, "agents", "code-explorer.toml");
+		const planner = join(home, "agents", "planner.toml");
 		writeFileSync(
 			explorer,
 			`${readFileSync(explorer, "utf8")}\n# local edit\n`,
 		);
+		writeFileSync(planner, `${readFileSync(planner, "utf8")}\n# local edit\n`);
 		const reinstall = run(["global", "install", "--codex-home", home]);
 		assert.match(reinstall.stderr, /preserved modified/);
 
 		run(["global", "uninstall", "--codex-home", home]);
 		assert.match(readFileSync(explorer, "utf8"), /local edit/);
+		assert.match(readFileSync(planner, "utf8"), /local edit/);
+		assert.equal(existsSync(join(home, "agents", "implementer.toml")), false);
 		assert.equal(readFileSync(config, "utf8"), 'model = "gpt-5.6-sol"\n');
 		assert.deepEqual(JSON.parse(readFileSync(hooks, "utf8")), originalHooks);
 		assert.equal(existsSync(join(home, "codex-kit", "routing-hook.js")), false);
@@ -330,7 +344,7 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
 		const result = run(["global", "list", "--codex-home", home]);
 		assert.match(result.stdout, /Orchestrator: gpt-5\.6-sol/);
 		assert.match(result.stdout, /Reasoning effort: low/);
-		assert.match(result.stdout, /Plan mode reasoning effort: high/);
+		assert.match(result.stdout, /Plan mode reasoning effort: low/);
 		assert.match(result.stdout, /Global routing: installed/);
 		assert.match(result.stdout, /Routing hook: installed/);
 		assert.match(result.stdout, /Reconciliation skill: installed/);
@@ -346,6 +360,7 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
 			result.stdout,
 			/implementer — gpt-5\.6-luna, high \(managed\)/,
 		);
+		assert.match(result.stdout, /planner — gpt-6-astra, low \(managed\)/);
 		assert.match(
 			result.stdout,
 			/quick-implementer — gpt-5\.6-luna, medium \(managed\)/,

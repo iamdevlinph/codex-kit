@@ -12,6 +12,16 @@ roughly three files when no broad discovery or architectural decision is needed.
 When a substantive route below matches, spawn that exact role before performing
 the role's work. The user does not need to request delegation.
 
+While Codex is formally in Plan mode, route substantive repository analysis and
+implementation planning to `planner`. The root remains responsible for user
+conversation, requirement clarification, plan integration, and presenting the
+final plan. Outside formal Plan mode, ordinary "make a plan" prompts retain the
+existing routing below. When the user selects **Implement Plan**, the root owns
+implementation even when the plan is large or multi-file; size alone must not
+trigger `implementer`. Supporting `code-explorer` discovery and the mandatory
+`code-reviewer` handoff remain allowed, while implementation subagents require
+an explicit user request.
+
 For user-facing work, the root or assigned worker performs a UI/style preflight
 before editing: inspect the closest same-purpose shipped features (especially
 tables, filters, search, forms, dialogs, and page layouts), identify their
@@ -49,6 +59,8 @@ Select custom agents by exact name:
 
 - Broad repository discovery, contract tracing, or search across many files:
   `code-explorer`
+- Formal Plan mode repository analysis and implementation planning:
+  `planner`
 - Large multi-file behavior changes, non-obvious debugging, migrations, or
   substantial tests:
   `implementer`
