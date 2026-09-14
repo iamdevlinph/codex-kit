@@ -3,12 +3,14 @@ import {
 	installGlobal,
 	listGlobal,
 	listProjectsGlobal,
+	removeProjectsGlobal,
 	uninstallGlobal,
 } from "../global/commands.js";
 import { PACKAGE } from "../package.js";
 import {
 	markApplied,
 	projectStatus,
+	registerProjectCommand,
 	syncProject,
 } from "../project/commands.js";
 import { checkVersion } from "../version.js";
@@ -25,11 +27,14 @@ Commands:
   global configure     Set the orchestrator and normal/Plan reasoning defaults.
   global list          Show model settings, routing status, and custom agents.
   global projects      Show reconciliation status for registered projects.
+  global projects remove
+                       Interactively remove registered project records.
   global uninstall     Restore managed config values and remove package-owned files.
   project init         Initialize project files after checking the latest npm release.
   project sync         Refresh the template after checking the latest npm release.
   project status       Show whether template changes still need reconciliation.
   project mark-applied Record the current template as reconciled with AGENTS.md.
+  project register     Register a project without changing its files.
   version check        Compare the installed version with the latest npm release.
   -h, --help           Show this help.
   -v, --version        Print the installed version.
@@ -47,7 +52,7 @@ Options by command:
     --reasoning-effort LEVEL       Set normal reasoning effort (default: low).
     --plan-reasoning-effort LEVEL  Set Plan-mode reasoning effort (default: low).
 
-  global list, global projects, global uninstall
+  global list, global projects, global projects remove, global uninstall
     --codex-home PATH  Use a Codex home other than CODEX_HOME or ~/.codex.
 
   project init, project sync
@@ -56,6 +61,10 @@ Options by command:
 
   project status, project mark-applied
     --cwd PATH  Use a project directory other than the current directory.
+
+  project register
+    --cwd PATH         Use a project directory other than the current directory.
+    --codex-home PATH  Use a Codex home other than CODEX_HOME or ~/.codex.
 
 Examples:
   codex-kit global install --force
@@ -88,6 +97,12 @@ export async function main(
 	else if (scope === "global" && action === "configure")
 		configureGlobal(options);
 	else if (scope === "global" && action === "list") listGlobal(options);
+	else if (
+		scope === "global" &&
+		action === "projects" &&
+		options.positionals[2] === "remove"
+	)
+		await removeProjectsGlobal(options.codexHome);
 	else if (scope === "global" && action === "projects")
 		listProjectsGlobal(options);
 	else if (scope === "global" && action === "uninstall")
@@ -95,6 +110,8 @@ export async function main(
 	else if (scope === "project" && (action === "init" || action === "sync"))
 		await syncProject(options, action);
 	else if (scope === "project" && action === "status") projectStatus(options);
+	else if (scope === "project" && action === "register")
+		registerProjectCommand(options);
 	else if (scope === "project" && action === "mark-applied")
 		markApplied(options);
 	else if (scope === "version" && action === "check") await checkVersion();

@@ -7,11 +7,13 @@ test("help describes every command", () => {
 		"global configure",
 		"global list",
 		"global projects",
+		"global projects remove",
 		"global uninstall",
 		"project init",
 		"project sync",
 		"project status",
 		"project mark-applied",
+		"project register",
 		"version check",
 		"-h, --help",
 		"-v, --version",
@@ -31,9 +33,13 @@ test("help describes every command", () => {
 	assert.match(help, /global install\n\s+--codex-home PATH[^\n]+\n\s+--force/);
 	assert.match(
 		help,
-		/global list, global projects, global uninstall\n\s+--codex-home PATH/,
+		/global list, global projects, global projects remove, global uninstall\n\s+--codex-home PATH/,
 	);
 	assert.match(help, /project init, project sync\n\s+--cwd PATH/);
+	assert.match(
+		help,
+		/project register\n\s+--cwd PATH[^\n]+\n\s+--codex-home PATH/,
+	);
 	assert.doesNotMatch(
 		help,
 		/project init, project sync\n\s+--cwd PATH[^\n]+\n\s+--force/,

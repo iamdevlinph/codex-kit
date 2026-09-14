@@ -18,14 +18,17 @@ import {
 	ROUTING_FILE,
 	ROUTING_HOOK_FILE,
 } from "../package.js";
-import { evaluateProjectStatus } from "../project/commands.js";
-import { registeredProjects } from "../project/registry.js";
 import {
 	configureGlobal,
 	restoreConfig,
 	topLevelConfigEntries,
 } from "./config.js";
 import { installRoutingHooks, uninstallRoutingHooks } from "./hooks.js";
+import {
+	formatProjectsTable,
+	projectRows,
+	removeProjectsInteractively,
+} from "./projects.js";
 import {
 	type ConfigKey,
 	type GlobalState,
@@ -249,23 +252,10 @@ export function listGlobal(options: Options): void {
 }
 
 export function listProjectsGlobal(options: Options): void {
-	console.log(`Codex home: ${options.codexHome}`);
-	console.log("Projects:");
-	const projects = registeredProjects(options.codexHome);
-	if (!projects.length) {
-		console.log("  (none)");
-		return;
-	}
-	for (const project of projects) {
-		try {
-			console.log(`  ${project} — ${evaluateProjectStatus(project).status}`);
-		} catch (error) {
-			console.log(
-				`  ${project} — unavailable: ${error instanceof Error ? error.message : String(error)}`,
-			);
-		}
-	}
+	console.log(formatProjectsTable(projectRows(options.codexHome)));
 }
+
+export const removeProjectsGlobal = removeProjectsInteractively;
 
 export function uninstallGlobal(options: Options): void {
 	const home = options.codexHome;

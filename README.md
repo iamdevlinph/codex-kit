@@ -81,6 +81,8 @@ stale builds print the exact command.
 | Configure model defaults | `codex-kit global configure` |
 | Inspect global setup | `codex-kit global list` |
 | Show registered project statuses | `codex-kit global projects` |
+| Register an existing project | `codex-kit project register` |
+| Remove registered projects | `codex-kit global projects remove` |
 | Remove package-managed global files | `codex-kit global uninstall` |
 | Initialize project guidance | `codex-kit project init` |
 | Refresh the project template | `codex-kit project sync` |
@@ -125,8 +127,10 @@ to remove package-managed global files.
 Use `codex-kit global projects` to see the existing offline reconciliation
 status for every project registered in that Codex home. Successful `project
 init` and `project sync` commands register the project's canonical path;
-existing projects appear after their next init or sync. Stale paths remain
-listed as unavailable, and global install or uninstall does not remove them.
+`project register` adds an existing directory without reading or changing its
+files. Stale paths remain listed as unavailable. Use `global projects remove`
+in an interactive terminal to select registry records to remove; this never
+deletes project files. Global install or uninstall does not remove records.
 
 ## Project workflow
 
@@ -188,6 +192,7 @@ Examples:
 
 ```sh
 codex-kit global install --codex-home /path/to/.codex
+codex-kit project register --cwd /path/to/project
 codex-kit project sync --cwd /path/to/project
 ```
 

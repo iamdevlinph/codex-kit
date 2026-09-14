@@ -7,6 +7,7 @@ import {
 	join,
 	mkdirSync,
 	mkdtempSync,
+	readdirSync,
 	readFileSync,
 	realpathSync,
 	rmSync,
@@ -58,12 +59,44 @@ test("successful project operations register canonical projects once", () => {
 		assert.match(
 			run(["global", "projects", "--codex-home", home]).stdout,
 			new RegExp(
-				`${canonical.replaceAll("/", "\\/")} — reconciliation required`,
+				`project\\s+⚠️ Reconciliation required\\s+${canonical.replaceAll("/", "\\/")}`,
 			),
 		);
 		run(["global", "install", "--codex-home", home]);
 		run(["global", "uninstall", "--codex-home", home]);
 		assert.equal(existsSync(record), true);
+	} finally {
+		rmSync(root, { recursive: true, force: true });
+	}
+});
+
+test("project register is state-free, canonical, idempotent, and directory-only", () => {
+	const root = mkdtempSync(join(tmpdir(), "codex-kit-register-"));
+	const home = join(root, "home");
+	const project = join(root, "project");
+	const link = join(root, "link");
+	const file = join(root, "file");
+	mkdirSync(project);
+	symlinkSync(project, link);
+	writeFileSync(file, "untouched\n");
+	try {
+		for (const cwd of [link, project])
+			run(["project", "register", "--cwd", cwd, "--codex-home", home]);
+		const canonical = realpathSync(project);
+		assert.deepEqual(readdirSync(join(home, "codex-kit", "projects")), [
+			`${hash(canonical)}.json`,
+		]);
+		assert.deepEqual(readdirSync(project), []);
+		assert.equal(readFileSync(file, "utf8"), "untouched\n");
+		for (const cwd of [join(root, "missing"), file]) {
+			const failed = spawnSync(
+				process.execPath,
+				[CLI, "project", "register", "--cwd", cwd, "--codex-home", home],
+				{ encoding: "utf8" },
+			);
+			assert.notEqual(failed.status, 0);
+			assert.match(failed.stderr, /Not a directory:/);
+		}
 	} finally {
 		rmSync(root, { recursive: true, force: true });
 	}
@@ -109,7 +142,7 @@ test("global projects reports empty, current, stale, and unavailable records ind
 	try {
 		assert.match(
 			run(["global", "projects", "--codex-home", home]).stdout,
-			/Projects:\n {2}\(none\)/,
+			/^\(none\)\n$/,
 		);
 		run(["project", "sync", "--cwd", current, "--codex-home", home], {
 			env: latest,
@@ -121,7 +154,7 @@ test("global projects reports empty, current, stale, and unavailable records ind
 		writeFileSync(join(invalid, ".codex-kit-state.json"), "invalid");
 		const records = join(home, "codex-kit", "projects");
 		writeFileSync(
-			join(records, `${hash(missing)}.json`),
+			join(records, "renamed-record.json"),
 			`${JSON.stringify({ path: missing })}\n`,
 		);
 		writeFileSync(
@@ -139,17 +172,39 @@ test("global projects reports empty, current, stale, and unavailable records ind
 		writeFileSync(kitStateFile, `${JSON.stringify(kitState)}\n`);
 		writeFileSync(join(localChange, "TEMPLATE_AGENTS.md"), "changed\n");
 		const output = run(["global", "projects", "--codex-home", home]).stdout;
+		assert.match(output, /^PROJECT\s+STATUS\s+PATH/m);
 		assert.match(
 			output,
-			new RegExp(`${current.replaceAll("/", "\\/")} — up to date`),
+			new RegExp(
+				`a-current\\s+✅ Up to date\\s+${current.replaceAll("/", "\\/")}`,
+			),
 		);
-		assert.match(output, /b-invalid — unavailable: .* is not valid JSON/);
-		assert.match(output, /c-missing — unavailable: Not a directory:/);
-		assert.match(output, /d-uninitialized — not initialized/);
-		assert.match(output, /e-no-agents — AGENTS\.md missing/);
-		assert.match(output, /f-kit-update — kit template update available/);
-		assert.match(output, /g-local-change — local template changed/);
+		assert.match(output, /b-invalid\s+❌ Unavailable: .* is not valid JSON/);
+		assert.match(output, /c-missing\s+❌ Unavailable: Not a directory:/);
+		assert.match(
+			output,
+			/d-uninitialized\s+⚠️ Not initialized \(run codex-kit project sync\)/,
+		);
+		assert.match(
+			output,
+			/e-no-agents\s+⚠️ AGENTS\.md missing \(reconcile the template first\)/,
+		);
+		assert.match(output, /f-kit-update\s+⚠️ Update available; run project sync/);
+		assert.match(
+			output,
+			/g-local-change\s+⚠️ Local template changed; review it before syncing/,
+		);
+		for (const label of [
+			"✅ Up to date",
+			"⚠️ Update available",
+			"⚠️ Local template changed",
+			"⚠️ Not initialized",
+			"⚠️ AGENTS.md missing",
+			"❌ Unavailable",
+		])
+			assert.ok(output.includes(label));
 		assert.ok(output.indexOf(current) < output.indexOf(invalid));
+		assert.equal(readdirSync(records).length, 7);
 	} finally {
 		rmSync(root, { recursive: true, force: true });
 	}

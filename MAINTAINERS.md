@@ -167,8 +167,12 @@ Successful `project init` and `project sync` calls atomically register the
 canonical project path under `$CODEX_HOME/codex-kit/projects/`. `global
 projects` reads those records and applies the same offline status evaluation as
 `project status`; it does not query npm, scan for historical projects, or stop
-when one registered path is unavailable. Installer state does not own the
-registry, so global install and uninstall preserve it.
+when one registered path is unavailable. `project register` performs the same
+canonical, idempotent registration for an existing directory without reading
+or modifying project state or checking npm. `global projects remove` requires a
+TTY and deletes only explicitly selected registry records, including records
+whose paths are unavailable. Installer state does not own the registry, so
+global install and uninstall preserve it.
 
 Global routing keeps the Sol root as planner/orchestrator. The routing file maps
 task shapes to exact agent roles; each role's TOML independently selects its

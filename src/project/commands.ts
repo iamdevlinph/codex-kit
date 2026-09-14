@@ -1,4 +1,4 @@
-import { existsSync, statSync } from "node:fs";
+import { existsSync, realpathSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { Options } from "../cli/options.js";
 import { isRecord, read, readText, sha256, write } from "../files.js";
@@ -144,6 +144,12 @@ export async function syncProject(
 	console.log(
 		needsInitialization ? initializationPrompt() : reconciliationPrompt(),
 	);
+}
+
+export function registerProjectCommand(options: Options): void {
+	requireDirectory(options.cwd);
+	registerProject(options.codexHome, options.cwd);
+	console.log(`registered: ${realpathSync(options.cwd)}`);
 }
 
 interface ProjectStatus {

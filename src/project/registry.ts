@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, realpathSync } from "node:fs";
+import { existsSync, readdirSync, realpathSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { isRecord, readText, sha256, write } from "../files.js";
 
@@ -29,4 +29,29 @@ export function registeredProjects(codexHome: string): string[] {
 			}
 		})
 		.sort();
+}
+
+export function removeRegisteredProjects(
+	codexHome: string,
+	projects: Iterable<string>,
+): void {
+	const selected = new Set(projects);
+	const directory = registryDirectory(codexHome);
+	if (!existsSync(directory)) return;
+	for (const name of readdirSync(directory).filter((name) =>
+		name.endsWith(".json"),
+	)) {
+		let record: unknown;
+		try {
+			record = JSON.parse(readText(join(directory, name)));
+		} catch {
+			continue;
+		}
+		if (
+			isRecord(record) &&
+			typeof record.path === "string" &&
+			selected.has(record.path)
+		)
+			rmSync(join(directory, name));
+	}
 }
