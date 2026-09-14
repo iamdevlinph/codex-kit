@@ -2,6 +2,7 @@ import {
 	configureGlobal,
 	installGlobal,
 	listGlobal,
+	listProjectsGlobal,
 	uninstallGlobal,
 } from "../global/commands.js";
 import { PACKAGE } from "../package.js";
@@ -23,6 +24,7 @@ Commands:
   global install       Install or update package-owned agents and routing guidance.
   global configure     Set the orchestrator and normal/Plan reasoning defaults.
   global list          Show model settings, routing status, and custom agents.
+  global projects      Show reconciliation status for registered projects.
   global uninstall     Restore managed config values and remove package-owned files.
   project init         Initialize project files after checking the latest npm release.
   project sync         Refresh the template after checking the latest npm release.
@@ -45,7 +47,7 @@ Options by command:
     --reasoning-effort LEVEL       Set normal reasoning effort (default: low).
     --plan-reasoning-effort LEVEL  Set Plan-mode reasoning effort (default: low).
 
-  global list, global uninstall
+  global list, global projects, global uninstall
     --codex-home PATH  Use a Codex home other than CODEX_HOME or ~/.codex.
 
   project init, project sync
@@ -86,6 +88,8 @@ export async function main(
 	else if (scope === "global" && action === "configure")
 		configureGlobal(options);
 	else if (scope === "global" && action === "list") listGlobal(options);
+	else if (scope === "global" && action === "projects")
+		listProjectsGlobal(options);
 	else if (scope === "global" && action === "uninstall")
 		uninstallGlobal(options);
 	else if (scope === "project" && (action === "init" || action === "sync"))

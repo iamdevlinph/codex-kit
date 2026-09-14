@@ -18,6 +18,8 @@ import {
 	ROUTING_FILE,
 	ROUTING_HOOK_FILE,
 } from "../package.js";
+import { evaluateProjectStatus } from "../project/commands.js";
+import { registeredProjects } from "../project/registry.js";
 import {
 	configureGlobal,
 	restoreConfig,
@@ -243,6 +245,25 @@ export function listGlobal(options: Options): void {
 		console.log(
 			`  ${field("name")} — ${field("model")}, ${field("model_reasoning_effort")} (${managed.has(file) ? "managed" : "unmanaged"})`,
 		);
+	}
+}
+
+export function listProjectsGlobal(options: Options): void {
+	console.log(`Codex home: ${options.codexHome}`);
+	console.log("Projects:");
+	const projects = registeredProjects(options.codexHome);
+	if (!projects.length) {
+		console.log("  (none)");
+		return;
+	}
+	for (const project of projects) {
+		try {
+			console.log(`  ${project} — ${evaluateProjectStatus(project).status}`);
+		} catch (error) {
+			console.log(
+				`  ${project} — unavailable: ${error instanceof Error ? error.message : String(error)}`,
+			);
+		}
 	}
 }
 

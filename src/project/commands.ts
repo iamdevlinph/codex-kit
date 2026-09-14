@@ -4,6 +4,7 @@ import type { Options } from "../cli/options.js";
 import { isRecord, read, readText, sha256, write } from "../files.js";
 import { PACKAGE, RECONCILE_SKILL, TEMPLATE_FILE } from "../package.js";
 import { compareVersions, getLatestVersion } from "../version.js";
+import { registerProject } from "./registry.js";
 
 interface ProjectState {
 	version: number;
@@ -139,13 +140,20 @@ export async function syncProject(
 	}
 	const needsInitialization =
 		readText(agentsFile).trim() === PROJECT_SCAFFOLD.trim();
+	registerProject(options.codexHome, cwd);
 	console.log(
 		needsInitialization ? initializationPrompt() : reconciliationPrompt(),
 	);
 }
 
-export function projectStatus(options: Options): void {
-	const { cwd } = options;
+interface ProjectStatus {
+	availableHash?: string | null;
+	availableVersion?: string;
+	appliedHash?: string;
+	status: string;
+}
+
+export function evaluateProjectStatus(cwd: string): ProjectStatus {
 	requireDirectory(cwd);
 	const stagedTemplate = join(cwd, "TEMPLATE_AGENTS.md");
 	const state = loadProjectState(cwd);
@@ -153,32 +161,47 @@ export function projectStatus(options: Options): void {
 	const localHash = existsSync(stagedTemplate)
 		? sha256(read(stagedTemplate))
 		: null;
-	console.log(`Project: ${cwd}`);
 	if (!localHash) {
-		console.log("Status: not initialized (run codex-kit project sync)");
-		return;
+		return { status: "not initialized (run codex-kit project sync)" };
 	}
+	const details = {
+		availableHash,
+		availableVersion: state.template.availableVersion ?? "unknown",
+		appliedHash: state.template.appliedHash ?? "never",
+	};
 	if (!existsSync(join(cwd, "AGENTS.md"))) {
-		console.log("Status: AGENTS.md missing (reconcile the template first)");
+		return { status: "AGENTS.md missing (reconcile the template first)" };
+	}
+	if (sha256(read(TEMPLATE_FILE)) !== availableHash) {
+		return {
+			...details,
+			status: "kit template update available; run project sync",
+		};
+	}
+	if (localHash !== availableHash) {
+		return {
+			...details,
+			status: "local template changed; review it before syncing",
+		};
+	}
+	if (state.template.appliedHash !== localHash) {
+		return { ...details, status: "reconciliation required" };
+	}
+	return { ...details, status: "up to date" };
+}
+
+export function projectStatus(options: Options): void {
+	const status = evaluateProjectStatus(options.cwd);
+	console.log(`Project: ${options.cwd}`);
+	if (!status.availableVersion) {
+		console.log(`Status: ${status.status}`);
 		return;
 	}
 	console.log(
-		`Available: ${state.template.availableVersion ?? "unknown"} (${availableHash ?? "untracked"})`,
+		`Available: ${status.availableVersion} (${status.availableHash ?? "untracked"})`,
 	);
-	console.log(`Applied:   ${state.template.appliedHash ?? "never"}`);
-	if (sha256(read(TEMPLATE_FILE)) !== availableHash) {
-		console.log("Status: kit template update available; run project sync");
-		return;
-	}
-	if (localHash !== availableHash) {
-		console.log("Status: local template changed; review it before syncing");
-		return;
-	}
-	if (state.template.appliedHash !== localHash) {
-		console.log("Status: reconciliation required");
-		return;
-	}
-	console.log("Status: up to date");
+	console.log(`Applied:   ${status.appliedHash}`);
+	console.log(`Status: ${status.status}`);
 }
 
 export function markApplied(options: Options): void {

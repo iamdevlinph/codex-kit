@@ -6,6 +6,7 @@ test("help describes every command", () => {
 		"global install",
 		"global configure",
 		"global list",
+		"global projects",
 		"global uninstall",
 		"project init",
 		"project sync",
@@ -28,7 +29,10 @@ test("help describes every command", () => {
 	assert.match(help, /Restore managed config values/);
 	assert.match(help, /Options by command:/);
 	assert.match(help, /global install\n\s+--codex-home PATH[^\n]+\n\s+--force/);
-	assert.match(help, /global list, global uninstall\n\s+--codex-home PATH/);
+	assert.match(
+		help,
+		/global list, global projects, global uninstall\n\s+--codex-home PATH/,
+	);
 	assert.match(help, /project init, project sync\n\s+--cwd PATH/);
 	assert.doesNotMatch(
 		help,

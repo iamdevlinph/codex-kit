@@ -163,6 +163,13 @@ commands back up `config.toml` and store the original managed values in
 installer state so
 `global uninstall` can restore them without rolling back unrelated later edits.
 
+Successful `project init` and `project sync` calls atomically register the
+canonical project path under `$CODEX_HOME/codex-kit/projects/`. `global
+projects` reads those records and applies the same offline status evaluation as
+`project status`; it does not query npm, scan for historical projects, or stop
+when one registered path is unavailable. Installer state does not own the
+registry, so global install and uninstall preserve it.
+
 Global routing keeps the Sol root as planner/orchestrator. The routing file maps
 task shapes to exact agent roles; each role's TOML independently selects its
 model and reasoning effort. In formal Plan mode, the read-only `planner` agent

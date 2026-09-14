@@ -19,7 +19,10 @@ import { syncProject } from "./commands.js";
 
 function runProject(args: string[], cwd: string, latest = PACKAGE.version) {
 	return run(args, {
-		env: { CODEX_KIT_LATEST_VERSION: latest },
+		env: {
+			CODEX_HOME: join(cwd, ".codex-test-home"),
+			CODEX_KIT_LATEST_VERSION: latest,
+		},
 		cwd,
 	});
 }
