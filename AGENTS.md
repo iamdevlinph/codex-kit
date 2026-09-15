@@ -99,6 +99,11 @@
 
 ## Change requirements
 
+- Before final validation of completed package, template, build, or
+  release-workflow changes, use the repository-local `codex-kit-release` skill
+  to classify the SemVer impact, replace latest-only release notes when
+  releasable, and update `package.json`. Documentation/instruction-only changes
+  use `none` and preserve both files.
 - Keep public CLI usage in `README.md` and development, publishing, and
   template-promotion instructions in `MAINTAINERS.md`. Keep both synchronized
   with behavior changes.

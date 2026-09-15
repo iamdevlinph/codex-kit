@@ -56,6 +56,19 @@ test("publishing targets public npm through trusted publishing", () => {
 	assert.match(workflow, /id-token: write/);
 	assert.match(workflow, /registry-url: https:\/\/registry\.npmjs\.org/);
 	assert.match(workflow, /npm publish --access public/);
+	assert.match(workflow, /fetch-depth: 0/);
+	assert.match(
+		workflow,
+		/node \.agents\/skills\/codex-kit-release\/release\.mjs validate-tag/,
+	);
+	assert.match(workflow, /release:\n {4}needs: publish/);
+	assert.match(workflow, /release edit[\s\S]*--notes-file RELEASE_NOTES\.md/);
+	assert.match(workflow, /release create[\s\S]*--notes-file RELEASE_NOTES\.md/);
+	assert.match(
+		workflow,
+		/publish:[\s\S]*permissions:\n {6}contents: read\n {6}id-token: write/,
+	);
+	assert.match(workflow, /release:[\s\S]*permissions:\n {6}contents: write/);
 	assert.doesNotMatch(
 		workflow,
 		/NODE_AUTH_TOKEN|NPM_TOKEN|npm\.pkg\.github\.com/,

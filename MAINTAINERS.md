@@ -87,9 +87,11 @@ newer, and npm 11.5.1 or newer. The current workflow uses Node 24 and npm 11.5.1
 
 ## Publish a release
 
-Before versioning:
+Prepare the version and latest-only release notes with the repository-local
+`codex-kit-release` skill, then validate:
 
 ```sh
+node .agents/skills/codex-kit-release/release.mjs bump patch # or minor/major
 pnpm run typecheck
 pnpm test
 pnpm run pack:check
@@ -107,18 +109,24 @@ Inspect the dry-run contents. They should contain only:
 - `package.json`
 - `README.md`
 
-`MAINTAINERS.md`, `AGENTS.md`, `src/`, tests, lockfiles, generated test output,
+`MAINTAINERS.md`, `AGENTS.md`, `RELEASE_NOTES.md`, the repository-local
+`codex-kit-release` skill, `src/`, tests, lockfiles, generated test output,
 credentials, and local backups must not appear.
 
-Create and push the version commit and tag:
+After reviewing the prepared version and notes, explicitly authorize and create
+the release commit and matching tag, then push:
 
 ```sh
-pnpm version patch # use minor or major when appropriate
+git add package.json RELEASE_NOTES.md
+git commit -m "v<version>"
+git tag v<version>
 git push origin main --follow-tags
 ```
 
-The tag must match `package.json` as `v<version>`. The workflow checks this
-before publishing.
+The workflow checks that the tag matches `package.json`, the version is one
+SemVer increment from the previous tag, and latest-only `RELEASE_NOTES.md` is
+non-empty and changed. It publishes npm first, then creates or updates the
+public GitHub Release from the complete notes file.
 
 If a workflow fails because of external configuration and no source change is
 needed, rerun the failed job. A rerun uses the original tag and commit. If code

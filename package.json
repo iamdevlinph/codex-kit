@@ -1,6 +1,6 @@
 {
 	"name": "@iamdevlinph/codex-kit",
-	"version": "1.3.1",
+	"version": "1.4.0",
 	"description": "Portable Codex subagents and project AGENTS.md defaults.",
 	"type": "module",
 	"bin": {
@@ -16,7 +16,7 @@
 	"scripts": {
 		"build": "pnpm exec tsc -p tsconfig.json --noEmit && node scripts/build.mjs",
 		"typecheck": "pnpm exec tsc -p tsconfig.json --noEmit && pnpm exec tsc -p tsconfig.test.json --noEmit",
-		"test": "pnpm run build && pnpm exec vitest run",
+		"test": "pnpm run build && pnpm exec vitest run && node --test .agents/skills/codex-kit-release/release.node-test.mjs",
 		"prepack": "pnpm run build",
 		"pack:check": "pnpm pack --dry-run",
 		"format": "biome check --write .",

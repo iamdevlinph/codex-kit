@@ -1,0 +1,2 @@
+- Add repository-guided semantic version preparation with validated latest-only release notes.
+- Publish npm packages before creating or updating the matching public GitHub Release.
