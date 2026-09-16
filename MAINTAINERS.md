@@ -113,25 +113,26 @@ Inspect the dry-run contents. They should contain only:
 `codex-kit-release` skill, `src/`, tests, lockfiles, generated test output,
 credentials, and local backups must not appear.
 
-After reviewing the prepared version and notes, explicitly authorize and create
-the release commit and matching tag, then push:
+After reviewing the prepared version and notes, explicitly authorize and push
+the release commit to `main`:
 
 ```sh
 git add package.json RELEASE_NOTES.md
 git commit -m "v<version>"
-git tag v<version>
-git push origin main --follow-tags
+git push origin main
 ```
 
-The workflow checks that the tag matches `package.json`, the version is one
-SemVer increment from the previous tag, and latest-only `RELEASE_NOTES.md` is
-non-empty and changed. It publishes npm first, then creates or updates the
-public GitHub Release from the complete notes file.
+The workflow checks that the version is one SemVer increment from the previous
+tag and latest-only `RELEASE_NOTES.md` is non-empty and changed. After all checks
+pass, it creates the immutable matching tag, publishes npm, then creates or
+updates the public GitHub Release from the complete notes file. A push whose
+version tag belongs to an ancestor skips cleanly.
 
 If a workflow fails because of external configuration and no source change is
-needed, rerun the failed job. A rerun uses the original tag and commit. If code
-or workflow changes are required, publish a new version unless the failed tag
-was never released and is intentionally deleted and recreated.
+needed, rerun the failed job. If the tag already targets the tested commit, the
+workflow reuses it; if npm already contains the version, it continues with the
+GitHub Release. A manual push of the matching `v*` tag remains the recovery path.
+The workflow never moves an existing tag.
 
 ## Promote a reusable guideline
 

@@ -40,6 +40,17 @@ function gitShow(revision, path) {
 	}
 }
 
+function git(...args) {
+	try {
+		return execFileSync("git", args, {
+			encoding: "utf8",
+			stdio: ["ignore", "pipe", "ignore"],
+		}).trim();
+	} catch {
+		return undefined;
+	}
+}
+
 function manifest(source, label) {
 	let value;
 	try {
@@ -114,6 +125,43 @@ export function validateTag(tag, previousTag) {
 	return current;
 }
 
+export function releaseState(expectedTag) {
+	const current = manifest(
+		readFileSync("package.json", "utf8"),
+		"package.json",
+	).version;
+	const tag = `v${current}`;
+	if (expectedTag && expectedTag !== tag)
+		fail(`tag ${expectedTag} does not match package.json version ${current}`);
+	const head = git("rev-parse", "HEAD");
+	if (!head) fail("HEAD is required");
+	const taggedCommit = git("rev-parse", `${tag}^{commit}`);
+	if (taggedCommit && taggedCommit !== head) {
+		if (git("merge-base", "--is-ancestor", taggedCommit, head) !== undefined) {
+			const taggedVersion = manifest(
+				gitShow(tag, "package.json"),
+				`${tag}:package.json`,
+			).version;
+			if (taggedVersion !== current)
+				fail(`tag ${tag} contains package.json version ${taggedVersion}`);
+			releaseNotes();
+			return { state: "skip", tag };
+		}
+		fail(`tag ${tag} does not point to HEAD`);
+	}
+	const previousTag = git(
+		"describe",
+		"--tags",
+		"--match",
+		"v*",
+		"--abbrev=0",
+		"HEAD^",
+	);
+	if (!previousTag) fail("a previous v* release tag is required");
+	validateTag(tag, previousTag);
+	return { state: taggedCommit ? "retry" : "new", tag };
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
 	try {
 		const [, , command, first, second] = process.argv;
@@ -121,9 +169,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 		if (command === "bump") version = bump(first);
 		else if (command === "validate-tag" && first && second)
 			version = validateTag(first, second);
-		else
+		else if (command === "release-state") {
+			const release = releaseState(first);
+			console.log(`state=${release.state}`);
+			version = `tag=${release.tag}`;
+		} else
 			fail(
-				"usage: release.mjs bump <kind> | validate-tag <tag> <previous-tag>",
+				"usage: release.mjs bump <kind> | validate-tag <tag> <previous-tag> | release-state",
 			);
 		console.log(version);
 	} catch (error) {

@@ -46,7 +46,7 @@
 		"husky": "9.1.7",
 		"lint-staged": "17.0.8",
 		"typescript": "7.0.1-rc",
-		"vitest": "4.1.10"
+		"vitest": "4.1.11"
 	},
 	"packageManager": "pnpm@11.5.2",
 	"license": "ISC",

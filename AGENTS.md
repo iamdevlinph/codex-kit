@@ -95,7 +95,8 @@
   merge into or replace a project's `AGENTS.md`.
 - `project mark-applied` is bookkeeping only; it must not claim to validate the
   semantic merge or modify project instructions.
-- Do not add a `commit-pusher` role or automate Git publishing.
+- Do not add a `commit-pusher` role or automate Git publishing outside the
+  validated `.github/workflows/publish.yml` release flow.
 
 ## Change requirements
 
@@ -142,7 +143,8 @@
 - A template update requires a new package release before downstream
   `project sync` commands can receive it.
 - The release tag must match `package.json` as `v<version>`.
-- Never commit, tag, push, publish, or create a release unless the user explicitly
-  requests that operation in the current task.
+- Never commit, tag, push, publish, or create a release interactively unless the
+  user explicitly requests that operation in the current task. The validated
+  release workflow may perform those actions after an authorized push to `main`.
 - Never store credentials, npm tokens, or personal access tokens in this
   repository.

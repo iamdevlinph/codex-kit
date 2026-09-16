@@ -2,3 +2,5 @@
 - Expand reconciliation and initialization audits to classify existing and incoming guidance, preserve local adaptations, and validate narrow workflow routing.
 - Shorten project prompts so the packaged reconciliation skill owns semantic restructuring, with updated upgrade and global-refresh guidance.
 - Add read-only `project audit` prompting and an explicit-only audit skill managed by global install, list, and uninstall.
+- Update Vitest to `4.1.11` to resolve its development-server security advisory.
+- Automatically validate, tag, publish, and create the GitHub Release for release-ready pushes to `main`.

@@ -2,19 +2,79 @@ name: Publish package
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
 
+concurrency:
+  group: publish-package
+  cancel-in-progress: false
+
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      state: ${{ steps.release.outputs.state }}
+      tag: ${{ steps.release.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: release
+        name: Resolve release state
+        env:
+          PUSHED_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+        run: node .agents/skills/codex-kit-release/release.mjs release-state "$PUSHED_TAG" >> "$GITHUB_OUTPUT"
+      - uses: pnpm/action-setup@v4
+        if: steps.release.outputs.state != 'skip'
+        with:
+          version: 11.5.2
+      - uses: actions/setup-node@v6
+        if: steps.release.outputs.state != 'skip'
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - if: steps.release.outputs.state != 'skip'
+        run: npm install --global npm@11.5.1
+      - if: steps.release.outputs.state != 'skip'
+        run: pnpm install --frozen-lockfile
+      - if: steps.release.outputs.state != 'skip'
+        run: pnpm run typecheck
+      - if: steps.release.outputs.state != 'skip'
+        run: pnpm test
+      - if: steps.release.outputs.state != 'skip'
+        run: pnpm run pack:check
+
+  tag:
+    needs: prepare
+    if: needs.prepare.outputs.state != 'skip'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Create release tag
+        if: needs.prepare.outputs.state == 'new'
+        env:
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          git tag "$RELEASE_TAG" "$GITHUB_SHA"
+          git push origin "refs/tags/$RELEASE_TAG"
+
   publish:
+    needs: [prepare, tag]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
       - uses: pnpm/action-setup@v4
         with:
           version: 11.5.2
@@ -25,16 +85,13 @@ jobs:
           package-manager-cache: false
       - run: npm install --global npm@11.5.1
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run typecheck
-      - run: pnpm test
-      - name: Validate release version and notes
-        run: |
-          previous_tag=$(git describe --tags --abbrev=0 "$GITHUB_REF_NAME^")
-          node .agents/skills/codex-kit-release/release.mjs validate-tag "$GITHUB_REF_NAME" "$previous_tag"
-      - run: npm publish --access public
+      - name: Publish if absent from npm
+        env:
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: npm view "@iamdevlinph/codex-kit@${RELEASE_TAG#v}" version >/dev/null 2>&1 || npm publish --access public
 
   release:
-    needs: publish
+    needs: [prepare, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -43,9 +100,10 @@ jobs:
       - name: Create or update GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
         run: |
-          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
-            gh release edit "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file RELEASE_NOTES.md
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" --title "$RELEASE_TAG" --notes-file RELEASE_NOTES.md
           else
-            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file RELEASE_NOTES.md
+            gh release create "$RELEASE_TAG" --title "$RELEASE_TAG" --notes-file RELEASE_NOTES.md
           fi

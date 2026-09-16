@@ -57,13 +57,27 @@ test("publishing targets public npm through trusted publishing", () => {
 	assert.match(workflow, /registry-url: https:\/\/registry\.npmjs\.org/);
 	assert.match(workflow, /npm publish --access public/);
 	assert.match(workflow, /fetch-depth: 0/);
+	assert.match(workflow, /branches:\n {6}- main/);
+	assert.match(workflow, /tags:\n {6}- "v\*"/);
+	assert.match(workflow, /concurrency:[\s\S]*cancel-in-progress: false/);
+	assert.match(workflow, /release\.mjs release-state/);
+	assert.match(workflow, /PUSHED_TAG:.*github\.ref_name/);
+	assert.match(workflow, /if: steps\.release\.outputs\.state != 'skip'/);
+	assert.match(workflow, /tag:[\s\S]*needs: prepare/);
+	assert.match(workflow, /publish:[\s\S]*needs: \[prepare, tag\]/);
+	assert.match(workflow, /release:[\s\S]*needs: \[prepare, publish\]/);
+	assert.match(workflow, /git tag "\$RELEASE_TAG" "\$GITHUB_SHA"/);
+	assert.match(workflow, /git push origin "refs\/tags\/\$RELEASE_TAG"/);
 	assert.match(
 		workflow,
-		/node \.agents\/skills\/codex-kit-release\/release\.mjs validate-tag/,
+		/RELEASE_TAG: \$\{\{ needs\.prepare\.outputs\.tag \}\}/,
 	);
-	assert.match(workflow, /release:\n {4}needs: publish/);
 	assert.match(workflow, /release edit[\s\S]*--notes-file RELEASE_NOTES\.md/);
 	assert.match(workflow, /release create[\s\S]*--notes-file RELEASE_NOTES\.md/);
+	assert.match(
+		workflow,
+		/prepare:[\s\S]*permissions:\n {6}contents: read[\s\S]*tag:/,
+	);
 	assert.match(
 		workflow,
 		/publish:[\s\S]*permissions:\n {6}contents: read\n {6}id-token: write/,
