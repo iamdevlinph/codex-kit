@@ -12,18 +12,9 @@ export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const ASSETS = join(ROOT, "assets");
 export const AGENTS_DIR = join(ASSETS, "agents");
 export const SKILLS_DIR = join(ASSETS, "skills");
+export const AUDIT_SKILL = "codex-kit-audit-agents";
 export const RECONCILE_SKILL = "codex-kit-reconcile-agents";
-export const RECONCILE_SKILL_FILE = join(
-	SKILLS_DIR,
-	RECONCILE_SKILL,
-	"SKILL.md",
-);
-export const RECONCILE_SKILL_METADATA_FILE = join(
-	SKILLS_DIR,
-	RECONCILE_SKILL,
-	"agents",
-	"openai.yaml",
-);
+export const MANAGED_SKILLS = [AUDIT_SKILL, RECONCILE_SKILL] as const;
 export const ROUTING_FILE = join(ASSETS, "SUBAGENT_ROUTING.md");
 export const ROUTING_HOOK_FILE = join(ROOT, "bin", "routing-hook.js");
 export const TEMPLATE_FILE = join(ASSETS, "TEMPLATE_AGENTS.md");

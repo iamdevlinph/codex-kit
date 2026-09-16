@@ -11,6 +11,7 @@ test("help describes every command", () => {
 		"global uninstall",
 		"project init",
 		"project sync",
+		"project audit",
 		"project status",
 		"project mark-applied",
 		"project register",
@@ -36,6 +37,10 @@ test("help describes every command", () => {
 		/global list, global projects, global projects remove, global uninstall\n\s+--codex-home PATH/,
 	);
 	assert.match(help, /project init, project sync\n\s+--cwd PATH/);
+	assert.match(
+		help,
+		/project audit, project status, project mark-applied\n\s+--cwd PATH/,
+	);
 	assert.match(
 		help,
 		/project register\n\s+--cwd PATH[^\n]+\n\s+--codex-home PATH/,

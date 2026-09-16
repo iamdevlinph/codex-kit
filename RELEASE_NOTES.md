@@ -1,2 +1,4 @@
-- Add repository-guided semantic version preparation with validated latest-only release notes.
-- Publish npm packages before creating or updating the matching public GitHub Release.
+- Add task-scoped downstream guidance that keeps universal safeguards in `AGENTS.md` and loads detailed project skills and references only when relevant.
+- Expand reconciliation and initialization audits to classify existing and incoming guidance, preserve local adaptations, and validate narrow workflow routing.
+- Shorten project prompts so the packaged reconciliation skill owns semantic restructuring, with updated upgrade and global-refresh guidance.
+- Add read-only `project audit` prompting and an explicit-only audit skill managed by global install, list, and uninstall.

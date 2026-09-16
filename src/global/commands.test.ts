@@ -124,6 +124,25 @@ test("global install and uninstall manage only package-owned files", () => {
 			"agents",
 			"openai.yaml",
 		);
+		const auditSkill = join(
+			home,
+			"skills",
+			"codex-kit-audit-agents",
+			"SKILL.md",
+		);
+		const auditSkillMetadata = join(
+			home,
+			"skills",
+			"codex-kit-audit-agents",
+			"agents",
+			"openai.yaml",
+		);
+		assert.match(readFileSync(auditSkill, "utf8"), /unambiguous cleanup/);
+		assert.match(readFileSync(auditSkill, "utf8"), /Never run `project sync`/);
+		assert.match(
+			readFileSync(auditSkillMetadata, "utf8"),
+			/allow_implicit_invocation: false/,
+		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
 			/semantic|reconcile/i,
@@ -146,7 +165,23 @@ test("global install and uninstall manage only package-owned files", () => {
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/available skill validator/,
+			/available skill\s+validator/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/read only the applicable project skills and the references/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/Each `SKILL\.md` must\s+state exactly when to read each reference/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/test-only work loads testing\s+guidance but not styling guidance/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/release or deployment guidance loads only when requested or required/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
@@ -305,6 +340,8 @@ test("global install and uninstall manage only package-owned files", () => {
 		assert.equal(existsSync(join(home, "codex-kit", "routing-hook.js")), false);
 		assert.equal(existsSync(reconciliationSkill), false);
 		assert.equal(existsSync(reconciliationSkillMetadata), false);
+		assert.equal(existsSync(auditSkill), false);
+		assert.equal(existsSync(auditSkillMetadata), false);
 		assert.equal(
 			existsSync(join(home, "skills", "codex-kit-reconcile-agents")),
 			false,
@@ -313,27 +350,32 @@ test("global install and uninstall manage only package-owned files", () => {
 		rmSync(root, { recursive: true, force: true });
 	}
 });
-test("global install restores a replaced user reconciliation skill on uninstall", () => {
-	const root = mkdtempSync(join(tmpdir(), "codex-kit-user-skill-"));
-	const home = join(root, ".codex");
-	const skillDir = join(home, "skills", "codex-kit-reconcile-agents");
-	const skill = join(skillDir, "SKILL.md");
-	try {
-		mkdirSync(skillDir, { recursive: true });
-		writeFileSync(skill, "# User reconciliation skill\n");
-		const preserved = run(["global", "install", "--codex-home", home]);
-		assert.match(preserved.stderr, /preserved modified or pre-existing file/);
-		assert.equal(readFileSync(skill, "utf8"), "# User reconciliation skill\n");
+for (const [name, expected] of [
+	["codex-kit-reconcile-agents", /codex-kit project mark-applied/],
+	["codex-kit-audit-agents", /unambiguous cleanup/],
+] as const) {
+	test(`global install restores a replaced user ${name} skill on uninstall`, () => {
+		const root = mkdtempSync(join(tmpdir(), "codex-kit-user-skill-"));
+		const home = join(root, ".codex");
+		const skillDir = join(home, "skills", name);
+		const skill = join(skillDir, "SKILL.md");
+		try {
+			mkdirSync(skillDir, { recursive: true });
+			writeFileSync(skill, "# User skill\n");
+			const preserved = run(["global", "install", "--codex-home", home]);
+			assert.match(preserved.stderr, /preserved modified or pre-existing file/);
+			assert.equal(readFileSync(skill, "utf8"), "# User skill\n");
 
-		run(["global", "install", "--codex-home", home, "--force"]);
-		assert.match(readFileSync(skill, "utf8"), /codex-kit project mark-applied/);
-		run(["global", "uninstall", "--codex-home", home]);
-		assert.equal(readFileSync(skill, "utf8"), "# User reconciliation skill\n");
-		assert.equal(existsSync(join(skillDir, "agents", "openai.yaml")), false);
-	} finally {
-		rmSync(root, { recursive: true, force: true });
-	}
-});
+			run(["global", "install", "--codex-home", home, "--force"]);
+			assert.match(readFileSync(skill, "utf8"), expected);
+			run(["global", "uninstall", "--codex-home", home]);
+			assert.equal(readFileSync(skill, "utf8"), "# User skill\n");
+			assert.equal(existsSync(join(skillDir, "agents", "openai.yaml")), false);
+		} finally {
+			rmSync(root, { recursive: true, force: true });
+		}
+	});
+}
 
 test("global list summarizes model, routing, agents, and kit ownership", () => {
 	const root = mkdtempSync(join(tmpdir(), "codex-kit-list-"));
@@ -348,6 +390,7 @@ test("global list summarizes model, routing, agents, and kit ownership", () => {
 		assert.match(result.stdout, /Global routing: installed/);
 		assert.match(result.stdout, /Routing hook: installed/);
 		assert.match(result.stdout, /Reconciliation skill: installed/);
+		assert.match(result.stdout, /Audit skill: installed/);
 		assert.match(
 			result.stdout,
 			/code-explorer — gpt-5\.6-terra, medium \(managed\)/,

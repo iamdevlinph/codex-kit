@@ -10,6 +10,9 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md
 1. Inspect `AGENTS.md`, any existing `PLANS.md`, `TEMPLATE_AGENTS.md`,
    `.codex-kit-state.json`, the project's existing `.agents/skills`, and
    `codex-kit project status`. Record the initial status before making changes.
+   Before loading detailed guides, classify the requested work and its required
+   validation, then read only the applicable project skills and the references
+   those skills explicitly require for that branch.
 2. Preserve the existing `AGENTS.md` and `PLANS.md` organization and all
    project-specific adaptations. Merge only reusable template guidance that
    applies to this repository; report conflicts between local and template
@@ -24,15 +27,30 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md
    `AGENTS.md` into `PLANS.md`, keeping it concise rather than turning it into a
    per-change changelog. Report whether `PLANS.md` was preserved, created, or
    updated and why.
-5. Extract only concrete, conditional, repeatable project procedures into a
-   focused skill under `.agents/skills/<skill-name>/SKILL.md`. Preserve relevant
-   existing skills, use valid YAML frontmatter, and do not create speculative
-   skills or duplicate detailed instructions.
-6. Review the final instruction diff for preserved local rules, duplicates, and
-   unintended template edits. Validate every created or modified project skill
-   with an available skill validator and run the repository's documented checks.
-   Do not mark the template applied until reconciliation and validation succeed.
-7. Never run `codex-kit project sync` on the user's behalf or recommend it for
+5. Audit both existing project guidance and incoming template guidance by task
+   relevance. Keep universal rules and critical safeguards in `AGENTS.md`;
+   extract concrete, conditional, repeatable procedures into narrowly triggered
+   project skills under `.agents/skills/<skill-name>/SKILL.md`. Prefer an
+   applicable existing skill and create one only when repository evidence shows
+   a real repeatable workflow. Review broad skills for mixed responsibilities;
+   split independently triggered workflows or route substantial conditional
+   branches to separate skill-owned Markdown references. Each `SKILL.md` must
+   state exactly when to read each reference. Never substitute a bare link for
+   the actionable routing or safety rule or duplicate detailed instructions, and
+   do not create speculative skills, including generic testing or styling skills.
+6. Check representative, non-exhaustive routing scenarios before finalizing:
+   test-only work loads testing guidance but not styling guidance; styling-only
+   work does the inverse; visual-regression work may load both; unrelated tooling
+   loads neither; and
+   release or deployment guidance loads only when requested or required. Mixed
+   requests may select multiple skills. Information already read in the current
+   conversation need not be removed from its history.
+7. Review the final instruction diff for preserved local rules, duplicates,
+   broad triggers, missing reference-read conditions, and unintended template
+   edits. Validate every created or modified project skill with an available skill
+   validator and run the repository's documented checks. Do not mark the
+   template applied until reconciliation and validation succeed.
+8. Never run `codex-kit project sync` on the user's behalf or recommend it for
    an unreleased local template edit. The user should run `project sync` only
    after updating codex-kit to a released version containing the template
    change. Run `codex-kit project mark-applied` only when the task follows a
@@ -40,7 +58,7 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md
    recorded in step 1 was `reconciliation required`, and reconciliation and
    validation succeeded. Otherwise leave project state unchanged and report the
    remaining release, codex-kit update, user-run sync, and reconciliation steps.
-8. Summarize added, updated, skipped, adapted, and skill-moved guidance, with
+9. Summarize added, updated, skipped, adapted, and skill-moved guidance, with
    reasons. Identify genuinely reusable, generalized changes that should be
    promoted to codex-kit's canonical template and report the target section and
    wording.

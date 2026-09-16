@@ -208,9 +208,9 @@ two minutes without output unless project guidance documents a longer runtime.
 Never run matching parent and worker validation concurrently.
 
 `global install` merges only codex-kit's handlers into `~/.codex/hooks.json` and
-preserves unrelated handlers. It also installs the package-owned
-`codex-kit-reconcile-agents` skill under `~/.codex/skills`; list reports its
-status, and uninstall removes/restores it according to recorded ownership.
+preserves unrelated handlers. It also installs the package-owned reconciliation
+and explicit-only audit skills under `~/.codex/skills`; list reports each status,
+and uninstall removes/restores them according to recorded ownership.
 Keep routing generic and role-based rather than referring to a model in the
 policy.
 New or changed command hooks require Codex's normal one-time trust review and a
@@ -230,14 +230,14 @@ pnpm dlx @iamdevlinph/codex-kit@latest project sync --cwd /path/to/project
 
 `project sync` updates only `TEMPLATE_AGENTS.md` and project state. It never
 edits `AGENTS.md`, `PLANS.md`, or `.agents/skills`; its printed reconciliation
-prompt asks Codex to invoke `codex-kit-reconcile-agents` and semantically
-reconcile any applicable instruction or skill changes. The skill preserves
-local adaptations, preserves or conditionally creates `PLANS.md` from
-evidence-backed durable decisions, roadmap/status, and resume-worthy milestones,
-keeps critical always-on rules in `AGENTS.md`, extracts only concrete
-conditional procedures, validates before marking applied, and does not copy the
-complete template or introduce managed markers. The CLI itself continues to
-create only its current scaffold and state files.
+prompt briefly asks Codex to invoke `codex-kit-reconcile-agents`; the skill owns
+the semantic instruction-architecture audit. It classifies existing and incoming
+guidance by task relevance, preserves local adaptations and critical always-on
+rules, routes repeatable conditional procedures through narrowly triggered
+skills and selectively read references, preserves or conditionally creates
+`PLANS.md` from evidence-backed durable content, and validates before marking
+applied. The CLI itself continues to create only its current scaffold and state
+files.
 Before either `project init` or `project sync` writes, it must verify the
 installed package against the latest npm metadata. Stale builds, registry
 failures, and malformed metadata fail closed. Stale builds print installed and
@@ -249,8 +249,16 @@ it does not merge the reusable template automatically. Missing or untouched
 scaffold instructions produce a delimited initialization prompt that first
 requires enough repository evidence for reliable project-specific guidance.
 Existing guidance produces a separately delimited reconciliation prompt for
-`AGENTS.md` and `TEMPLATE_AGENTS.md`. Both prompts tell the user exactly what to
-send to Codex.
+`AGENTS.md` and `TEMPLATE_AGENTS.md`. Both prompts invoke the packaged
+reconciliation skill without duplicating its procedure. Downstream users must upgrade codex-kit and
+refresh the global installation before syncing to receive both the enhanced
+skill and template.
+
+`project audit` is separate and read-only: it validates only the target
+directory, then prints a marked prompt invoking `$codex-kit-audit-agents`. It
+must not contact npm, inspect project state, register the project, or write any
+file. Users may run it deliberately after substantial instruction changes or on
+an optional biweekly/monthly cadence; it is never an always-on workflow.
 
 ## Verification
 

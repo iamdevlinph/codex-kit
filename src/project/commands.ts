@@ -2,7 +2,12 @@ import { existsSync, realpathSync, statSync } from "node:fs";
 import { join } from "node:path";
 import type { Options } from "../cli/options.js";
 import { isRecord, read, readText, sha256, write } from "../files.js";
-import { PACKAGE, RECONCILE_SKILL, TEMPLATE_FILE } from "../package.js";
+import {
+	AUDIT_SKILL,
+	PACKAGE,
+	RECONCILE_SKILL,
+	TEMPLATE_FILE,
+} from "../package.js";
 import { compareVersions, getLatestVersion } from "../version.js";
 import { registerProject } from "./registry.js";
 
@@ -44,26 +49,15 @@ function initializationPrompt(): string {
 	return `Project guidance needs initialization. Copy everything between the markers into Codex.
 
 ===== BEGIN CODEX INITIALIZATION PROMPT =====
-Explore this repository before changing code. First determine whether it has a
-substantially scaffolded implementation with enough dependency, configuration,
-script, and source evidence to derive reliable project guidance.
-
-If evidence is insufficient, do not add speculative rules or mark the template
-applied. Report what still needs to be scaffolded, then stop.
-
-If evidence is sufficient, identify the stack, package manager, scripts,
-structure, established patterns, testing tools, and generated files. Add concise
-project-specific guidance to AGENTS.md based only on repository evidence,
-including exact verification commands. Then use the global
-$${RECONCILE_SKILL} skill to merge applicable reusable guidance from
-TEMPLATE_AGENTS.md while preserving AGENTS.md organization and local rules.
-Inspect and preserve any existing PLANS.md. Create or maintain a concise
-PLANS.md only when repository evidence contains real roadmap items, durable
-decisions, or resume-worthy completed work; never invent or backfill speculative
-history. Keep always-on repository instructions in AGENTS.md, move misplaced
-roadmap or history into PLANS.md, and report what PLANS.md work was done.
-Validate the final instruction changes, mark the template applied only after
-validation succeeds, and confirm codex-kit project status is up to date.
+Explore this repository, classify its evidence and task-specific workflows, then
+use the global $${RECONCILE_SKILL} skill to initialize its instruction
+architecture from TEMPLATE_AGENTS.md. Keep AGENTS.md to a concise baseline plus
+routing, preserve critical safeguards and existing PLANS.md content, and do not
+invent guidance without repository evidence. Audit skills and references for
+narrow triggers and selective loading. If the repository is not sufficiently
+scaffolded to support reliable guidance, stop without changing instructions or
+marking the template applied. Otherwise, validate the result and mark applied
+only when the skill's conditions are satisfied.
 ===== END CODEX INITIALIZATION PROMPT =====`;
 }
 
@@ -71,23 +65,10 @@ function reconciliationPrompt(): string {
 	return `Template reference updated. Copy everything between the markers into Codex.
 
 ===== BEGIN CODEX RECONCILIATION PROMPT =====
-Use the global $${RECONCILE_SKILL} skill to reconcile the existing AGENTS.md
-with the refreshed TEMPLATE_AGENTS.md.
-
-Inspect TEMPLATE_AGENTS.md, AGENTS.md, PLANS.md, .codex-kit-state.json,
-existing .agents/skills, and codex-kit project status. Preserve local
-adaptations and AGENTS.md/PLANS.md organization; merge only applicable reusable
-guidance. Preserve an existing PLANS.md, and create or update it only for
-evidence-backed durable decisions, roadmap/status, or resume-worthy milestones.
-Never invent or backfill speculative history. Move misplaced roadmap or history
-out of AGENTS.md, keeping critical always-on safety and authorization rules in
-AGENTS.md. The reconciliation must extract only concrete conditional procedures
-into validated skills. Do not copy the complete template or introduce managed
-markers. Report what PLANS.md content was preserved, created, or changed.
-
-Validate the final instruction changes. Mark applied only after reconciliation
-and validation succeed, confirm codex-kit project status is up to date, then
-report any template-worthy generalized promotion.
+Use the global $${RECONCILE_SKILL} skill to reconcile the existing instruction
+architecture with the refreshed TEMPLATE_AGENTS.md. Run its task-relevance
+audit, preserve local adaptations and critical safeguards, validate the result,
+and mark applied only when the skill's conditions are satisfied.
 ===== END CODEX RECONCILIATION PROMPT =====`;
 }
 
@@ -150,6 +131,19 @@ export function registerProjectCommand(options: Options): void {
 	requireDirectory(options.cwd);
 	registerProject(options.codexHome, options.cwd);
 	console.log(`registered: ${realpathSync(options.cwd)}`);
+}
+
+export function auditProject(options: Options): void {
+	requireDirectory(options.cwd);
+	const project = realpathSync(options.cwd);
+	const quotedProject = JSON.stringify(project);
+	console.log(`Project: ${quotedProject}\n
+===== BEGIN CODEX PROJECT INSTRUCTION AUDIT PROMPT =====
+Use the global $${AUDIT_SKILL} skill to audit the project at ${quotedProject}.
+Review its instruction architecture and repository evidence, apply only
+unambiguous cleanup, preserve safeguards and durable local decisions, and report
+ambiguous improvements instead of guessing. Validate every change.
+===== END CODEX PROJECT INSTRUCTION AUDIT PROMPT =====`);
 }
 
 interface ProjectStatus {

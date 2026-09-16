@@ -8,6 +8,7 @@ import {
 } from "../global/commands.js";
 import { PACKAGE } from "../package.js";
 import {
+	auditProject,
 	markApplied,
 	projectStatus,
 	registerProjectCommand,
@@ -32,6 +33,7 @@ Commands:
   global uninstall     Restore managed config values and remove package-owned files.
   project init         Initialize project files after checking the latest npm release.
   project sync         Refresh the template after checking the latest npm release.
+  project audit        Print an explicit project-instruction audit prompt.
   project status       Show whether template changes still need reconciliation.
   project mark-applied Record the current template as reconciled with AGENTS.md.
   project register     Register a project without changing its files.
@@ -59,7 +61,7 @@ Options by command:
     --cwd PATH  Use a project directory other than the current directory.
                 npm access is required; stale or unverifiable builds fail before writes.
 
-  project status, project mark-applied
+  project audit, project status, project mark-applied
     --cwd PATH  Use a project directory other than the current directory.
 
   project register
@@ -70,6 +72,7 @@ Examples:
   codex-kit global install --force
   codex-kit global configure --reasoning-effort low --plan-reasoning-effort low
   codex-kit project sync --cwd /path/to/project
+  codex-kit project audit --cwd /path/to/project
   codex-kit project status --cwd /path/to/project`);
 }
 
@@ -110,6 +113,7 @@ export async function main(
 	else if (scope === "project" && (action === "init" || action === "sync"))
 		await syncProject(options, action);
 	else if (scope === "project" && action === "status") projectStatus(options);
+	else if (scope === "project" && action === "audit") auditProject(options);
 	else if (scope === "project" && action === "register")
 		registerProjectCommand(options);
 	else if (scope === "project" && action === "mark-applied")

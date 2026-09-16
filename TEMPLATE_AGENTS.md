@@ -26,6 +26,15 @@ product context, and local conventions in the project's active `AGENTS.md`.
 
 ## Instructions And Skills
 
+- Before planning, classify the requested work and select only the project
+  skills and supporting references required for that work and its necessary
+  validation. Do not load every available or linked guide preemptively.
+- Route every task by narrow relevance. Representative examples: testing work
+  uses applicable testing guidance; UI appearance or interaction work uses
+  styling/UI guidance; visual-regression work may require both; unrelated
+  tooling uses neither. Load release or deployment guidance only when that
+  operation is requested or required. Apply the same classification to any
+  other project-specific workflow.
 - Keep `AGENTS.md` focused on durable, always-applicable repository context:
   architecture, conventions, commands, safety and authorization boundaries,
   verification expectations, and concise pointers to specialized workflows.
@@ -45,6 +54,9 @@ product context, and local conventions in the project's active `AGENTS.md`.
   skill.
 - Each project skill must use valid YAML frontmatter with a clear `name` and a
   `description` that states when the skill should trigger.
+- Put substantial conditional detail in a skill-owned Markdown reference only
+  when it improves selective loading. The owning `SKILL.md` must state exactly
+  when to read it; never replace actionable guidance with a bare link.
 
 ## Template Maintenance
 
@@ -89,6 +101,9 @@ including local/template conflicts and any generalized template-worthy
 promotion. Keep critical safety, authorization, secrets, database, deployment,
 and destructive-operation rules always-on in `AGENTS.md`; extract only concrete
 conditional procedures into validated project skills.
+Classify both existing and incoming guidance by task relevance, keep the
+always-on baseline concise, and route conditional detail through narrowly
+triggered skills and selectively read references.
 
 ## Core Behavior
 

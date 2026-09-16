@@ -62,8 +62,9 @@ defaults for coding agents across these themes:
 
 `project init` installs the template as a reference, not as a replacement for
 existing active guidance. During reconciliation, Codex merges only applicable
-rules into the project's `AGENTS.md` and preserves its local organization and
-adaptations.
+rules into a concise `AGENTS.md`, preserves local organization and adaptations,
+and routes repeatable task-specific detail through narrowly triggered project
+skills and selectively read references.
 
 Both `project init` and `project sync` contact the public npm registry before
 writing project files. If the installed CLI is stale, or npm is unreachable or
@@ -86,6 +87,7 @@ stale builds print the exact command.
 | Remove package-managed global files | `codex-kit global uninstall` |
 | Initialize project guidance | `codex-kit project init` |
 | Refresh the project template | `codex-kit project sync` |
+| Print an explicit instruction-audit prompt | `codex-kit project audit` |
 | Check reconciliation status | `codex-kit project status` |
 | Record completed reconciliation | `codex-kit project mark-applied` |
 | Check for a package update | `codex-kit version check` |
@@ -152,18 +154,21 @@ Initialization includes the first template sync. When the CLI prints an
 initialization or reconciliation prompt, copy the complete marked block into a
 Codex task opened at the project root.
 
-After installing a newer package version, refresh the reference template:
+After upgrading the package, refresh the global installation to receive the
+enhanced reconciliation skill, then refresh the project reference template:
 
 ```sh
+pnpm dlx @iamdevlinph/codex-kit@latest global install
 codex-kit project sync
 ```
 
 `project sync` never edits `AGENTS.md`, `PLANS.md`, or project skills. The
-reconciliation skill compares the refreshed template with the project's
-guidance and merges only applicable rules while preserving local organization
-and adaptations. It keeps always-on instructions in `AGENTS.md`, moves durable
-roadmap or history out of that file into `PLANS.md`, and reports any created or
-changed plan content. If
+command stages the packaged template and prints a short prompt invoking the
+reconciliation skill; Codex performs the semantic restructuring. The skill
+classifies existing and incoming guidance by task relevance, keeps universal
+rules and safeguards in `AGENTS.md`, and routes conditional detail through
+focused skills and references. It also moves durable roadmap or history into
+`PLANS.md` and reports any created or changed plan content. If
 `TEMPLATE_AGENTS.md` was modified locally, sync overwrites it with the packaged
 template. Keep always-on local rules in `AGENTS.md` and durable product context
 in `PLANS.md`; recover overwritten template
@@ -178,6 +183,12 @@ codex-kit project mark-applied
 `mark-applied` only updates `.codex-kit-state.json`; it does not validate or
 modify `AGENTS.md`. Use `codex-kit project status` to check whether the current
 template still needs reconciliation.
+
+Run `codex-kit project audit` whenever you want a standalone instruction review
+(monthly or biweekly is a reasonable optional cadence). It only validates the
+target directory and prints a marked prompt invoking the explicit-only
+`$codex-kit-audit-agents` skill. The CLI does not contact npm, require project
+initialization, inspect or modify state, register the project, or write files.
 
 ## Options
 
@@ -194,6 +205,7 @@ Examples:
 codex-kit global install --codex-home /path/to/.codex
 codex-kit project register --cwd /path/to/project
 codex-kit project sync --cwd /path/to/project
+codex-kit project audit --cwd /path/to/project
 ```
 
 ## Requirements

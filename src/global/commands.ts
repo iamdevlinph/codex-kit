@@ -11,12 +11,12 @@ import type { Options } from "../cli/options.js";
 import { backup, read, readText, sha256, write } from "../files.js";
 import {
 	AGENTS_DIR,
+	AUDIT_SKILL,
+	MANAGED_SKILLS,
 	PACKAGE,
-	RECONCILE_SKILL,
-	RECONCILE_SKILL_FILE,
-	RECONCILE_SKILL_METADATA_FILE,
 	ROUTING_FILE,
 	ROUTING_HOOK_FILE,
+	SKILLS_DIR,
 } from "../package.js";
 import {
 	configureGlobal,
@@ -98,18 +98,18 @@ export function installGlobal(options: Options): void {
 		);
 		if (record) next.files[key] = record;
 	}
-	const sources = [
+	const sources: readonly (readonly [string, string, string])[] = [
 		[ROUTING_FILE, join(home, "SUBAGENT_ROUTING.md"), "routing"],
-		[
-			RECONCILE_SKILL_FILE,
-			join(home, "skills", RECONCILE_SKILL, "SKILL.md"),
-			`skills/${RECONCILE_SKILL}/SKILL.md`,
-		],
-		[
-			RECONCILE_SKILL_METADATA_FILE,
-			join(home, "skills", RECONCILE_SKILL, "agents", "openai.yaml"),
-			`skills/${RECONCILE_SKILL}/agents/openai.yaml`,
-		],
+		...MANAGED_SKILLS.flatMap((skill) =>
+			["SKILL.md", "agents/openai.yaml"].map(
+				(file) =>
+					[
+						join(SKILLS_DIR, skill, file),
+						join(home, "skills", skill, file),
+						`skills/${skill}/${file}`,
+					] as const,
+			),
+		),
 		[
 			ROUTING_HOOK_FILE,
 			join(home, "codex-kit", "routing-hook.js"),
@@ -206,25 +206,23 @@ export function listGlobal(options: Options): void {
 	console.log(
 		`Routing hook: ${routingHook && existsSync(routingHook.target) && readText(routingHook.target).includes(routingHook.command) ? "installed" : "not installed"}`,
 	);
-	const skillTargets = [
-		[
-			join(home, "skills", RECONCILE_SKILL, "SKILL.md"),
-			state.files[`skills/${RECONCILE_SKILL}/SKILL.md`],
-		],
-		[
-			join(home, "skills", RECONCILE_SKILL, "agents", "openai.yaml"),
-			state.files[`skills/${RECONCILE_SKILL}/agents/openai.yaml`],
-		],
-	] as const;
-	const skillStatus = skillTargets.every(
-		([target, record]) =>
-			existsSync(target) && record && sha256(read(target)) === record.hash,
-	)
-		? "installed"
-		: skillTargets.some(([target]) => existsSync(target))
-			? "modified or incomplete"
-			: "missing";
-	console.log(`Reconciliation skill: ${skillStatus}`);
+	for (const skill of MANAGED_SKILLS) {
+		const targets = ["SKILL.md", "agents/openai.yaml"].map((file) => {
+			const target = join(home, "skills", skill, file);
+			return [target, state.files[`skills/${skill}/${file}`]] as const;
+		});
+		const status = targets.every(
+			([target, record]) =>
+				existsSync(target) && record && sha256(read(target)) === record.hash,
+		)
+			? "installed"
+			: targets.some(([target]) => existsSync(target))
+				? "modified or incomplete"
+				: "missing";
+		console.log(
+			`${skill === AUDIT_SKILL ? "Audit" : "Reconciliation"} skill: ${status}`,
+		);
+	}
 	console.log("Custom agents:");
 	const agentsDir = join(home, "agents");
 	const agents = existsSync(agentsDir)
@@ -279,20 +277,22 @@ export function uninstallGlobal(options: Options): void {
 	}
 	if (state.config) restoreConfig(state.config);
 	if (state.hooks) uninstallRoutingHooks(state.hooks);
-	const skillDir = join(home, "skills", RECONCILE_SKILL);
-	const metadataDir = join(skillDir, "agents");
-	if (
-		existsSync(metadataDir) &&
-		statSync(metadataDir).isDirectory() &&
-		!readdirSync(metadataDir).length
-	)
-		rmSync(metadataDir, { recursive: true });
-	if (
-		existsSync(skillDir) &&
-		statSync(skillDir).isDirectory() &&
-		!readdirSync(skillDir).length
-	)
-		rmSync(skillDir, { recursive: true });
+	for (const skill of MANAGED_SKILLS) {
+		const skillDir = join(home, "skills", skill);
+		const metadataDir = join(skillDir, "agents");
+		if (
+			existsSync(metadataDir) &&
+			statSync(metadataDir).isDirectory() &&
+			!readdirSync(metadataDir).length
+		)
+			rmSync(metadataDir, { recursive: true });
+		if (
+			existsSync(skillDir) &&
+			statSync(skillDir).isDirectory() &&
+			!readdirSync(skillDir).length
+		)
+			rmSync(skillDir, { recursive: true });
+	}
 	const allowancesDir = join(home, "codex-kit", "allowances");
 	if (existsSync(allowancesDir))
 		rmSync(allowancesDir, { recursive: true, force: true });
