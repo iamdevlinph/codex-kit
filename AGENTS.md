@@ -13,6 +13,10 @@
 
 ## Working conventions
 
+- Before planning, classify the requested work and its required validation.
+  Load only matching project skills and the references they explicitly require;
+  keep universal safeguards active for every task and route concrete conditional
+  procedures through narrowly triggered project skills.
 - Follow the repository's existing style, structure, architecture, and stronger
   local instructions. Match nearby code before introducing new patterns,
   abstractions, dependencies, or file organization.
@@ -29,6 +33,9 @@
 - Keep changes minimal, localized, and limited to the request. Do not reorganize
   major modules, change architecture, or introduce a new project paradigm without
   explicit approval.
+- Work within the existing architecture. If it prevents safe completion, explain
+  the blocker, propose the smallest viable design change, and wait for approval
+  instead of bypassing it.
 - Complete every new or materially changed feature through this semantic pass:
   implement and stabilize it, map each responsibility to its final file, extract
   independently understandable concerns, validate the decomposed implementation,
@@ -51,6 +58,8 @@
   framework or tooling constraint identified in the handoff.
 - Before changing code, inspect the manifest, configuration, scripts, and nearby
   files to identify the actual stack, commands, and conventions.
+- Read an existing `PLANS.md` before product-facing work and implement only the
+  requested scope.
 - Keep identical configuration and behavior in one source of truth at the
   narrowest shared scope. Reuse that owner across callers or features; create a
   separate implementation or instance only when scope, lifecycle, or behavior
@@ -137,9 +146,16 @@
   this file's organization and local rules, merge only applicable guidance, do
   not copy the full template or add managed markers, keep critical always-on
   rules here, and mark applied only after reconciliation and validation succeed.
+- Use `$codex-kit-audit-agents` for later explicit instruction audits independent
+  of template synchronization; those audits must not inspect or modify project
+  state or run `project mark-applied`.
 - When promoting a project-discovered guideline, generalize and review the rule
   before merging it into the root `TEMPLATE_AGENTS.md`; the next build copies
   the updated source into `assets/TEMPLATE_AGENTS.md`.
+- Tell the user when a requested workflow preference, convention, agent behavior,
+  tooling default, or safety rule appears reusable across projects, and report
+  the exact generalized wording and target section for the root
+  `TEMPLATE_AGENTS.md`.
 - A template update requires a new package release before downstream
   `project sync` commands can receive it.
 - The release tag must match `package.json` as `v<version>`.
