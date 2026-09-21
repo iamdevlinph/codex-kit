@@ -40,17 +40,27 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md
    do not create speculative skills, including generic testing or styling skills.
 6. Check representative, non-exhaustive routing scenarios before finalizing:
    test-only work loads testing guidance but not styling guidance; styling-only
-   work does the inverse; visual-regression work may load both; unrelated tooling
-   loads neither; and
+   work does the inverse; adding data, content, or events without changing UI
+   appearance or interaction does not trigger styling guidance; visual-regression
+   work may load both; unrelated tooling loads neither; and
    release or deployment guidance loads only when requested or required. Mixed
    requests may select multiple skills. Information already read in the current
    conversation need not be removed from its history.
-7. Review the final instruction diff for preserved local rules, duplicates,
+7. Inspect relevant tests, package scripts, workflow definitions, skill triggers,
+   and referenced validation commands. Require the smallest existing check that
+   proves the changed observable behavior; a check being available, fast, or
+   documented is not enough. Remove only demonstrably duplicate, obsolete, or
+   speculative tests, preserving coverage required by an explicit requirement,
+   past defect, or plausible security, trust-boundary, or data-loss failure.
+   Report ambiguous reductions instead of applying them, and do not expand
+   ordinary feature work into unrelated test cleanup.
+8. Review the final instruction diff for preserved local rules, duplicates,
    broad triggers, missing reference-read conditions, and unintended template
-   edits. Validate every created or modified project skill with an available skill
-   validator and run the repository's documented checks. Do not mark the
-   template applied until reconciliation and validation succeed.
-8. Never run `codex-kit project sync` on the user's behalf or recommend it for
+   edits. Validate every created or modified project skill with an available
+   skill validator, then run only checks required by the changed files and
+   behavior. Do not mark the template applied until reconciliation and that
+   validation succeed.
+9. Never run `codex-kit project sync` on the user's behalf or recommend it for
    an unreleased local template edit. The user should run `project sync` only
    after updating codex-kit to a released version containing the template
    change. Run `codex-kit project mark-applied` only when the task follows a
@@ -58,7 +68,7 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with a project's AGENTS.md
    recorded in step 1 was `reconciliation required`, and reconciliation and
    validation succeeded. Otherwise leave project state unchanged and report the
    remaining release, codex-kit update, user-run sync, and reconciliation steps.
-9. Summarize added, updated, skipped, adapted, and skill-moved guidance, with
+10. Summarize added, updated, skipped, adapted, and skill-moved guidance, with
    reasons. Identify genuinely reusable, generalized changes that should be
    promoted to codex-kit's canonical template and report the target section and
    wording.

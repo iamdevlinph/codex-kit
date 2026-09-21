@@ -1,6 +1,3 @@
-- Add task-scoped downstream guidance that keeps universal safeguards in `AGENTS.md` and loads detailed project skills and references only when relevant.
-- Expand reconciliation and initialization audits to classify existing and incoming guidance, preserve local adaptations, and validate narrow workflow routing.
-- Shorten project prompts so the packaged reconciliation skill owns semantic restructuring, with updated upgrade and global-refresh guidance.
-- Add read-only `project audit` prompting and an explicit-only audit skill managed by global install, list, and uninstall.
-- Update Vitest to `4.1.11` to resolve its development-server security advisory.
-- Automatically validate, tag, publish, and create the GitHub Release for release-ready pushes to `main`.
+- Scope UI/style gates to changes in appearance or interaction, so data, content, event, and backend-only work does not trigger them.
+- Make agents run the smallest validation that proves changed behavior and reserve broader suites for shared impact, failures, or release requirements.
+- Extend reconciliation and audits to conservatively remove demonstrably redundant or speculative tests while preserving regression and costly-risk coverage.

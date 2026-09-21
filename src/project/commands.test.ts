@@ -123,8 +123,9 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		assert.match(template, /Treat existing tests as regression contracts/);
 		assert.match(
 			template,
-			/Use one representative case per equivalent behavior class/,
+			/Use one representative case per necessary observable contract or reported\s+regression/,
 		);
+		assert.match(template, /Skip speculative edge cases/);
 		assert.match(
 			template,
 			/Run the relevant focused tests after changing tested behavior/,

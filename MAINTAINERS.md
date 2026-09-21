@@ -100,6 +100,7 @@ pnpm run pack:check
 Inspect the dry-run contents. They should contain only:
 
 - `assets/agents/*.toml`
+- `assets/skills/codex-kit-audit-agents/**`
 - `assets/skills/codex-kit-reconcile-agents/**`
 - `assets/SUBAGENT_ROUTING.md`
 - `assets/TEMPLATE_AGENTS.md`
@@ -255,11 +256,14 @@ reconciliation skill without duplicating its procedure. Downstream users must up
 refresh the global installation before syncing to receive both the enhanced
 skill and template.
 
-`project audit` is separate and read-only: it validates only the target
-directory, then prints a marked prompt invoking `$codex-kit-audit-agents`. It
-must not contact npm, inspect project state, register the project, or write any
-file. Users may run it deliberately after substantial instruction changes or on
-an optional biweekly/monthly cadence; it is never an always-on workflow.
+`project audit` is separate from synchronization: the CLI validates only the
+target directory, then prints a marked prompt invoking
+`$codex-kit-audit-agents`. The skill audits instruction, skill, workflow, and
+test scope, applies only unambiguous cleanup, and preserves justified regression
+and costly-risk coverage. The CLI must not contact npm, inspect project state,
+register the project, or write any file. Users may run it deliberately after
+substantial instruction changes or on an optional biweekly/monthly cadence; it
+is never an always-on workflow.
 
 ## Verification
 

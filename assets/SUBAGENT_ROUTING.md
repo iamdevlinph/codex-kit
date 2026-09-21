@@ -22,7 +22,7 @@ trigger `implementer`. Supporting `code-explorer` discovery and the mandatory
 `code-reviewer` handoff remain allowed, while implementation subagents require
 an explicit user request.
 
-For user-facing work, the root or assigned worker performs a UI/style preflight
+When UI appearance or interaction changes, the root or assigned worker performs a UI/style preflight
 before editing: inspect the closest same-purpose shipped features (especially
 tables, filters, search, forms, dialogs, and page layouts), identify their
 design-system primitives, tokens, spacing, typography, responsive behavior,
@@ -37,7 +37,7 @@ screenshot tooling exists, compare the rendered feature with its analogue;
 otherwise report rendered comparison unavailable.
 
 Every new or materially changed feature follows this mandatory workflow:
-UI/style preflight; implement and stabilize; map each responsibility to its final file; extract
+when applicable, UI/style preflight; implement and stabilize; map each responsibility to its final file; extract
 independently understandable concerns; validate the decomposed implementation;
 then hand off to `code-reviewer`. Pages, routes, controllers, commands, and
 entrypoints contain composition and orchestration only. Web page files may keep

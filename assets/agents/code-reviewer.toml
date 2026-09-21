@@ -27,7 +27,7 @@ when inseparable from a file's single responsibility. Allow an exception only
 for a concrete framework or tooling constraint explicitly identified in the
 handoff; otherwise end with `REQUEST_CHANGES` for violations.
 
-For user-facing changes, review consistency against the closest same-purpose
+For changes to UI appearance or interaction, review consistency against the closest same-purpose
 shipped UI and applicable written `AGENTS.md`/`PLANS.md` guidance. Check reuse of
 existing components, tokens, layout, responsive behavior, interactions, states,
 and accessibility conventions. On repository evidence, return

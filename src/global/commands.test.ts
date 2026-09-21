@@ -138,6 +138,10 @@ test("global install and uninstall manage only package-owned files", () => {
 			"openai.yaml",
 		);
 		assert.match(readFileSync(auditSkill, "utf8"), /unambiguous cleanup/);
+		assert.match(
+			readFileSync(auditSkill, "utf8"),
+			/smallest existing check that proves changed observable behavior/,
+		);
 		assert.match(readFileSync(auditSkill, "utf8"), /Never run `project sync`/);
 		assert.match(
 			readFileSync(auditSkillMetadata, "utf8"),
@@ -165,7 +169,7 @@ test("global install and uninstall manage only package-owned files", () => {
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/available skill\s+validator/,
+			/available\s+skill validator/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
@@ -182,6 +186,10 @@ test("global install and uninstall manage only package-owned files", () => {
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
 			/release or deployment guidance loads only when requested or required/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/Remove only demonstrably duplicate, obsolete, or\s+speculative tests/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
@@ -236,6 +244,10 @@ test("global install and uninstall manage only package-owned files", () => {
 			explorerInstructions,
 			/UI\/style preflight.*closest same-purpose shipped UI.*reusable components, design tokens, layout, responsive behavior, interaction\/state, and accessibility conventions/s,
 		);
+		assert.match(
+			explorerInstructions,
+			/Data, content, event, or backend-only changes do not trigger this step/,
+		);
 		assert.match(explorerInstructions, /conflicting or missing precedents/);
 		assert.match(explorerInstructions, /no trustworthy analogue exists/);
 		assert.match(
@@ -269,6 +281,10 @@ test("global install and uninstall manage only package-owned files", () => {
 		assert.match(
 			implementerInstructions,
 			/rendered comparison or its unavailability/,
+		);
+		assert.match(
+			implementerInstructions,
+			/smallest existing check that proves the changed observable behavior/,
 		);
 		assert.match(
 			quickImplementerInstructions,

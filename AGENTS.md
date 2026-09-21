@@ -123,21 +123,23 @@
   changed observable contracts, reported regressions, meaningful boundaries,
   and plausible costly failures, especially security, trust-boundary, or
   data-loss risks.
-- Use one representative case per equivalent behavior class. Skip redundant
-  permutations, implementation-detail assertions, and contrived or unreachable
-  states unless a requirement or past defect justifies them. Do not introduce a
+- Use one representative case per necessary observable contract or reported
+  regression. Skip speculative edge cases, redundant permutations,
+  implementation-detail assertions, and contrived or unreachable states.
+  Retain boundary coverage only for an explicit requirement, past defect, or
+  plausible security, trust-boundary, or data-loss failure. Do not introduce a
   test framework solely to satisfy this rule; if automated coverage is
   impractical, explain why and perform the strongest targeted verification.
 - Treat existing tests as regression contracts. Preserve their assertions unless
   the requested behavior intentionally changes. When behavior changes, update
   only the affected tests and add coverage for the new contract; never weaken or
   delete tests merely to make the suite pass.
-- Run the smallest targeted verification that meaningfully validates a change
-  before the full required checks. Avoid broad commands and use the repository's
-  documented package manager and scripts.
+- Run the smallest targeted verification that meaningfully validates a change.
+  Broaden validation only for affected shared behavior, a failure, or an explicit
+  release requirement; a command being available or fast is not enough.
 - Do not change dependencies, global tools, or the environment by default.
-- Run `pnpm run typecheck`, `pnpm test`, and `pnpm run pack:check` before
-  declaring a change complete.
+- Run `pnpm run typecheck`, `pnpm test`, and `pnpm run pack:check` for release
+  verification and package-wide changes that can affect those contracts.
 
 ## Template and release workflow
 

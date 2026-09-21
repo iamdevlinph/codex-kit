@@ -184,11 +184,14 @@ codex-kit project mark-applied
 modify `AGENTS.md`. Use `codex-kit project status` to check whether the current
 template still needs reconciliation.
 
-Run `codex-kit project audit` whenever you want a standalone instruction review
-(monthly or biweekly is a reasonable optional cadence). It only validates the
-target directory and prints a marked prompt invoking the explicit-only
-`$codex-kit-audit-agents` skill. The CLI does not contact npm, require project
-initialization, inspect or modify state, register the project, or write files.
+Run `codex-kit project audit` whenever you want a standalone review of project
+instructions, skill/workflow validation scope, and clearly redundant or
+speculative tests (monthly or biweekly is a reasonable optional cadence). The
+audit preserves justified regression and costly-risk coverage and reports
+ambiguous reductions. The CLI itself only validates the target directory and
+prints a marked prompt invoking the explicit-only `$codex-kit-audit-agents`
+skill; it does not contact npm, require project initialization, inspect or
+modify state, register the project, or write files.
 
 ## Options
 

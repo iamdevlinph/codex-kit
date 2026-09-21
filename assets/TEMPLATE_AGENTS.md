@@ -138,7 +138,7 @@ triggered skills and selectively read references.
   Do not assume tools from other projects.
 - Keep discovered stack-specific guidance in the project's
   `# Project-Specific Instructions`, not in this shared template.
-- For user-facing work, perform a UI/style preflight before editing: inspect the
+- When UI appearance or interaction changes, perform a UI/style preflight before editing: inspect the
   closest same-purpose shipped features (especially tables, filters, search,
   forms, dialogs, and page layouts) and identify their design-system primitives,
   tokens, spacing, typography, responsive behavior, interactions, states, and
@@ -168,16 +168,20 @@ triggered skills and selectively read references.
 
 ## Commands And Verification
 
-- Avoid broad commands. After changes, run the smallest targeted verification
-  that meaningfully validates them when practical, then report the command and
-  result. Use the repository's documented package manager and scripts.
+- Select validation from the changed observable behavior and concrete failure
+  risk. Run the smallest existing check that establishes correctness, then
+  report the command and result. Run broader suites only when affected shared
+  behavior, a failure, or an explicit release requirement justifies them; a
+  command being available, fast, or mentioned in loaded guidance is not enough.
 - Select tests for regression value rather than exhaustive coverage. When the
   repository has an established test setup, cover changed observable contracts,
   reported regressions, meaningful boundaries, and plausible costly failures,
   especially security, trust-boundary, or data-loss risks.
-- Use one representative case per equivalent behavior class. Skip redundant
-  permutations, implementation-detail assertions, and contrived or unreachable
-  states unless a requirement or past defect justifies them.
+- Use one representative case per necessary observable contract or reported
+  regression. Skip speculative edge cases, redundant permutations,
+  implementation-detail assertions, and contrived or unreachable states.
+  Retain boundary coverage only for an explicit requirement, past defect, or
+  plausible security, trust-boundary, or data-loss failure.
 - Treat existing tests as regression contracts. Preserve their assertions unless
   the requested behavior intentionally changes. When behavior changes, update
   only the affected tests and add coverage for the new contract; never weaken or
