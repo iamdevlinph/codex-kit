@@ -13,53 +13,34 @@
 
 ## Working conventions
 
-- Before planning, classify the requested work and its required validation.
-  Load only matching project skills and the references they explicitly require;
-  keep universal safeguards active for every task and route concrete conditional
-  procedures through narrowly triggered project skills.
+- Before planning, classify the requested work and required validation; revisit
+  that classification when discovery expands the affected domains. Account for
+  the complete instruction chain, keep universal safeguards active, and load
+  only matching project skills and references they explicitly require.
+- Keep each rule or decision in one authoritative owner where practical. Give
+  every conditional procedure a shallow route that states its trigger, exact
+  path, read condition, unrelated work that must not load it, and dependencies.
 - Follow the repository's existing style, structure, architecture, and stronger
   local instructions. Match nearby code before introducing new patterns,
   abstractions, dependencies, or file organization.
-- Preserve an existing `PLANS.md` as the source for durable decisions,
-  priorities, deferrals, and resume-worthy milestones. Create or update it only
-  from repository evidence, never as speculative history or a per-change changelog.
-- Use intent-revealing domain names. A reader should understand what a variable
-  contains or what a helper guarantees at the call site without opening its
-  implementation. Avoid vague transformation names such as `normalized`,
-  `processed`, `result`, or `data` when a value- or behavior-specific name is
-  available. Prefer clear structure, and simplify or extract complex logic before
-  relying on comments. Use comments to explain non-obvious purpose, constraints,
-  invariants, tradeoffs, or workarounds, not to narrate statements.
+- If `PLANS.md` exists, treat it as a concise durable index, not a per-change
+  changelog. For product work, load only the affected feature plans and their
+  dependencies, and update the document that owns the changed decision or state.
+  Create it only from real repository evidence, never speculative history.
 - Keep changes minimal, localized, and limited to the request. Do not reorganize
   major modules, change architecture, or introduce a new project paradigm without
   explicit approval.
 - Work within the existing architecture. If it prevents safe completion, explain
   the blocker, propose the smallest viable design change, and wait for approval
   instead of bypassing it.
-- Complete every new or materially changed feature through this semantic pass:
-  implement and stabilize it, map each responsibility to its final file, extract
-  independently understandable concerns, validate the decomposed implementation,
-  then hand it off to `code-reviewer`. Pages, routes, controllers, commands, and
-  entrypoints contain composition and orchestration only. Web page files may keep
-  framework exports, metadata, loading, guards, page-level state, minimal layout
-  wrappers, and imported child composition, but not child components, substantial
-  UI sections, or domain logic. Independently changeable UI concerns (tables,
-  filters, forms, dialogs, and sections) belong in descriptive feature-local
-  component files. Hooks, schemas, data access, transformations, and domain logic
-  move out of presentation files when independently testable or when they obscure
-  the component's primary responsibility. Avoid generic `utils`, `helpers`, or
-  `components` dumping grounds; filenames must identify owned behavior. Keep
-  components feature-local by default; promote them to shared/design-system
-  locations only when reused across features or explicitly global primitives.
-  Tiny private helpers or markup may remain inline only when inseparable from the
-  file's single responsibility. Do not broaden an unrelated small fix, but leave
-  any new or materially changed feature decomposed. Every completed feature gets
-  an automatic `code-reviewer` structure review; exceptions require a concrete
-  framework or tooling constraint identified in the handoff.
+- For every new or materially changed feature, read and follow
+  `.agents/skills/codex-kit-feature-workflow/SKILL.md` before implementation and
+  structural validation. Do not load it for test-only work, unrelated tooling,
+  documentation, or a small fix that does not materially change a feature. Its
+  workflow depends on applicable `PLANS.md` entries and project architecture.
+  Every completed feature still requires a `code-reviewer` handoff.
 - Before changing code, inspect the manifest, configuration, scripts, and nearby
   files to identify the actual stack, commands, and conventions.
-- Read an existing `PLANS.md` before product-facing work and implement only the
-  requested scope.
 - Keep identical configuration and behavior in one source of truth at the
   narrowest shared scope. Reuse that owner across callers or features; create a
   separate implementation or instance only when scope, lifecycle, or behavior
@@ -74,9 +55,6 @@
   feature-owned immutable runtime constants. Derive static types from that
   runtime source; keep incidental presentation, protocol, route, environment,
   and test-contract strings inline.
-- Keep naming conventions consistent within each code-owned object, schema,
-  type, and module. Preserve externally defined names at the boundary, then map
-  them once to the repository's internal convention.
 - Preserve user changes and unrelated dirty state. Never revert them without an
   explicit request, and never run destructive Git commands such as
   `git reset --hard` or `git checkout --` without explicit approval.
@@ -109,16 +87,12 @@
 
 ## Change requirements
 
-- Before final validation of completed package, template, build, or
-  release-workflow changes, use the repository-local `codex-kit-release` skill
-  to classify the SemVer impact, replace latest-only release notes when
-  releasable, and update `package.json`. Documentation/instruction-only changes
-  use `none` and preserve both files.
-- Keep public CLI usage in `README.md` and development, publishing, and
-  template-promotion instructions in `MAINTAINERS.md`. Keep both synchronized
-  with behavior changes.
-- `MAINTAINERS.md`, repository instructions, source, and tests must remain
-  outside the public npm package. Verify the tarball contents before release.
+- Before final validation of package, template, build, or release-workflow
+  changes, read and follow `.agents/skills/codex-kit-release/SKILL.md`. Do not
+  load it for feature-only, test-only, or unrelated tooling work; mixed feature
+  and release work loads both project skills. Documentation/instruction-only
+  changes have release impact `none` and preserve `package.json` and
+  `RELEASE_NOTES.md`.
 - Select tests for regression value rather than exhaustive coverage. Cover
   changed observable contracts, reported regressions, meaningful boundaries,
   and plausible costly failures, especially security, trust-boundary, or
@@ -138,8 +112,6 @@
   Broaden validation only for affected shared behavior, a failure, or an explicit
   release requirement; a command being available or fast is not enough.
 - Do not change dependencies, global tools, or the environment by default.
-- Run `pnpm run typecheck`, `pnpm test`, and `pnpm run pack:check` for release
-  verification and package-wide changes that can affect those contracts.
 
 ## Template and release workflow
 
