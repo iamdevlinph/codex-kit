@@ -1,6 +1,6 @@
 interface:
-  display_name: "Audit Codex Agent Guidance"
-  short_description: "Audit project instructions without syncing templates"
-  default_prompt: "Use $codex-kit-audit-agents to audit this project's agent guidance."
+  display_name: "Optimize Codex Agent Guidance"
+  short_description: "Optimize project context without template sync"
+  default_prompt: "Use $codex-kit-audit-agents to audit and optimize this project's agent guidance."
 policy:
   allow_implicit_invocation: false

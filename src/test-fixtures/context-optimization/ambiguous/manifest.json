@@ -1,0 +1,26 @@
+{
+	"expectNoChange": true,
+	"authoritativeContent": [
+		{ "owner": "AGENTS.md", "text": "Deployments require approval." },
+		{
+			"owner": "AGENTS.override.md",
+			"text": "Deployments may run without approval."
+		},
+		{
+			"owner": "nested/AGENTS.md",
+			"text": "Nested work must use the local validation command."
+		},
+		{
+			"owner": "FALLBACK_GUIDANCE.md",
+			"text": "Fallback-only builds must run the compatibility check."
+		}
+	],
+	"instructionDirectories": [".", "nested"],
+	"expectedInstructionChain": ["AGENTS.override.md", "nested/AGENTS.md"],
+	"routes": [],
+	"unresolvedReferences": ["docs/missing.md"],
+	"unresolvedFindings": [
+		"Conflicting deployment authorization rules must be preserved for review.",
+		"Fallback and override precedence must be verified from the available configuration."
+	]
+}

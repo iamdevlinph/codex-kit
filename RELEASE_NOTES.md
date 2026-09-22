@@ -1,3 +1,3 @@
-- Scope UI/style gates to changes in appearance or interaction, so data, content, event, and backend-only work does not trigger them.
-- Make agents run the smallest validation that proves changed behavior and reserve broader suites for shared impact, failures, or release requirements.
-- Extend reconciliation and audits to conservatively remove demonstrably redundant or speculative tests while preserving regression and costly-risk coverage.
+- Add conservative context optimization to project audits and template reconciliation, with semantic ownership, selective routing, byte measurements, and idempotence reporting.
+- Make the canonical template and generated prompts maintain concise `AGENTS.md` routers and evidence-backed `PLANS.md` indexes without changing existing CLI or state contracts.
+- Add semantic preservation and routing fixtures for safeguards, feature dependencies, nested instructions, overrides, configured fallbacks, missing references, and no-op projects.

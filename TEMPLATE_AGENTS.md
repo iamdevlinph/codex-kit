@@ -8,6 +8,15 @@ product context, and local conventions in the project's active `AGENTS.md`.
 - Follow the repository's existing style, structure, architecture, and stronger
   local instructions. Keep product and business decisions aligned with
   `PLANS.md` when it exists.
+- Keep the automatically loaded root `AGENTS.md` to the smallest safe baseline:
+  repository orientation, universal rules, critical safeguards, and actionable
+  routing. Minimize expected task context without omitting applicable guidance.
+- Classify the task and required validation before loading conditional guidance,
+  and revisit that classification when code discovery expands the affected
+  domains. Read only the references and skills selected by those conditions.
+- Account for the complete root-to-working-directory instruction chain. Do not
+  move content into nested `AGENTS.md` files merely to reduce the root file; use
+  nested instructions only when the guidance genuinely applies to that subtree.
 - Use `PLANS.md` for durable product context, business rules, sequencing,
   priorities, deferred requirements, product or implementation decisions, and
   major completed milestones.
@@ -21,6 +30,15 @@ product context, and local conventions in the project's active `AGENTS.md`.
   speculative history.
 - Keep it concise, using sections such as current context, decisions,
   roadmap/status, and major milestones. It is not a per-change changelog.
+- Treat the root `PLANS.md` as the index for product purpose, current priorities,
+  cross-feature requirements, feature status, and major milestones. Keep a
+  concise normative rule there when a decision affects multiple features.
+- Move substantial feature-specific requirements, decisions, deferrals, and
+  work state into an existing or justified feature plan. Add an exact route from
+  the index, and do not create a feature plan for every small change.
+- Update the feature plan that owns changed detail. Update the root index only
+  when a global decision, priority, roadmap item, feature status, or major
+  milestone changes; do not copy detailed feature history back into it.
 - Move roadmap or history misplaced in `AGENTS.md` into `PLANS.md` when the
   content is durable, and keep `AGENTS.md` focused on always-on instructions.
 
@@ -38,6 +56,16 @@ product context, and local conventions in the project's active `AGENTS.md`.
 - Keep `AGENTS.md` focused on durable, always-applicable repository context:
   architecture, conventions, commands, safety and authorization boundaries,
   verification expectations, and concise pointers to specialized workflows.
+- Keep conditional domain knowledge in an existing or focused Markdown
+  reference. Reserve project skills for concrete repeatable procedures; do not
+  create a skill merely to store ordinary guidance.
+- Give every substantial extracted document an actionable, shallow route that
+  states its trigger, exact relative path, when it must be read, when it should
+  not be loaded, and any cross-domain or feature dependency. Prefer direct
+  routes over chains of indexes.
+- Keep each rule or decision in one authoritative owner where practical. A
+  concise always-on safeguard may intentionally reinforce a detailed
+  conditional procedure, but do not duplicate the full procedure.
 - Use project skills under `.agents/skills/<skill-name>/SKILL.md` for repeatable,
   task-specific workflows or detailed guidance needed only for matching tasks.
 - In existing projects, review large task-specific procedures in `AGENTS.md`.
@@ -264,11 +292,12 @@ triggered skills and selectively read references.
 
 ## Planning
 
-- Read `PLANS.md` before product-facing work. Implement only the requested
-  feature, not the whole plan.
+- Read `PLANS.md` before product-facing work, select the affected feature plans,
+  and load only dependencies or cross-feature decisions that can affect the
+  requested work. Implement only the requested feature, not the whole plan.
 - Record requirement, product, workflow, permission, priority, scope, deferral,
-  and durable implementation decisions in the relevant feature chunk/checklist,
-  not only narrative summaries.
+  and durable implementation decisions in their owning feature plan or concise
+  root feature entry, not only narrative summaries.
 - After product-facing work, update the relevant item's state: implemented,
   verified, deferred, or pending. Check items only after implementation and
   verification; manual testing may revert them.

@@ -62,9 +62,12 @@ defaults for coding agents across these themes:
 
 `project init` installs the template as a reference, not as a replacement for
 existing active guidance. During reconciliation, Codex merges only applicable
-rules into a concise `AGENTS.md`, preserves local organization and adaptations,
-and routes repeatable task-specific detail through narrowly triggered project
-skills and selectively read references.
+rules into a concise `AGENTS.md` router, preserves local organization and
+adaptations, and routes conditional knowledge through selectively read
+references. Repeatable procedures may use narrowly triggered project skills.
+When durable product context warrants it, `PLANS.md` becomes a concise index of
+global decisions and feature status, with substantial feature detail kept in
+selectively loaded feature plans.
 
 Both `project init` and `project sync` contact the public npm registry before
 writing project files. If the installed CLI is stale, or npm is unreachable or
@@ -96,9 +99,10 @@ Use `codex-kit --help` for exhaustive command details.
 
 ## Device setup
 
-`global install` copies the agents, routing assets, hooks, and
-`codex-kit-reconcile-agents` skill into `${CODEX_HOME:-~/.codex}`. It adds only
-codex-kit's hook handlers and preserves unrelated settings and hooks.
+`global install` copies the agents, routing assets, hooks, and the
+`codex-kit-reconcile-agents` and explicit-only `codex-kit-audit-agents` skills
+into `${CODEX_HOME:-~/.codex}`. It adds only codex-kit's hook handlers and
+preserves unrelated settings and hooks.
 
 The default root configuration is:
 
@@ -123,8 +127,8 @@ values. `global uninstall` restores them without replacing unrelated later edits
 Modified managed files are preserved.
 
 Use `codex-kit global list` to inspect model settings, routing and hook status,
-the reconciliation skill, and installed agents. Use `codex-kit global uninstall`
-to remove package-managed global files.
+both skills, and installed agents. Use `codex-kit global uninstall` to remove
+package-managed global files.
 
 Use `codex-kit global projects` to see the existing offline reconciliation
 status for every project registered in that Codex home. Successful `project
@@ -167,8 +171,11 @@ command stages the packaged template and prints a short prompt invoking the
 reconciliation skill; Codex performs the semantic restructuring. The skill
 classifies existing and incoming guidance by task relevance, keeps universal
 rules and safeguards in `AGENTS.md`, and routes conditional detail through
-focused skills and references. It also moves durable roadmap or history into
-`PLANS.md` and reports any created or changed plan content. If
+focused references or repeatable-procedure skills. It maintains `PLANS.md` as a
+durable product index and extracts substantial feature detail only when a
+reliable owner and route exist. Its final report includes actual UTF-8 byte
+measurements, moved ownership, reference and routing checks, preserved content,
+idempotence, and unresolved ambiguity. If
 `TEMPLATE_AGENTS.md` was modified locally, sync overwrites it with the packaged
 template. Keep always-on local rules in `AGENTS.md` and durable product context
 in `PLANS.md`; recover overwritten template
@@ -187,11 +194,15 @@ template still needs reconciliation.
 Run `codex-kit project audit` whenever you want a standalone review of project
 instructions, skill/workflow validation scope, and clearly redundant or
 speculative tests (monthly or biweekly is a reasonable optional cadence). The
-audit preserves justified regression and costly-risk coverage and reports
-ambiguous reductions. The CLI itself only validates the target directory and
-prints a marked prompt invoking the explicit-only `$codex-kit-audit-agents`
-skill; it does not contact npm, require project initialization, inspect or
-modify state, register the project, or write files.
+audit applies the same conservative `AGENTS.md`/`PLANS.md` ownership and routing
+optimization without synchronizing templates. It preserves justified regression
+and costly-risk coverage and reports ambiguous reductions. The CLI itself only
+validates the target directory and prints a marked prompt invoking the
+explicit-only `$codex-kit-audit-agents` skill; it does not contact npm, require
+project initialization, inspect or modify state, register the project, or write
+files. Codex may edit project guidance when the user runs that prompt. The
+existing audit workflow is the optimization entry point; there is no separate
+`project optimize` command.
 
 ## Options
 

@@ -1,0 +1,13 @@
+{
+	"expectNoChange": true,
+	"expectedMissing": ["PLANS.md"],
+	"authoritativeContent": [
+		{ "owner": "AGENTS.md", "text": "Do not invent a product roadmap." },
+		{
+			"owner": "EXECUTION_PLAN.md",
+			"text": "Preserve this formal execution plan structure."
+		}
+	],
+	"routes": [],
+	"unresolvedReferences": []
+}

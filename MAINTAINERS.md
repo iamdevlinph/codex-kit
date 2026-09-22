@@ -235,11 +235,14 @@ edits `AGENTS.md`, `PLANS.md`, or `.agents/skills`; its printed reconciliation
 prompt briefly asks Codex to invoke `codex-kit-reconcile-agents`; the skill owns
 the semantic instruction-architecture audit. It classifies existing and incoming
 guidance by task relevance, preserves local adaptations and critical always-on
-rules, routes repeatable conditional procedures through narrowly triggered
-skills and selectively read references, preserves or conditionally creates
-`PLANS.md` from evidence-backed durable content, and validates before marking
-applied. The CLI itself continues to create only its current scaffold and state
-files.
+rules, keeps `AGENTS.md` as the smallest safe always-loaded router, routes
+conditional knowledge through selectively read references, and reserves skills
+for repeatable procedures. It preserves or conditionally creates `PLANS.md` as a
+durable index, routes substantial feature detail to evidence-backed feature
+plans, validates semantic ownership and reference integrity, reports UTF-8 byte
+measurements and unresolved ambiguity, and checks expected idempotence before
+marking applied. The CLI itself continues to create only its current scaffold
+and state files.
 Before either `project init` or `project sync` writes, it must verify the
 installed package against the latest npm metadata. Stale builds, registry
 failures, and malformed metadata fail closed. Stale builds print installed and
@@ -259,13 +262,27 @@ skill and template.
 `project audit` is separate from synchronization: the CLI validates only the
 target directory, then prints a marked prompt invoking
 `$codex-kit-audit-agents`. The skill audits instruction, skill, workflow, and
-test scope, applies only unambiguous cleanup, and preserves justified regression
-and costly-risk coverage. The CLI must not contact npm, inspect project state,
-register the project, or write any file. Users may run it deliberately after
+test scope, applies the same conservative instruction and planning optimization,
+and preserves justified regression and costly-risk coverage. It must leave
+template reconciliation state untouched. The CLI must not contact npm, inspect
+project state, register the project, or write any file; Codex may edit guidance
+only after the user runs the emitted prompt. Users may run it deliberately after
 substantial instruction changes or on an optional biweekly/monthly cadence; it
-is never an always-on workflow.
+is never an always-on workflow or a separate `project optimize` command.
 
 ## Verification
+
+The semantic fixtures under `src/test-fixtures/context-optimization/` encode
+acceptable ownership, preservation, reference, routing, and no-op outcomes.
+Their Vitest coverage proves fixture integrity, not model semantic equivalence.
+For behavioral forward-evaluation, copy each fixture's `before` directory to a
+temporary repository and run the applicable installed skill in a fresh Codex
+session. Repeat the run to check for churn, then exercise README-only, UI,
+database, payment-with-authentication-dependency, authentication/security,
+release, unrelated-tooling, and combined UI/API requests. Inspect actual
+file-read traces when available and record root-chain and selected-context byte
+counts; label static routing checks when trace evidence is unavailable rather
+than relying on self-reported reads.
 
 ```sh
 pnpm install --frozen-lockfile

@@ -137,35 +137,46 @@ test("global install and uninstall manage only package-owned files", () => {
 			"agents",
 			"openai.yaml",
 		);
-		assert.match(readFileSync(auditSkill, "utf8"), /unambiguous cleanup/);
 		assert.match(
 			readFileSync(auditSkill, "utf8"),
-			/smallest existing check that proves changed observable behavior/,
+			/smallest practical task context/,
+		);
+		assert.match(readFileSync(auditSkill, "utf8"), /UTF-8 byte counts/);
+		assert.match(readFileSync(auditSkill, "utf8"), /AGENTS\.override\.md/);
+		assert.match(readFileSync(auditSkill, "utf8"), /shallow, actionable route/);
+		assert.match(
+			readFileSync(auditSkill, "utf8"),
+			/second optimization would not cause further churn/,
+		);
+		assert.match(
+			readFileSync(auditSkill, "utf8"),
+			/smallest existing check that proves changed\s+observable behavior/,
 		);
 		assert.match(readFileSync(auditSkill, "utf8"), /Never run `project sync`/);
+		assert.match(readFileSync(auditSkill, "utf8"), /state was\s+untouched/);
 		assert.match(
 			readFileSync(auditSkillMetadata, "utf8"),
 			/allow_implicit_invocation: false/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/semantic|reconcile/i,
+			/classify individual existing and incoming rules/i,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/do not create speculative/,
+			/do not impose fixed paths, create\s+speculative skills/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/any existing `PLANS\.md`/,
+			/Preserve an existing `PLANS\.md`/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/never invent or\s+backfill speculative history/,
+			/never invent or\s+backfill history/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/Report whether `PLANS\.md` was preserved, created, or\s+updated/,
+			/State whether `PLANS\.md` was\s+preserved, created, or updated/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
@@ -173,23 +184,23 @@ test("global install and uninstall manage only package-owned files", () => {
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/read only the applicable project skills and the references/,
+			/read only the applicable project skills and references/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/Each `SKILL\.md` must\s+state exactly when to read each reference/,
+			/Each\s+`SKILL\.md` must state exactly when to read each owned reference/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/test-only work loads testing\s+guidance but not styling guidance/,
+			/test-only work excludes styling guidance/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/release or deployment guidance loads only when requested or required/,
+			/release or deployment guidance\s+loads only when requested or required/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/Remove only demonstrably duplicate, obsolete, or\s+speculative tests/,
+			/Remove tests only when demonstrably duplicate, obsolete, or\s+speculative/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
@@ -197,15 +208,15 @@ test("global install and uninstall manage only package-owned files", () => {
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/run `project sync` only\s+after updating codex-kit to a released version/,
+			/sync only after installing a\s+released codex-kit version/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/the initial status\s+recorded in step 1 was\s+`reconciliation required`/,
+			/when the initial status was `reconciliation required`/,
 		);
 		assert.match(
 			readFileSync(reconciliationSkill, "utf8"),
-			/Do not add, recreate, or\s+depend on managed markers/,
+			/Do not add, recreate, or depend on managed\s+markers/,
 		);
 		assert.doesNotMatch(
 			readFileSync(reconciliationSkill, "utf8"),
@@ -213,7 +224,7 @@ test("global install and uninstall manage only package-owned files", () => {
 		);
 		assert.match(
 			readFileSync(reconciliationSkillMetadata, "utf8"),
-			/\$codex-kit-reconcile-agents/,
+			/\$codex-kit-reconcile-agents.*reconcile and optimize/,
 		);
 		const implementerInstructions = readFileSync(
 			join(home, "agents", "implementer.toml"),
@@ -368,7 +379,7 @@ test("global install and uninstall manage only package-owned files", () => {
 });
 for (const [name, expected] of [
 	["codex-kit-reconcile-agents", /codex-kit project mark-applied/],
-	["codex-kit-audit-agents", /unambiguous cleanup/],
+	["codex-kit-audit-agents", /smallest practical task context/],
 ] as const) {
 	test(`global install restores a replaced user ${name} skill on uninstall`, () => {
 		const root = mkdtempSync(join(tmpdir(), "codex-kit-user-skill-"));

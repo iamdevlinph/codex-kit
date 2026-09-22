@@ -52,12 +52,15 @@ function initializationPrompt(): string {
 Explore this repository, classify its evidence and task-specific workflows, then
 use the global $${RECONCILE_SKILL} skill to initialize its instruction
 architecture from TEMPLATE_AGENTS.md. Keep AGENTS.md to a concise baseline plus
-routing, preserve critical safeguards and existing PLANS.md content, and do not
-invent guidance without repository evidence. Audit skills and references for
-narrow triggers and selective loading. If the repository is not sufficiently
-scaffolded to support reliable guidance, stop without changing instructions or
-marking the template applied. Otherwise, validate the result and mark applied
-only when the skill's conditions are satisfied.
+routing, optimize PLANS.md as a durable index only when evidence supports it,
+preserve critical safeguards and existing project content, and do not invent
+guidance. Audit skills and references for narrow triggers, authoritative
+ownership, and selective loading. Validate semantic retention, reference
+integrity, representative routing, and idempotence, then report before/after
+UTF-8 byte measurements. If the repository is not sufficiently scaffolded to
+support reliable guidance, stop without changing instructions or marking the
+template applied. Otherwise, mark applied only when the skill's conditions are
+satisfied.
 ===== END CODEX INITIALIZATION PROMPT =====`;
 }
 
@@ -66,9 +69,12 @@ function reconciliationPrompt(): string {
 
 ===== BEGIN CODEX RECONCILIATION PROMPT =====
 Use the global $${RECONCILE_SKILL} skill to reconcile the existing instruction
-architecture with the refreshed TEMPLATE_AGENTS.md. Run its task-relevance
-audit, preserve local adaptations and critical safeguards, validate the result,
-and mark applied only when the skill's conditions are satisfied.
+architecture with the refreshed TEMPLATE_AGENTS.md. Semantically optimize
+AGENTS.md and PLANS.md for selective loading, run its task-relevance and
+reference-routing checks, preserve local adaptations, critical safeguards, and
+user-owned content, and report before/after UTF-8 byte measurements plus any
+unresolved ambiguity. Mark applied only when preservation, routing, and the
+skill's remaining validation conditions succeed.
 ===== END CODEX RECONCILIATION PROMPT =====`;
 }
 
@@ -140,9 +146,12 @@ export function auditProject(options: Options): void {
 	console.log(`Project: ${quotedProject}\n
 ===== BEGIN CODEX PROJECT INSTRUCTION AUDIT PROMPT =====
 Use the global $${AUDIT_SKILL} skill to audit the project at ${quotedProject}.
-Review its instruction architecture and repository evidence, apply only
-unambiguous cleanup, preserve safeguards and durable local decisions, and report
-ambiguous improvements instead of guessing. Validate every change.
+Semantically partition AGENTS.md and PLANS.md where evidence supports selective
+loading, validate authoritative ownership and actionable reference routing,
+preserve safeguards, user-owned content, and durable local decisions, and
+report ambiguities instead of guessing. Check expected second-run idempotence,
+validate every change, and report before/after UTF-8 byte measurements without
+syncing templates or changing project reconciliation state.
 ===== END CODEX PROJECT INSTRUCTION AUDIT PROMPT =====`);
 }
 

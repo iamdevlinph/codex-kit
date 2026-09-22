@@ -1,0 +1,80 @@
+{
+	"expectRootReduction": true,
+	"authoritativeContent": [
+		{
+			"owner": "AGENTS.md",
+			"text": "Never run production deletion without explicit authorization."
+		},
+		{
+			"owner": "AGENTS.md",
+			"text": "Never apply production migrations without explicit authorization."
+		},
+		{
+			"owner": "docs/ui.md",
+			"text": "Use the existing design tokens for spacing and color."
+		},
+		{
+			"owner": "docs/database.md",
+			"text": "Create additive migrations before destructive migrations."
+		},
+		{
+			"owner": "docs/deployment.md",
+			"text": "Verify the artifact, environment, migrations, health check, and rollback plan."
+		},
+		{ "owner": "PLANS.md", "text": "Payment operations require idempotency." },
+		{
+			"owner": "plans/payments.md",
+			"text": "Prevent duplicate payment processing."
+		},
+		{
+			"owner": "PLANS.md",
+			"text": "Authentication is shared across applications."
+		}
+	],
+	"routes": [
+		{
+			"task": "readme",
+			"include": ["AGENTS.md"],
+			"exclude": [
+				"docs/ui.md",
+				"docs/database.md",
+				"docs/deployment.md",
+				"PLANS.md"
+			]
+		},
+		{
+			"task": "ui",
+			"routeOwner": "AGENTS.md",
+			"routeInstruction": "When changing UI appearance or interaction, read `docs/ui.md` before implementation. Do not load it for unrelated work.",
+			"include": ["AGENTS.md", "docs/ui.md"],
+			"exclude": ["docs/database.md"]
+		},
+		{
+			"task": "database",
+			"routeOwner": "AGENTS.md",
+			"routeInstruction": "When changing schemas, migrations, or persistence, read `docs/database.md` before implementation.",
+			"include": ["AGENTS.md", "docs/database.md"],
+			"exclude": ["docs/ui.md"]
+		},
+		{
+			"task": "release",
+			"routeOwner": "AGENTS.md",
+			"routeInstruction": "When release or production deployment work is requested, read `docs/deployment.md` before proceeding.",
+			"include": ["AGENTS.md", "docs/deployment.md"],
+			"exclude": ["docs/ui.md", "docs/database.md"]
+		},
+		{
+			"task": "payments",
+			"routeOwner": "AGENTS.md",
+			"routeInstruction": "For product-facing work, read `PLANS.md`, then only the affected feature plans and required dependencies.",
+			"include": [
+				"AGENTS.md",
+				"PLANS.md",
+				"plans/payments.md",
+				"plans/authentication.md"
+			],
+			"exclude": ["docs/ui.md"]
+		}
+	],
+	"unresolvedReferences": []
+}

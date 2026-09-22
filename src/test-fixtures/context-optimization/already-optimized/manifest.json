@@ -1,0 +1,21 @@
+{
+	"expectNoChange": true,
+	"authoritativeContent": [
+		{ "owner": "AGENTS.md", "text": "Preserve unrelated changes." },
+		{
+			"owner": "docs/api.md",
+			"text": "Keep public response fields backward compatible."
+		}
+	],
+	"routes": [
+		{ "task": "readme", "include": ["AGENTS.md"], "exclude": ["docs/api.md"] },
+		{
+			"task": "api",
+			"routeOwner": "AGENTS.md",
+			"routeInstruction": "When changing public API contracts, read `docs/api.md` before implementation. Do not load it for unrelated work.",
+			"include": ["AGENTS.md", "docs/api.md"],
+			"exclude": []
+		}
+	],
+	"unresolvedReferences": []
+}

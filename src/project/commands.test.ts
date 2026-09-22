@@ -77,6 +77,8 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		assert.match(initialized.stdout, /\$codex-kit-reconcile-agents/);
 		assert.match(initialized.stdout, /classify its evidence and task-specific/);
 		assert.match(initialized.stdout, /selective loading/);
+		assert.match(initialized.stdout, /authoritative\s+ownership/);
+		assert.match(initialized.stdout, /before\/after\s+UTF-8 byte measurements/);
 		assert.match(initialized.stdout, /not sufficiently\s+scaffolded/);
 		assert.match(initialized.stdout, /stop without changing instructions/);
 		assert.match(initialized.stdout, /mark applied\s+only/);
@@ -116,6 +118,13 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		const template = readFileSync(join(project, "TEMPLATE_AGENTS.md"), "utf8");
 		assert.match(template, /Shared Agent Defaults/);
 		assert.match(template, /Instructions And Skills/);
+		assert.match(template, /smallest safe baseline/);
+		assert.match(
+			template,
+			/complete root-to-working-directory instruction chain/,
+		);
+		assert.match(template, /root `PLANS\.md` as the index/);
+		assert.match(template, /conditional domain knowledge/);
 		assert.match(
 			template,
 			/Select tests for regression value rather than exhaustive coverage/,
@@ -143,9 +152,14 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		assert.match(result.stdout, /BEGIN CODEX RECONCILIATION PROMPT/);
 		assert.match(result.stdout, /END CODEX RECONCILIATION PROMPT/);
 		assert.match(result.stdout, /instruction\s+architecture/);
-		assert.match(result.stdout, /task-relevance\s+audit/);
+		assert.match(
+			result.stdout,
+			/task-relevance and\s+reference-routing checks/,
+		);
 		assert.match(result.stdout, /critical safeguards/);
-		assert.match(result.stdout, /mark applied only/);
+		assert.match(result.stdout, /before\/after UTF-8 byte measurements/);
+		assert.match(result.stdout, /user-owned content/);
+		assert.match(result.stdout, /Mark applied only/i);
 		assert.doesNotMatch(result.stdout, /Inspect TEMPLATE_AGENTS\.md/);
 		assert.doesNotMatch(result.stdout, /BEGIN codex-kit:shared-template/);
 	} finally {
@@ -203,8 +217,17 @@ test("project audit prints an explicit read-only prompt without inspecting proje
 		assert.match(result.stdout, new RegExp(`Project: "${project}"`));
 		assert.match(result.stdout, /BEGIN CODEX PROJECT INSTRUCTION AUDIT PROMPT/);
 		assert.match(result.stdout, /\$codex-kit-audit-agents/);
-		assert.match(result.stdout, /unambiguous cleanup/);
-		assert.match(result.stdout, /Validate every change/);
+		assert.match(
+			result.stdout,
+			/Semantically partition AGENTS\.md and PLANS\.md/,
+		);
+		assert.match(result.stdout, /authoritative ownership/);
+		assert.match(result.stdout, /second-run idempotence/);
+		assert.match(result.stdout, /UTF-8 byte measurements/);
+		assert.match(
+			result.stdout,
+			/without\s+syncing templates or changing project reconciliation state/,
+		);
 		assert.match(result.stdout, /END CODEX PROJECT INSTRUCTION AUDIT PROMPT/);
 		assert.deepEqual(readdirSync(project).sort(), before);
 		assert.equal(
