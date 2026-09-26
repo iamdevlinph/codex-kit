@@ -10,6 +10,7 @@ import {
 	mkdtempSync,
 	readdirSync,
 	readFileSync,
+	realpathSync,
 	rmSync,
 	test,
 	tmpdir,
@@ -77,7 +78,10 @@ test("removal picker focuses unavailable projects and removes multiple records o
 		await removeProjectsInteractively(home, terminal.input, terminal.output);
 		assert.match(terminal.text(), /❯ ◯ a-missing\s+❌ Unavailable/);
 		assert.match(terminal.text(), new RegExp(`removed: ${missing}`));
-		assert.match(terminal.text(), new RegExp(`removed: ${available}`));
+		assert.match(
+			terminal.text(),
+			new RegExp(`removed: ${realpathSync(available)}`),
+		);
 		assert.deepEqual(readdirSync(join(home, "codex-kit", "projects")), []);
 		assert.equal(
 			readFileSync(join(available, "keep"), "utf8"),

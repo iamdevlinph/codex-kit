@@ -65,10 +65,22 @@ description: Reconcile a refreshed TEMPLATE_AGENTS.md with project guidance, opt
    Information already read in the current conversation need not be removed
    from its history.
 10. Review relevant tests, scripts, workflows, skill triggers, and validation
-    commands. Require the smallest existing check that proves changed observable
-    behavior. Remove tests only when demonstrably duplicate, obsolete, or
-    speculative while preserving regression and plausible security,
-    trust-boundary, or data-loss coverage.
+    commands. Classify incoming and existing testing guidance by whether it
+    exercises observable production behavior through the narrowest real
+    executable boundary. Never promote source inspection, implementation-text
+    matching, or test-local copies of production decision logic as functional
+    verification. Preserve focused source-text assertions when text is itself
+    the observable contract, including generated artifacts, CLI or prompt
+    output, protocols, externally consumed configuration, migration SQL, and
+    required templates or instructions. Introduce only the smallest justified
+    test seam, preserve regression and plausible security, trust-boundary, or
+    data-loss coverage, and report cases that cannot be improved without
+    disproportionate, risky, or ambiguous restructuring. Repair tests only when
+    they are directly relevant to changed guidance or required validation;
+    otherwise report low-value source-inspection or duplicated-logic tests as
+    audit candidates rather than broadening reconciliation into unrelated test
+    rewrites. Remove tests only when demonstrably duplicate, obsolete, or
+    speculative.
 11. Validate reference integrity, preserved semantic ownership, always-on
     safeguards, representative routing, project skills, and expected second-run
     idempotence. Validate every created or modified project skill with an

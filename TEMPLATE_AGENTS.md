@@ -205,6 +205,24 @@ triggered skills and selectively read references.
   repository has an established test setup, cover changed observable contracts,
   reported regressions, meaningful boundaries, and plausible costly failures,
   especially security, trust-boundary, or data-loss risks.
+- Test observable production behavior instead of inspecting implementation
+  text. Prefer the narrowest real executable boundary: use the public interface
+  when practical; otherwise call the actual production function or module and
+  assert inputs, outputs, state transitions, side effects, failures, or
+  persisted results. Use a focused integration test when the contract spans
+  components.
+- Do not use source-file reads, regex or literal presence, snapshots, symbol
+  counts, private-helper calls, or internal statement ordering as proxies for
+  functionality. Source-text assertions are appropriate only when the text is
+  itself the observable contract, such as generated artifacts, CLI, help, or
+  prompt output, serialization or protocol formats, externally consumed
+  configuration, migration SQL, or required templates and instructions. Assert
+  only the smallest meaningful textual contract.
+- Do not recreate production decision logic inside tests. If no real executable
+  boundary exists, introduce the smallest localized test seam only when
+  justified. Otherwise preserve the existing regression coverage and report why
+  safe behavioral replacement would require disproportionate, risky, or
+  ambiguous restructuring.
 - Use one representative case per necessary observable contract or reported
   regression. Skip speculative edge cases, redundant permutations,
   implementation-detail assertions, and contrived or unreachable states.

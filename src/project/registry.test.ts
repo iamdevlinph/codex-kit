@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { PACKAGE } from "../package.js";
 import {
 	assert,
@@ -21,8 +20,15 @@ import {
 } from "../test-support/cli.js";
 
 const latest = { CODEX_KIT_LATEST_VERSION: PACKAGE.version };
-const hash = (value: string) =>
-	createHash("sha256").update(value).digest("hex");
+
+function onlyRecord(home: string): string {
+	const records = readdirSync(join(home, "codex-kit", "projects"));
+	assert.equal(records.length, 1);
+	const record = records[0];
+	assert.ok(record);
+	assert.match(record, /\.json$/);
+	return join(home, "codex-kit", "projects", record);
+}
 
 test("successful project operations register canonical projects once", () => {
 	const root = mkdtempSync(join(tmpdir(), "codex-kit-registry-"));
@@ -36,12 +42,7 @@ test("successful project operations register canonical projects once", () => {
 			env: latest,
 		});
 		const canonical = realpathSync(project);
-		const record = join(
-			home,
-			"codex-kit",
-			"projects",
-			`${hash(canonical)}.json`,
-		);
+		let record = onlyRecord(home);
 		assert.deepEqual(JSON.parse(readFileSync(record, "utf8")), {
 			path: canonical,
 		});
@@ -49,13 +50,16 @@ test("successful project operations register canonical projects once", () => {
 		run(["project", "sync", "--cwd", project, "--codex-home", home], {
 			env: latest,
 		});
-		assert.equal(existsSync(record), true);
+		record = onlyRecord(home);
 		writeFileSync(join(project, "TEMPLATE_AGENTS.md"), "changed\n");
 		unlinkSync(record);
 		run(["project", "sync", "--cwd", project, "--codex-home", home], {
 			env: latest,
 		});
-		assert.equal(existsSync(record), true);
+		record = onlyRecord(home);
+		assert.deepEqual(JSON.parse(readFileSync(record, "utf8")), {
+			path: canonical,
+		});
 		assert.match(
 			run(["global", "projects", "--codex-home", home]).stdout,
 			new RegExp(
@@ -83,9 +87,9 @@ test("project register is state-free, canonical, idempotent, and directory-only"
 		for (const cwd of [link, project])
 			run(["project", "register", "--cwd", cwd, "--codex-home", home]);
 		const canonical = realpathSync(project);
-		assert.deepEqual(readdirSync(join(home, "codex-kit", "projects")), [
-			`${hash(canonical)}.json`,
-		]);
+		assert.deepEqual(JSON.parse(readFileSync(onlyRecord(home), "utf8")), {
+			path: canonical,
+		});
 		assert.deepEqual(readdirSync(project), []);
 		assert.equal(readFileSync(file, "utf8"), "untouched\n");
 		for (const cwd of [join(root, "missing"), file]) {
@@ -139,6 +143,7 @@ test("global projects reports empty, current, stale, and unavailable records ind
 	mkdirSync(noAgents);
 	mkdirSync(kitUpdate);
 	mkdirSync(localChange);
+	const canonicalCurrent = realpathSync(current);
 	try {
 		assert.match(
 			run(["global", "projects", "--codex-home", home]).stdout,
@@ -158,7 +163,7 @@ test("global projects reports empty, current, stale, and unavailable records ind
 			`${JSON.stringify({ path: missing })}\n`,
 		);
 		writeFileSync(
-			join(records, `${hash(uninitialized)}.json`),
+			join(records, "uninitialized.json"),
 			`${JSON.stringify({ path: uninitialized })}\n`,
 		);
 		for (const project of [noAgents, kitUpdate, localChange])
@@ -176,7 +181,7 @@ test("global projects reports empty, current, stale, and unavailable records ind
 		assert.match(
 			output,
 			new RegExp(
-				`a-current\\s+✅ Up to date\\s+${current.replaceAll("/", "\\/")}`,
+				`a-current\\s+✅ Up to date\\s+${canonicalCurrent.replaceAll("/", "\\/")}`,
 			),
 		);
 		assert.match(output, /b-invalid\s+❌ Unavailable: .* is not valid JSON/);
@@ -203,7 +208,7 @@ test("global projects reports empty, current, stale, and unavailable records ind
 			"❌ Unavailable",
 		])
 			assert.ok(output.includes(label));
-		assert.ok(output.indexOf(current) < output.indexOf(invalid));
+		assert.ok(output.indexOf("a-current") < output.indexOf("b-invalid"));
 		assert.equal(readdirSync(records).length, 7);
 	} finally {
 		rmSync(root, { recursive: true, force: true });

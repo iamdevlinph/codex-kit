@@ -74,11 +74,28 @@ as static rather than claiming observed context selection.
 
 Review relevant tests, package scripts, workflows, skill triggers, and
 validation commands. Require the smallest existing check that proves changed
-observable behavior. Remove tests only when they are demonstrably duplicate,
-obsolete, or speculative; preserve explicit regression and plausible security,
-trust-boundary, or data-loss coverage. Repair stale commands or paths only from
-repository evidence, narrow overly broad skill triggers, and validate every
-created or modified project skill with an available skill validator.
+observable behavior. In relevant test audits, identify source-inspection tests
+used as proxies for runtime behavior and production decision logic recreated in
+test-local code. Determine the legitimate regression or observable contract
+each test protects, then prefer the narrowest existing production boundary: the
+public interface when practical, otherwise the actual production function or
+module, or a focused integration test when behavior spans components. Introduce
+only the smallest localized test seam when justified. Remove an old
+source-inspection or duplicated-logic test only after its legitimate contract is
+covered.
+
+Preserve focused source-text assertions when text is itself the observable
+contract, including generated artifacts, CLI, help, or prompt output,
+serialization or protocol formats, externally consumed configuration, migration
+SQL, and required templates or instructions. Do not delete tests merely because
+they assert strings. When behavioral replacement would require disproportionate,
+risky, or ambiguous restructuring, preserve the regression coverage and report
+the limitation instead of substituting fake behavioral coverage. Otherwise
+remove tests only when demonstrably duplicate, obsolete, or speculative;
+preserve explicit regression and plausible security, trust-boundary, or
+data-loss coverage. Repair stale commands or paths only from repository
+evidence, narrow overly broad skill triggers, and validate every created or
+modified project skill with an available skill validator.
 
 If validation fails, restore only audit-attributable edits where safely
 possible, preserve pre-existing work, and report any partial state. The final
@@ -89,6 +106,8 @@ report must include:
 - routing scenarios and checks performed;
 - justified large always-loaded sections;
 - unresolved conflicts, ambiguities, missing references, and unavailable checks;
+- source-inspection or duplicated-logic tests replaced, preserved as genuine
+  text contracts, or reported as unsafe to restructure;
 - preservation, reference-integrity, and idempotence results.
 
 This audit is independent of template synchronization. Never run `project sync`,

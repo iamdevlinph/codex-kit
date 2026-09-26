@@ -69,12 +69,16 @@ function reconciliationPrompt(): string {
 
 ===== BEGIN CODEX RECONCILIATION PROMPT =====
 Use the global $${RECONCILE_SKILL} skill to reconcile the existing instruction
-architecture with the refreshed TEMPLATE_AGENTS.md. Semantically optimize
-AGENTS.md and PLANS.md for selective loading, run its task-relevance and
-reference-routing checks, preserve local adaptations, critical safeguards, and
-user-owned content, and report before/after UTF-8 byte measurements plus any
-unresolved ambiguity. Mark applied only when preservation, routing, and the
-skill's remaining validation conditions succeed.
+architecture with the refreshed TEMPLATE_AGENTS.md. Run its task-relevance,
+context-optimization, and reference-routing checks; preserve local adaptations,
+critical safeguards, and user-owned content; and propagate behavior-focused
+verification guidance. Prefer tests that exercise actual production behavior.
+Do not treat source-text, string-presence, regex, snapshot, symbol-count, or
+duplicated test-local production logic as functional verification unless the
+text itself is the contract. Do not expand reconciliation into unrelated legacy
+test-suite cleanup. Report before/after UTF-8 byte measurements and unresolved
+ambiguity, validate the result, and mark applied only when the skill's conditions
+are satisfied.
 ===== END CODEX RECONCILIATION PROMPT =====`;
 }
 
@@ -145,13 +149,24 @@ export function auditProject(options: Options): void {
 	const quotedProject = JSON.stringify(project);
 	console.log(`Project: ${quotedProject}\n
 ===== BEGIN CODEX PROJECT INSTRUCTION AUDIT PROMPT =====
-Use the global $${AUDIT_SKILL} skill to audit the project at ${quotedProject}.
+Use the global $${AUDIT_SKILL} skill to audit the project at ${quotedProject} and
+optimize its instruction architecture and relevant verification strategy.
 Semantically partition AGENTS.md and PLANS.md where evidence supports selective
-loading, validate authoritative ownership and actionable reference routing,
-preserve safeguards, user-owned content, and durable local decisions, and
-report ambiguities instead of guessing. Check expected second-run idempotence,
-validate every change, and report before/after UTF-8 byte measurements without
-syncing templates or changing project reconciliation state.
+loading, preserve safeguards, user-owned content, durable local decisions,
+authoritative ownership, and actionable reference routing, and review relevant
+tests for regression value and test quality.
+
+Prefer tests that execute actual production behavior. Identify source-text,
+string-presence, regex, snapshot, symbol-count, or duplicated test-local logic
+used as a proxy for functional behavior. Replace such tests only when their
+legitimate regression contract can be covered through the real production
+boundary or a small justified test seam. Preserve tests where text itself is the
+contract, and report ambiguous or disproportionately costly rewrites instead of
+guessing.
+
+Apply only unambiguous cleanup, check expected second-run idempotence, validate
+every change, and report before/after UTF-8 byte measurements without syncing
+templates or changing project reconciliation state.
 ===== END CODEX PROJECT INSTRUCTION AUDIT PROMPT =====`);
 }
 

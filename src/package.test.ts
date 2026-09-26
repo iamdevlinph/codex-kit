@@ -37,13 +37,11 @@ test("publishing targets public npm through trusted publishing", () => {
 		.map(String)
 		.sort();
 	assert.deepEqual(buildFiles, ["codex-kit.js", "routing-hook.js"]);
-	for (const file of buildFiles)
-		assert.match(
-			readFileSync(join(ROOT, "bin", file), "utf8"),
-			/^#!\/usr\/bin\/env node\n/,
-		);
-	const buildScript = readFileSync(join(ROOT, "scripts", "build.mjs"), "utf8");
-	assert.match(buildScript, /minify: false/);
+	for (const file of buildFiles) {
+		const bundle = readFileSync(join(ROOT, "bin", file), "utf8");
+		assert.match(bundle, /^#!\/usr\/bin\/env node\n/);
+		assert.match(bundle, /\n\n\/\/ src\/.+\n/);
+	}
 	assert.equal(
 		readFileSync(join(ROOT, "assets", "TEMPLATE_AGENTS.md"), "utf8"),
 		readFileSync(join(ROOT, "TEMPLATE_AGENTS.md"), "utf8"),

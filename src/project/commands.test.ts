@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 import { parse } from "../cli/options.js";
-import { PACKAGE } from "../package.js";
+import { PACKAGE, TEMPLATE_FILE } from "../package.js";
 import {
 	assert,
 	CLI,
@@ -10,6 +10,7 @@ import {
 	mkdtempSync,
 	readdirSync,
 	readFileSync,
+	realpathSync,
 	rmSync,
 	run,
 	spawnSync,
@@ -116,6 +117,7 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 			"---\nname: testing\ndescription: Existing test workflow.\n---\n",
 		);
 		const template = readFileSync(join(project, "TEMPLATE_AGENTS.md"), "utf8");
+		assert.equal(template, readFileSync(TEMPLATE_FILE, "utf8"));
 		assert.match(template, /Shared Agent Defaults/);
 		assert.match(template, /Instructions And Skills/);
 		assert.match(template, /smallest safe baseline/);
@@ -137,6 +139,18 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		assert.match(template, /Skip speculative edge cases/);
 		assert.match(
 			template,
+			/Test observable production behavior instead of inspecting implementation\s+text/,
+		);
+		assert.match(
+			template,
+			/Do not recreate production decision logic inside tests/,
+		);
+		assert.match(
+			template,
+			/Source-text assertions are appropriate only when the text is\s+itself the observable contract/,
+		);
+		assert.match(
+			template,
 			/Run the relevant focused tests after changing tested behavior/,
 		);
 		assert.match(template, /With pnpm, use `pnpm add -E` \(`--save-exact`\)/);
@@ -154,11 +168,22 @@ test("project sync keeps AGENTS.md separate and prints skill-aware reconciliatio
 		assert.match(result.stdout, /instruction\s+architecture/);
 		assert.match(
 			result.stdout,
-			/task-relevance and\s+reference-routing checks/,
+			/task-relevance,\s+context-optimization, and reference-routing checks/,
 		);
 		assert.match(result.stdout, /critical safeguards/);
 		assert.match(result.stdout, /before\/after UTF-8 byte measurements/);
 		assert.match(result.stdout, /user-owned content/);
+		assert.match(result.stdout, /behavior-focused\s+verification guidance/);
+		assert.match(
+			result.stdout,
+			/actual production behavior[\s\S]*source-text[\s\S]*functional verification/,
+		);
+		assert.match(result.stdout, /text itself is the contract/);
+		assert.match(
+			result.stdout,
+			/Do not expand reconciliation into unrelated legacy\s+test-suite cleanup/,
+		);
+		assert.match(result.stdout, /validate the result, and mark applied only/);
 		assert.match(result.stdout, /Mark applied only/i);
 		assert.doesNotMatch(result.stdout, /Inspect TEMPLATE_AGENTS\.md/);
 		assert.doesNotMatch(result.stdout, /BEGIN codex-kit:shared-template/);
@@ -214,7 +239,10 @@ test("project audit prints an explicit read-only prompt without inspecting proje
 				CODEX_KIT_LATEST_VERSION: "invalid",
 			},
 		});
-		assert.match(result.stdout, new RegExp(`Project: "${project}"`));
+		assert.match(
+			result.stdout,
+			new RegExp(`Project: "${realpathSync(project)}"`),
+		);
 		assert.match(result.stdout, /BEGIN CODEX PROJECT INSTRUCTION AUDIT PROMPT/);
 		assert.match(result.stdout, /\$codex-kit-audit-agents/);
 		assert.match(
@@ -222,11 +250,32 @@ test("project audit prints an explicit read-only prompt without inspecting proje
 			/Semantically partition AGENTS\.md and PLANS\.md/,
 		);
 		assert.match(result.stdout, /authoritative ownership/);
+		assert.match(
+			result.stdout,
+			/review relevant\s+tests for regression value and test quality/,
+		);
+		assert.match(
+			result.stdout,
+			/source-text,[\s\S]*symbol-count,[\s\S]*duplicated test-local logic/,
+		);
+		assert.match(
+			result.stdout,
+			/legitimate regression contract[\s\S]*real production\s+boundary or a small justified test seam/,
+		);
+		assert.match(
+			result.stdout,
+			/Preserve tests where text itself is the\s+contract/,
+		);
+		assert.match(
+			result.stdout,
+			/report ambiguous or disproportionately costly rewrites instead of\s+guessing/,
+		);
+		assert.match(result.stdout, /Apply only unambiguous cleanup/);
 		assert.match(result.stdout, /second-run idempotence/);
 		assert.match(result.stdout, /UTF-8 byte measurements/);
 		assert.match(
 			result.stdout,
-			/without\s+syncing templates or changing project reconciliation state/,
+			/without\s+syncing\s+templates or changing project reconciliation state/,
 		);
 		assert.match(result.stdout, /END CODEX PROJECT INSTRUCTION AUDIT PROMPT/);
 		assert.deepEqual(readdirSync(project).sort(), before);
@@ -249,7 +298,7 @@ test("project audit quotes hostile directory names inside prompt markers", () =>
 	try {
 		mkdirSync(project);
 		const result = run(["project", "audit", "--cwd", project]);
-		assert.ok(result.stdout.includes(JSON.stringify(project)));
+		assert.ok(result.stdout.includes(JSON.stringify(realpathSync(project))));
 		assert.equal(
 			result.stdout.match(
 				/^===== END CODEX PROJECT INSTRUCTION AUDIT PROMPT =====$/gm,

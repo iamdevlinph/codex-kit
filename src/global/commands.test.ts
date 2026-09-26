@@ -4,6 +4,7 @@ import {
 	join,
 	mkdirSync,
 	mkdtempSync,
+	ROOT,
 	readdirSync,
 	readFileSync,
 	rmSync,
@@ -137,6 +138,26 @@ test("global install and uninstall manage only package-owned files", () => {
 			"agents",
 			"openai.yaml",
 		);
+		assert.equal(
+			readFileSync(auditSkill, "utf8"),
+			readFileSync(
+				join(ROOT, "assets", "skills", "codex-kit-audit-agents", "SKILL.md"),
+				"utf8",
+			),
+		);
+		assert.equal(
+			readFileSync(reconciliationSkill, "utf8"),
+			readFileSync(
+				join(
+					ROOT,
+					"assets",
+					"skills",
+					"codex-kit-reconcile-agents",
+					"SKILL.md",
+				),
+				"utf8",
+			),
+		);
 		assert.match(
 			readFileSync(auditSkill, "utf8"),
 			/smallest practical task context/,
@@ -154,6 +175,18 @@ test("global install and uninstall manage only package-owned files", () => {
 		);
 		assert.match(readFileSync(auditSkill, "utf8"), /Never run `project sync`/);
 		assert.match(readFileSync(auditSkill, "utf8"), /state was\s+untouched/);
+		assert.match(
+			readFileSync(auditSkill, "utf8"),
+			/source-inspection tests\s+used as proxies for runtime behavior/,
+		);
+		assert.match(
+			readFileSync(auditSkill, "utf8"),
+			/production decision logic recreated in\s+test-local code/,
+		);
+		assert.match(
+			readFileSync(auditSkill, "utf8"),
+			/Do not delete tests merely because\s+they assert strings/,
+		);
 		assert.match(
 			readFileSync(auditSkillMetadata, "utf8"),
 			/allow_implicit_invocation: false/,
@@ -223,6 +256,14 @@ test("global install and uninstall manage only package-owned files", () => {
 			/template backup|\.codex-kit\.bak/i,
 		);
 		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/Never promote source inspection, implementation-text\s+matching, or test-local copies of production decision logic/,
+		);
+		assert.match(
+			readFileSync(reconciliationSkill, "utf8"),
+			/audit candidates rather than broadening reconciliation into unrelated test\s+rewrites/,
+		);
+		assert.match(
 			readFileSync(reconciliationSkillMetadata, "utf8"),
 			/\$codex-kit-reconcile-agents.*reconcile and optimize/,
 		);
@@ -245,6 +286,17 @@ test("global install and uninstall manage only package-owned files", () => {
 		const plannerInstructions = readFileSync(
 			join(home, "agents", "planner.toml"),
 			"utf8",
+		);
+		assert.equal(
+			implementerInstructions,
+			readFileSync(join(ROOT, "assets", "agents", "implementer.toml"), "utf8"),
+		);
+		assert.equal(
+			quickImplementerInstructions,
+			readFileSync(
+				join(ROOT, "assets", "agents", "quick-implementer.toml"),
+				"utf8",
+			),
 		);
 		assert.match(plannerInstructions, /gpt-6-astra/);
 		assert.match(plannerInstructions, /model_reasoning_effort = "low"/);
@@ -298,6 +350,14 @@ test("global install and uninstall manage only package-owned files", () => {
 			/smallest existing check that proves the changed observable behavior/,
 		);
 		assert.match(
+			implementerInstructions,
+			/Exercise the narrowest real production boundary/,
+		);
+		assert.match(
+			implementerInstructions,
+			/never recreate a production decision algorithm in test-local code/,
+		);
+		assert.match(
 			quickImplementerInstructions,
 			/Semantic decomposition.*Map responsibilities to final files/s,
 		);
@@ -324,6 +384,14 @@ test("global install and uninstall manage only package-owned files", () => {
 		assert.match(
 			quickImplementerInstructions,
 			/Escalate visual-direction work/,
+		);
+		assert.match(
+			quickImplementerInstructions,
+			/Exercise the narrowest real production boundary/,
+		);
+		assert.match(
+			quickImplementerInstructions,
+			/Never inspect implementation text as a proxy for functionality or recreate a production decision algorithm in test-local code/,
 		);
 		assert.match(
 			reviewerInstructions,
